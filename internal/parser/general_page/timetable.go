@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"zpcg/internal/parser/model"
-	utils2 "zpcg/internal/parser/utils"
+	parserutils "zpcg/internal/parser/utils"
 	"zpcg/internal/utils"
 )
 
@@ -34,8 +34,8 @@ func ParseGeneralTimetablePage(reader io.Reader) (map[int]model.GeneralTimetable
 
 func ParseTable(tokenizer *html.Tokenizer) (map[int]model.GeneralTimetableRow, error) {
 	result := map[int]model.GeneralTimetableRow{}
-	for token := tokenizer.Token(); !IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
-		if IsRowBeginningReached(token) {
+	for token := tokenizer.Token(); !parserutils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
+		if parserutils.IsRowBeginningReached(token) {
 			row, err := ParseRow(tokenizer)
 			if err != nil {
 				return nil, errors.Wrap(err, "ParseRow")
@@ -51,15 +51,15 @@ func ParseRow(tokenizer *html.Tokenizer) (model.GeneralTimetableRow, error) {
 		cellNumber = -1
 		result     model.GeneralTimetableRow
 	)
-	for token := tokenizer.Token(); !IsRowEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
-		if IsCellBeginningReached(token) {
+	for token := tokenizer.Token(); !parserutils.IsRowEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
+		if parserutils.IsCellBeginningReached(token) {
 			cellNumber++
 			continue
 		}
 		if cellNumber == -1 {
 			continue
 		}
-		if IsCellEndReached(token) {
+		if parserutils.IsCellEndReached(token) {
 			continue
 		}
 
@@ -73,7 +73,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.GeneralTimetableRow, error) {
 		}
 
 		// parse detailed timetable link
-		if found, url := utils2.FindAttribute(token.Attr, "", "href"); IsLinkToDetailedTimetabeFound(token) && found {
+		if found, url := parserutils.FindAttribute(token.Attr, "", "href"); IsLinkToDetailedTimetabelFound(token) && found {
 			result.DetailedTimetableLink = url
 		}
 	}
