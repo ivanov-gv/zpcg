@@ -5,3 +5,11 @@ func AddMap[KeyType comparable, ValueType any](m1 map[KeyType]ValueType, m2 map[
 		m1[key] = value
 	}
 }
+
+func RevertMap[KeyType comparable, ValueType comparable](_map map[KeyType]ValueType) map[ValueType]KeyType {
+	result := make(map[ValueType]KeyType, len(_map))
+	for key, value := range _map {
+		result[value] = key
+	}
+	return result
+}

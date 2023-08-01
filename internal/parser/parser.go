@@ -1,8 +1,10 @@
 package parser
 
 import (
+	"encoding/gob"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/pkg/errors"
+	"os"
 	"zpcg/internal/parser/detailed_page"
 	"zpcg/internal/parser/general_page"
 	"zpcg/internal/parser/model"
@@ -41,4 +43,31 @@ func ParseTimetable() (map[int]model.DetailedTimetable, error) {
 		detailedTimetableMap[detailedTimetable.RouteId] = detailedTimetable
 	}
 	return detailedTimetableMap, nil
+}
+
+func ExportTimetable(timetable map[int]model.DetailedTimetable, filename string) error {
+	file, err := os.OpenFile(filename+".gob", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return errors.Wrap(err, "can not open file with os.OpenFile")
+	}
+	enc := gob.NewEncoder(file)
+	err = enc.Encode(timetable)
+	if err != nil {
+		return errors.Wrap(err, "can not encode timetable with enc.Encode")
+	}
+	return nil
+}
+
+func ImportTimetable(filename string) (map[int]model.DetailedTimetable, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, errors.Wrap(err, "can not open file with os.Open")
+	}
+	enc := gob.NewDecoder(file)
+	result := &map[int]model.DetailedTimetable{}
+	err = enc.Decode(result)
+	if err != nil {
+		return nil, errors.Wrap(err, "can not decode timetable with enc.Decode")
+	}
+	return *result, nil
 }
