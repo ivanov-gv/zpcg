@@ -12,7 +12,7 @@ import (
 
 func ParseDetailedTimetablePage(routeNumber int, reader io.Reader) (model.DetailedTimetable, error) {
 	tokenizer := html.NewTokenizer(reader)
-	timetable := model.DetailedTimetable{RouteId: routeNumber}
+	var timetable model.DetailedTimetable
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
 		if tokenType != html.StartTagToken {
 			continue
@@ -32,6 +32,7 @@ func ParseDetailedTimetablePage(routeNumber int, reader io.Reader) (model.Detail
 			timetable = parsedTimetable
 		}
 	}
+	timetable.RouteId = routeNumber
 	return timetable, nil
 }
 
