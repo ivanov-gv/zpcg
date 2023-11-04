@@ -1,14 +1,8 @@
 package model
 
-import "time"
+import "zpcg/internal/model"
 
 type DetailedTimetable struct {
-	RouteId  int
-	Stations []Station
-}
-
-type Station struct {
-	Name      string
-	Arrival   time.Time
-	Departure time.Time
+	TrainId  model.TrainId
+	Stations []model.Station
 }

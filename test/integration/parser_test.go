@@ -11,8 +11,8 @@ func TestParser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, timetable)
 
-	for routeId, timetable := range timetable {
-		assert.NotEmptyf(t, timetable.Stations, "there is no parsed stations for route %d", routeId)
-		t.Logf("route: %d , stations: %v", routeId, timetable.Stations)
+	for trainId, timetable := range timetable {
+		assert.NotEmptyf(t, timetable.Stations, "there is no parsed stations for route %d", trainId)
+		t.Logf("route: %d , stations: %v", trainId, timetable.Stations)
 	}
 }

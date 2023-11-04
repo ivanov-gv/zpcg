@@ -1,6 +1,6 @@
 package model
 
 type GeneralTimetableRow struct {
-	RouteId               int
+	TrainId               int
 	DetailedTimetableLink string
 }

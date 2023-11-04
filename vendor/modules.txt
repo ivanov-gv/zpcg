@@ -13,12 +13,15 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
+# github.com/samber/lo v1.38.1
+## explicit; go 1.18
+github.com/samber/lo
 # github.com/stretchr/testify v1.8.4
 ## explicit; go 1.20
 github.com/stretchr/testify/assert
-# github.com/yourbasic/graph v0.0.0-20210606180040-8ecfec1c2869
-## explicit
-github.com/yourbasic/graph
+# golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17
+## explicit; go 1.18
+golang.org/x/exp/constraints
 # golang.org/x/net v0.12.0
 ## explicit; go 1.17
 golang.org/x/net/html

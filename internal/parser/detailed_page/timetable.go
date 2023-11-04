@@ -1,18 +1,21 @@
 package detailed_page
 
 import (
-	"github.com/pkg/errors"
-	"golang.org/x/net/html"
 	"io"
 	"strings"
 	"time"
-	"zpcg/internal/parser/model"
+
+	"github.com/pkg/errors"
+	"golang.org/x/net/html"
+
+	"zpcg/internal/model"
+	parser_model "zpcg/internal/parser/model"
 	parserutils "zpcg/internal/parser/utils"
 )
 
-func ParseDetailedTimetablePage(routeNumber int, reader io.Reader) (model.DetailedTimetable, error) {
+func ParseDetailedTimetablePage(routeNumber model.TrainId, reader io.Reader) (parser_model.DetailedTimetable, error) {
 	tokenizer := html.NewTokenizer(reader)
-	var timetable model.DetailedTimetable
+	var timetable parser_model.DetailedTimetable
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
 		if tokenType != html.StartTagToken {
 			continue
@@ -27,12 +30,12 @@ func ParseDetailedTimetablePage(routeNumber int, reader io.Reader) (model.Detail
 			// found timetable with detailed route
 			parsedTimetable, err := ParseRouteTable(tokenizer)
 			if err != nil {
-				return model.DetailedTimetable{}, errors.Wrap(err, "ParseRouteTable")
+				return parser_model.DetailedTimetable{}, errors.Wrap(err, "ParseRouteTable")
 			}
 			timetable = parsedTimetable
 		}
 	}
-	timetable.RouteId = routeNumber
+	timetable.TrainId = routeNumber
 	return timetable, nil
 }
 
@@ -117,13 +120,13 @@ func IsTableHeadEndReached(token html.Token) bool {
 	return token.Type == html.EndTagToken && token.Data == "thead"
 }
 
-func ParseRouteTable(tokenizer *html.Tokenizer) (model.DetailedTimetable, error) {
-	var result model.DetailedTimetable
+func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable, error) {
+	var result parser_model.DetailedTimetable
 	for token := tokenizer.Token(); !parserutils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if parserutils.IsRowBeginningReached(token) {
 			station, err := ParseRow(tokenizer)
 			if err != nil {
-				return model.DetailedTimetable{}, errors.Wrap(err, "ParseRow")
+				return parser_model.DetailedTimetable{}, errors.Wrap(err, "ParseRow")
 			}
 			result.Stations = append(result.Stations, station)
 		}
@@ -133,8 +136,9 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (model.DetailedTimetable, error)
 
 func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 	var (
-		cellNumber = -1
-		result     model.Station
+		cellNumber         = -1
+		stationName        string
+		arrival, departure time.Time
 	)
 	for token := tokenizer.Token(); !parserutils.IsRowEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if parserutils.IsCellBeginningReached(token) {
@@ -150,7 +154,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 
 		// parse station name
 		if cellNumber == 0 && token.Type == html.TextToken && !strings.Contains(token.Data, "\n") {
-			result.Name = token.Data
+			stationName = token.Data
 		}
 
 		// parse arrival time
@@ -159,7 +163,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 				continue
 			}
 			var err error
-			result.Arrival, err = time.Parse("15:04", token.Data)
+			arrival, err = time.Parse("15:04", token.Data)
 			if err != nil {
 				return model.Station{}, errors.Wrap(err, "can not parse arrival with time.Parse")
 			}
@@ -171,7 +175,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 				continue
 			}
 			var err error
-			result.Departure, err = time.Parse("15:04", token.Data)
+			departure, err = time.Parse("15:04", token.Data)
 			if err != nil {
 				return model.Station{}, errors.Wrap(err, "can not parse departure with time.Parse")
 			}
@@ -179,11 +183,15 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 	}
 
 	// for the first and the last station of the route departure or arrival is not present in timetable
-	if result.Departure.IsZero() {
-		result.Departure = result.Arrival
+	if departure.IsZero() {
+		departure = arrival
 	}
-	if result.Arrival.IsZero() {
-		result.Arrival = result.Departure
+	if arrival.IsZero() {
+		arrival = departure
 	}
-	return result, nil
+	return model.Station{
+		Id:        generateStationId(stationName),
+		Arrival:   arrival,
+		Departure: departure,
+	}, nil
 }

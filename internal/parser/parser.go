@@ -1,13 +1,14 @@
 package parser
 
 import (
-	"encoding/gob"
+	"zpcg/internal/model"
+
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/pkg/errors"
-	"os"
+
 	"zpcg/internal/parser/detailed_page"
 	"zpcg/internal/parser/general_page"
-	"zpcg/internal/parser/model"
+	parser_model "zpcg/internal/parser/model"
 )
 
 const (
@@ -15,59 +16,65 @@ const (
 	GeneralTimetablePageUrl = "https://zpcg.me/search"
 )
 
-func ParseTimetable() (map[int]model.DetailedTimetable, error) {
+func ParseTimetable() (
+	map[model.StationId]model.TrainIdSet,
+	map[model.TrainId]model.StationIdToStationMap,
+	error,
+) {
 	generalTimetableResponse, err := retryablehttp.Get(GeneralTimetablePageUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "can not get general timetable page with retryablehttp.Get")
+		return nil, nil, errors.Wrap(err, "can not get general timetable page with retryablehttp.Get")
 	}
 	generalTimetableMap, err := general_page.ParseGeneralTimetablePage(generalTimetableResponse.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "general_page.ParseGeneralTimetablePage")
+		return nil, nil, errors.Wrap(err, "general_page.ParseGeneralTimetablePage")
 	}
 
-	detailedTimetableMap := make(map[int]model.DetailedTimetable, len(generalTimetableMap))
+	detailedTimetableMap := make(map[model.TrainId]parser_model.DetailedTimetable, len(generalTimetableMap))
 	// do not rewrite this loop with concurrency because zpcg.me do not have enough resources to handle all those requests
 	// concurrency version is in the commit f5a2f983ce73fcc74f271d3bc4db51c2c56fe89f
-	for routeId, generalTimetable := range generalTimetableMap {
-		routeId, generalTimetable := routeId, generalTimetable
+	for trainId, generalTimetable := range generalTimetableMap {
 		response, err := retryablehttp.Get(BaseUrl + generalTimetable.DetailedTimetableLink)
 		if err != nil {
-			return nil, errors.Wrapf(err, "can not get route info with route id = %d, link = %s using retryablehttp.Get",
-				routeId, generalTimetable.DetailedTimetableLink)
+			return nil, nil, errors.Wrapf(err, "can not get route info with route id = %d, link = %s using retryablehttp.Get",
+				trainId, generalTimetable.DetailedTimetableLink)
 		}
-		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(routeId, response.Body)
+		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(model.TrainId(trainId), response.Body)
 		if err != nil {
-			return nil, errors.Wrapf(err, "routeId = %d, link = %s detailed_page.ParseDetailedTimetablePage",
-				routeId, generalTimetable.DetailedTimetableLink)
+			return nil, nil, errors.Wrapf(err, "trainId = %d, link = %s detailed_page.ParseDetailedTimetablePage",
+				trainId, generalTimetable.DetailedTimetableLink)
 		}
-		detailedTimetableMap[detailedTimetable.RouteId] = detailedTimetable
+		detailedTimetableMap[detailedTimetable.TrainId] = detailedTimetable
 	}
-	return detailedTimetableMap, nil
+	// map timetable to the maps needed for work
+	stationIdToTrainIdSet, trainIdToStationMap := GetStationsAndTrainsMaps(detailedTimetableMap)
+	return stationIdToTrainIdSet, trainIdToStationMap, nil
 }
 
-func ExportTimetable(timetable map[int]model.DetailedTimetable, filename string) error {
-	file, err := os.OpenFile(filename+".gob", os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return errors.Wrap(err, "can not open file with os.OpenFile")
+func GetStationsAndTrainsMaps(routes map[model.TrainId]parser_model.DetailedTimetable) (
+	map[model.StationId]model.TrainIdSet,
+	map[model.TrainId]model.StationIdToStationMap,
+) {
+	var (
+		stationIdToTrainIdSetMap = make(map[model.StationId]model.TrainIdSet)
+		trainIdToStationsMap     = make(map[model.TrainId]model.StationIdToStationMap, len(routes))
+	)
+	// fill maps
+	for trainId, route := range routes {
+		var routeStationsMap = make(model.StationIdToStationMap, len(route.Stations))
+		for _, station := range route.Stations {
+			// add station to the route
+			routeStationsMap[station.Id] = station
+			// add route to the station
+			if trainIdSet, ok := stationIdToTrainIdSetMap[station.Id]; ok { // found
+				trainIdSet[trainId] = struct{}{}
+			} else { // not created yet
+				trainIdSet = make(model.TrainIdSet)
+				trainIdSet[trainId] = struct{}{}
+				stationIdToTrainIdSetMap[station.Id] = trainIdSet
+			}
+		}
+		trainIdToStationsMap[trainId] = routeStationsMap
 	}
-	enc := gob.NewEncoder(file)
-	err = enc.Encode(timetable)
-	if err != nil {
-		return errors.Wrap(err, "can not encode timetable with enc.Encode")
-	}
-	return nil
-}
-
-func ImportTimetable(filename string) (map[int]model.DetailedTimetable, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, errors.Wrap(err, "can not open file with os.Open")
-	}
-	enc := gob.NewDecoder(file)
-	result := &map[int]model.DetailedTimetable{}
-	err = enc.Decode(result)
-	if err != nil {
-		return nil, errors.Wrap(err, "can not decode timetable with enc.Decode")
-	}
-	return *result, nil
+	return stationIdToTrainIdSetMap, trainIdToStationsMap
 }

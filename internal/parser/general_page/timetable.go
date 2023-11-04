@@ -40,7 +40,7 @@ func ParseTable(tokenizer *html.Tokenizer) (map[int]model.GeneralTimetableRow, e
 			if err != nil {
 				return nil, errors.Wrap(err, "ParseRow")
 			}
-			result[row.RouteId] = row
+			result[row.TrainId] = row
 		}
 	}
 	return result, nil
@@ -65,11 +65,11 @@ func ParseRow(tokenizer *html.Tokenizer) (model.GeneralTimetableRow, error) {
 
 		// parse route id
 		if cellNumber == 0 && token.Type == html.TextToken && !strings.Contains(token.Data, "\n") {
-			routeId, err := strconv.Atoi(token.Data)
+			trainId, err := strconv.Atoi(token.Data)
 			if err != nil {
 				return model.GeneralTimetableRow{}, errors.Wrap(err, "can not parse route id with strconv.Atoi")
 			}
-			result.RouteId = routeId
+			result.TrainId = trainId
 		}
 
 		// parse detailed timetable link
