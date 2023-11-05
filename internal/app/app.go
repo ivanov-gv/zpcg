@@ -34,17 +34,17 @@ type App struct {
 	transferStationId   model.StationId
 }
 
-func (a *App) GenerateRoute(origin, destination string) string {
+func (a *App) GenerateRoute(origin, destination string) (message, parseMode string) {
 	// find station ids
 	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
 	if err != nil {
 		log.Println("err", err, "origin", origin)
-		return a.render.StationResolveError(origin)
+		return a.render.ErrorMessage()
 	}
 	destinationStationId, err := a.stationNameResolver.FindStationIdByApproximateName(destination)
 	if err != nil {
 		log.Println("err", err, "destination", destination)
-		return a.render.StationResolveError(destination)
+		return a.render.ErrorMessage()
 	}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
@@ -52,4 +52,12 @@ func (a *App) GenerateRoute(origin, destination string) string {
 		return a.render.DirectRoutes(routes)
 	}
 	return a.render.TransferRoutes(routes, originStationId, a.transferStationId, destinationStationId)
+}
+
+func (a *App) StartMessage() (message, parseMode string) {
+	return a.render.StartMessage()
+}
+
+func (a *App) ErrorMessage() (message, parseMode string) {
+	return a.render.ErrorMessage()
 }

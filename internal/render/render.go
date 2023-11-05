@@ -2,8 +2,8 @@ package render
 
 import (
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
-	"unicode/utf8"
 	"zpcg/internal/model"
 )
 
@@ -20,48 +20,35 @@ type Render struct {
 	trainsMap   map[model.TrainId]model.TrainInfo
 }
 
-func (r *Render) DirectRoutes(paths []model.Path) string {
-	if len(paths) == 0 {
-		return "Маршрут не найден"
-	}
+func (r *Render) DirectRoutes(paths []model.Path) (message, parseMode string) {
 	// render each line for the result message
 	var lines []string
 	// render header
 	origin := r.stationsMap[paths[0].Origin.Id]
 	destination := r.stationsMap[paths[0].Destination.Id]
-	header := fmt.Sprintf("Поезд | %s -> %s ", origin.Name, destination.Name)
+	header := fmt.Sprintf("`%6s \\-\\> %s`", origin.Name, destination.Name)
+	// add prefix to align header with table content
 	lines = append(lines, header)
-	// TODO: calculate suffix for departure time layout to align
 	// render the rest of the message
 	for _, path := range paths {
 		train := r.trainsMap[path.TrainId]
-		line := fmt.Sprintf("[% 5d](%s) | %s -> %s ",
+		line := fmt.Sprintf("[%04d](%s#tab3) ` %s \\-\\> %s `",
 			train.TrainId, train.TimetableUrl,
 			path.Origin.Departure.Format("15:04"),
 			path.Destination.Arrival.Format("15:04"))
 		lines = append(lines, line)
 	}
-	return strings.Join(lines, "\n")
+	return strings.Join(lines, "\n"), tgbotapi.ModeMarkdownV2
 }
 
-func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destinationId model.StationId) string {
-	if len(paths) == 0 {
-		return "Маршрут не найден"
-	}
+func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destinationId model.StationId) (message, parseMode string) {
 	// render each line for the result message
 	var lines []string
 	// render header
 	origin := r.stationsMap[originId]
 	transfer := r.stationsMap[transferId]
 	destination := r.stationsMap[destinationId]
-	header := fmt.Sprintf("Поезд | %s -> %s | %s -> %s", origin.Name, transfer.Name, transfer.Name, destination.Name)
-	// calculate prefix to align text
-	stopsNamesLen := utf8.RuneCountInString(origin.Name) + utf8.RuneCountInString(transfer.Name)
-	prefix := strings.Repeat(" ", stopsNamesLen+4) //" -> " = 4 letters
-	suffix := ""
-	if stopsNamesLen > 10 {
-		suffix = strings.Repeat(" ", stopsNamesLen-10) // "15:04" + "15:04" = 10 letters
-	}
+	header := fmt.Sprintf("` %s \\-\\> %s \\-\\> %s `", origin.Name, transfer.Name, destination.Name)
 	// add header
 	lines = append(lines, header)
 	// add other lines
@@ -72,24 +59,52 @@ func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destin
 		)
 		if path.Origin.Id == originId && path.Destination.Id == transferId {
 			// left side of the table - A -> Transfer Stop
-			line = fmt.Sprintf("[% 5d](%s) | %s -> %s %s|",
+			line = fmt.Sprintf("[%04d](%s#tab3) ` %s \\-\\> %s `",
 				train.TrainId, train.TimetableUrl,
 				path.Origin.Departure.Format("15:04"),
-				path.Destination.Arrival.Format("15:04"),
-				suffix)
+				path.Destination.Arrival.Format("15:04"))
 		} else {
 			// right side of the table - Transfer Stop -> B
-			line = fmt.Sprintf("[% 5d](%s) | %s | %s -> %s",
+			line = fmt.Sprintf("[%04d](%s#tab3) `          %s \\-\\> %s `",
 				train.TrainId, train.TimetableUrl,
-				prefix,
 				path.Origin.Departure.Format("15:04"),
 				path.Destination.Arrival.Format("15:04"))
 		}
 		lines = append(lines, line)
 	}
-	return strings.Join(lines, "\n")
+	return strings.Join(lines, "\n"), tgbotapi.ModeMarkdownV2
 }
 
-func (r *Render) StationResolveError(name string) string {
-	return fmt.Sprintf("Не смог понять, какую станцию вы имели ввиду: %s . Попробуйте еще раз", name)
+const ErrorMessage = `Try again - two stations, separated by comma. Just like that:
+Podgorica, Niksic`
+
+func (r *Render) ErrorMessage() (message, parseMode string) {
+	return ErrorMessage, ""
+}
+
+const StartMessage = "" +
+	"*Montenegro Railways Timetable*\n" +
+	"\n" +
+	"Type two stations, separated by comma: \n" +
+	"\n" +
+	"*Podgorica, Bijelo Polje*\n" +
+	"\n" +
+	"And I will send the timetable for you:\n" +
+	"\n" +
+	"Podgorica \\-\\> Bijelo Polje\n" +
+	"[6100](https://zpcg.me/details?timetable=41)  `06:20 \\-\\> 08:38` \n" +
+	"\\.\\.\\.\n" +
+	"\n" +
+	"Don't know how to write the station name the right way? Don't worry, just type, I will do the rest\\.\n" +
+	"\n" +
+	"*PADAGORNICCCCA , BELO POLLLLLE*\n" +
+	"\n" +
+	"Podgorica \\-\\> Bijelo Polje\n" +
+	"[6100](https://zpcg.me/details?timetable=41)  `06:20 \\-\\> 08:38` \n" +
+	"\\.\\.\\.\n" +
+	"\n" +
+	"Now it's your turn\\!"
+
+func (r *Render) StartMessage() (message, parseMode string) {
+	return StartMessage, tgbotapi.ModeMarkdownV2
 }

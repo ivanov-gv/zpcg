@@ -56,7 +56,7 @@ func TestDirectRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).DirectRoutes(paths)
+	message, _ := NewRender(stationsMap, trainMap).DirectRoutes(paths)
 	t.Logf("\n%s\n", message)
 	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111)")
 	assert.Contains(t, message, "222](https:/somesite.com/timetable/222)")
@@ -119,7 +119,7 @@ func TestTransferRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).TransferRoutes(paths, 1, 2, 3)
+	message, _ := NewRender(stationsMap, trainMap).TransferRoutes(paths, 1, 2, 3)
 	t.Logf("\n%s\n", message)
 	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111)")
 	assert.Contains(t, message, "222](https:/somesite.com/timetable/222)")
