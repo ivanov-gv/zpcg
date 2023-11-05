@@ -88,5 +88,8 @@ func handleMessage(_app *app.App, message *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, msgText)
 	msg.ParseMode = parseMode
 	_, err := bot.Send(msg)
-	log.Println("got error: ", err)
+	if err != nil {
+		log.Println("bot.Send: ", err)
+	}
+
 }
