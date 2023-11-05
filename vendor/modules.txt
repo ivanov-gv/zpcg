@@ -26,6 +26,11 @@ golang.org/x/exp/constraints
 ## explicit; go 1.17
 golang.org/x/net/html
 golang.org/x/net/html/atom
+# golang.org/x/text v0.11.0
+## explicit; go 1.17
+golang.org/x/text/runes
+golang.org/x/text/transform
+golang.org/x/text/unicode/norm
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
