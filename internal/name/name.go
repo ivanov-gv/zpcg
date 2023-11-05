@@ -1,27 +1,27 @@
 package name
 
-import (
-	"strings"
-	"unicode"
+import "zpcg/internal/model"
 
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
-)
-
-type Set func(r rune) bool
-
-func (s Set) Contains(r rune) bool {
-	return s(r)
+func NewStationNameResolver(
+	unifiedStationNameToStationIdMap map[string]model.StationId,
+	unifiedStationNameList []string,
+) *StationNameResolver {
+	return &StationNameResolver{
+		unifiedStationNameToStationIdMap: unifiedStationNameToStationIdMap,
+		unifiedStationNameList:           unifiedStationNameList,
+	}
 }
 
-var isMn Set = func(r rune) bool {
-	return unicode.Is(unicode.Mn, r) || // Mn: nonspacing marks
-		r == ' '
+type StationNameResolver struct {
+	unifiedStationNameToStationIdMap map[string]model.StationId
+	unifiedStationNameList           []string
 }
 
-func Unify(name string) string {
-	t := transform.Chain(norm.NFD, runes.Remove(isMn), norm.NFC)
-	withoutUnicode, _, _ := transform.String(t, name)
-	return strings.ToLower(withoutUnicode)
+func (s *StationNameResolver) FindStationIdByApproximateName(name string) (model.StationId, error) {
+	unifiedName := Unify(name)
+	match, err := findBestMatch(unifiedName, s.unifiedStationNameList)
+	if err != nil {
+		return 0, err
+	}
+	return s.unifiedStationNameToStationIdMap[match], nil
 }

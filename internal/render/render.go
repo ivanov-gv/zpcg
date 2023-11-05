@@ -89,3 +89,7 @@ func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destin
 	}
 	return strings.Join(lines, "\n")
 }
+
+func (r *Render) StationResolveError(name string) string {
+	return fmt.Sprintf("Не смог понять, какую станцию вы имели ввиду: %s . Попробуйте еще раз", name)
+}

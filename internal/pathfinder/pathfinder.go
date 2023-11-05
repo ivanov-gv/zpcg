@@ -9,12 +9,10 @@ import (
 func NewPathFinder(
 	stationIdToTrainIdSetMap map[model.StationId]model.TrainIdSet,
 	trainIdToStationsMap map[model.TrainId]model.StationIdToStationMap,
-	stationIdToStationName map[model.StationId]string,
 	transferStation model.StationId) *PathFinder {
 	return &PathFinder{
 		stationIdToTrainIdSetMap: stationIdToTrainIdSetMap,
 		trainIdToStationsMap:     trainIdToStationsMap,
-		stationIdToStationName:   stationIdToStationName,
 		transferStation:          transferStation,
 	}
 }
@@ -22,24 +20,30 @@ func NewPathFinder(
 type PathFinder struct {
 	stationIdToTrainIdSetMap map[model.StationId]model.TrainIdSet
 	trainIdToStationsMap     map[model.TrainId]model.StationIdToStationMap
-	stationIdToStationName   map[model.StationId]string
 	transferStation          model.StationId
 }
 
-func (p *PathFinder) FindPaths(aStation, bStation model.StationId) ([]model.Path, bool) {
+func (p *PathFinder) FindRoutes(aStation, bStation model.StationId) (routes []model.Path, isDirect bool) {
 	var paths []model.Path
-	paths = p.FindDirectPaths(aStation, bStation)
+	// try to find direct paths
+	paths = p.findDirectPaths(aStation, bStation)
 	if len(paths) != 0 {
-		return paths, false
+		return paths, true
 	}
+	// find paths with transfer
+	paths = p.findPathsWithTransfer(aStation, bStation)
+	return paths, false
+}
+
+func (p *PathFinder) findPathsWithTransfer(aStation, bStation model.StationId) []model.Path {
 	// there is no direct trains from A to B. lets find one through the transfer station
-	pathsAtoTransferStation := p.FindDirectPaths(aStation, p.transferStation)
-	pathsTransferStationToB := p.FindDirectPaths(p.transferStation, bStation)
-	if len(pathsAtoTransferStation) == 0 && len(pathsTransferStationToB) == 0 {
-		return nil, false
-	}
+	pathsAtoTransferStation := p.findDirectPaths(aStation, p.transferStation)
+	pathsTransferStationToB := p.findDirectPaths(p.transferStation, bStation)
 	// merge paths
-	var indexPathAtoTransfer, indexPathTransferToB int
+	var (
+		paths                                      []model.Path
+		indexPathAtoTransfer, indexPathTransferToB int
+	)
 	// run through all the paths and add them to the result
 	for indexPathAtoTransfer < len(pathsAtoTransferStation) && indexPathTransferToB < len(pathsTransferStationToB) {
 		currentPathAtoTransfer := pathsAtoTransferStation[indexPathAtoTransfer]
@@ -62,10 +66,10 @@ func (p *PathFinder) FindPaths(aStation, bStation model.StationId) ([]model.Path
 	if indexPathTransferToB < len(pathsTransferStationToB) {
 		paths = append(paths, pathsTransferStationToB[indexPathTransferToB:]...)
 	}
-	return paths, true
+	return paths
 }
 
-func (p *PathFinder) FindDirectPaths(aStation, bStation model.StationId) []model.Path {
+func (p *PathFinder) findDirectPaths(aStation, bStation model.StationId) []model.Path {
 	var trainIdSetA, trainIdSetB model.TrainIdSet
 	trainIdSetA = p.stationIdToTrainIdSetMap[aStation]
 	trainIdSetB = p.stationIdToTrainIdSetMap[bStation]

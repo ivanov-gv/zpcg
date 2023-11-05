@@ -52,8 +52,8 @@ func diff(wordStat map[rune]int) int {
 	return difference
 }
 
-// FindBestMatch returns words, first of them are more likely to be the same as sample
-func FindBestMatch(sample string, searchList []string) string {
+// findBestMatch returns words, first of them are more likely to be the same as sample
+func findBestMatch(sample string, searchList []string) (string, error) {
 	sampleRunes := map[rune]RuneStat{}
 	// define number of every letter in the sample, save every substring starting with that letter
 	for i, char := range sample {
@@ -99,7 +99,7 @@ func FindBestMatch(sample string, searchList []string) string {
 	}
 
 	if len(result) == 0 { // no matches at all
-		return ""
+		return "", ErrNoMatchesFound
 	}
 
 	// find min of the result - the min word must have the longest matching substring and the lowest difference
@@ -122,5 +122,5 @@ func FindBestMatch(sample string, searchList []string) string {
 		}
 		return 0
 	})
-	return match.word
+	return match.word, nil
 }

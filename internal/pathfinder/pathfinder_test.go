@@ -1,35 +1,37 @@
 package pathfinder
 
 import (
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"zpcg/internal/name"
 	"zpcg/internal/transfer"
 )
 
 const (
-	TimetableGobFilepath = "../../resources/timetable.gob"
+	TimetableGobFilepath   = "../../resources/timetable.gob"
+	NiksicStationName      = "Nikšić"
+	DanilovgradStationName = "Danilovgrad"
+	BarStationName         = "Bar"
 )
 
 func TestFindDirectPaths(t *testing.T) {
-	param1, param2, param3, err := transfer.ImportTimetable(TimetableGobFilepath)
+	timetable, err := transfer.ImportTimetable(TimetableGobFilepath)
 	assert.NoError(t, err)
-	stationNameToIdMap := lo.Invert(param3)
-	transferStationId := stationNameToIdMap["Podgorica"]
-	pathFinder := NewPathFinder(param1, param2, param3, transferStationId)
-	paths := pathFinder.FindDirectPaths(stationNameToIdMap["Nikšić"], stationNameToIdMap["Danilovgrad"])
+	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
+	paths := pathFinder.findDirectPaths(
+		timetable.UnifiedStationNameToStationIdMap[name.Unify(NiksicStationName)],
+		timetable.UnifiedStationNameToStationIdMap[name.Unify(DanilovgradStationName)])
 	assert.NotNil(t, paths)
 	assert.NotEmpty(t, paths)
 }
 
 func TestFindPaths(t *testing.T) {
-	param1, param2, param3, err := transfer.ImportTimetable(TimetableGobFilepath)
+	timetable, err := transfer.ImportTimetable(TimetableGobFilepath)
 	assert.NoError(t, err)
-	stationNameToIdMap := lo.Invert(param3)
-	transferStationId := stationNameToIdMap["Podgorica"]
-	pathFinder := NewPathFinder(param1, param2, param3, transferStationId)
-	paths, withTransfer := pathFinder.FindPaths(stationNameToIdMap["Nikšić"], stationNameToIdMap["Bar"])
+	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
+	paths := pathFinder.findPathsWithTransfer(
+		timetable.UnifiedStationNameToStationIdMap[name.Unify(NiksicStationName)],
+		timetable.UnifiedStationNameToStationIdMap[name.Unify(BarStationName)])
 	assert.NotNil(t, paths)
 	assert.NotEmpty(t, paths)
-	assert.True(t, withTransfer)
 }

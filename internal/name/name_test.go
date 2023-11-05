@@ -12,7 +12,7 @@ func TestUnify(t *testing.T) {
 }
 
 var (
-	AllStations = []string{
+	allStationsList = []string{
 		"Aerodrom",
 		"Bačka Topola",
 		"Bar",
@@ -89,10 +89,21 @@ var (
 		"Zlatica",
 		"Zmajevo",
 	}
-	UnifiedStations = lo.Map(AllStations, func(item string, index int) string { return Unify(item) })
+	unifiedStationsNameList = lo.Map(allStationsList, func(item string, index int) string { return Unify(item) })
 )
 
 func TestFindBestMatch(t *testing.T) {
-	assert.Equal(t, "niksic", FindBestMatch(Unify("Nikschichsss   "), UnifiedStations))
-	assert.Equal(t, "novibeograd", FindBestMatch(Unify("NoVij Belgrad"), UnifiedStations))
+	NewStationNameResolver(nil, unifiedStationsNameList)
+	// niksic
+	match, err := findBestMatch(Unify("Nikschichsss   "), unifiedStationsNameList)
+	assert.NoError(t, err)
+	assert.Equal(t, "niksic", match)
+	// novi beograd
+	match, err = findBestMatch(Unify("NoVij    Belgrad"), unifiedStationsNameList)
+	assert.NoError(t, err)
+	assert.Equal(t, "novibeograd", match)
+	// indija
+	match, err = findBestMatch(Unify("indija"), unifiedStationsNameList)
+	assert.NoError(t, err)
+	assert.Equal(t, "inđija", match)
 }
