@@ -18,7 +18,7 @@ func IsTableReached(token html.Token) bool {
 		utils.HasAttribute(token.Attr, GeneralTimetableOpeningTagNamespace, GeneralTimetableOpeningTagKey, GeneralTimetableOpeningTagValue)
 }
 
-func IsLinkToDetailedTimetabelFound(token html.Token) bool {
+func IsLinkToDetailedTimetableFound(token html.Token) bool {
 	return token.Type == html.StartTagToken && token.Data == "a" &&
 		utils.HasAttribute(token.Attr, "", "title", "Detalji")
 }

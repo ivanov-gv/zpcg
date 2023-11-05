@@ -13,7 +13,7 @@ import (
 	parserutils "zpcg/internal/parser/utils"
 )
 
-func ParseDetailedTimetablePage(routeNumber model.TrainId, reader io.Reader) (parser_model.DetailedTimetable, error) {
+func ParseDetailedTimetablePage(routeNumber model.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {
 	tokenizer := html.NewTokenizer(reader)
 	var timetable parser_model.DetailedTimetable
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
@@ -36,6 +36,7 @@ func ParseDetailedTimetablePage(routeNumber model.TrainId, reader io.Reader) (pa
 		}
 	}
 	timetable.TrainId = routeNumber
+	timetable.TimetableUrl = detailedTimetableUrl
 	return timetable, nil
 }
 
@@ -134,7 +135,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 	return result, nil
 }
 
-func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
+func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
 	var (
 		cellNumber         = -1
 		stationName        string
@@ -165,7 +166,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 			var err error
 			arrival, err = time.Parse("15:04", token.Data)
 			if err != nil {
-				return model.Station{}, errors.Wrap(err, "can not parse arrival with time.Parse")
+				return model.Stop{}, errors.Wrap(err, "can not parse arrival with time.Parse")
 			}
 		}
 
@@ -177,7 +178,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 			var err error
 			departure, err = time.Parse("15:04", token.Data)
 			if err != nil {
-				return model.Station{}, errors.Wrap(err, "can not parse departure with time.Parse")
+				return model.Stop{}, errors.Wrap(err, "can not parse departure with time.Parse")
 			}
 		}
 	}
@@ -189,7 +190,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Station, error) {
 	if arrival.IsZero() {
 		arrival = departure
 	}
-	return model.Station{
+	return model.Stop{
 		Id:        generateStationId(stationName),
 		Arrival:   arrival,
 		Departure: departure,

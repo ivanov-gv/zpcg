@@ -28,7 +28,7 @@ func ExportTimetable(
 	err = enc.Encode(TimetableExportFormat{
 		StationIdToTrainIdSet: stationIdToTrainIdSet,
 		TrainIdToStationMap:   trainIdToStationMap,
-		StationIdMap:          detailed_page.GetStationIdToNameMap(),
+		StationIdMap:          detailed_page.GetStationIdToNameMap(), // TODO: make it a parameter
 	})
 	if err != nil {
 		return errors.Wrap(err, "can not encode timetable with enc.Encode")

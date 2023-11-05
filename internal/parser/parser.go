@@ -34,12 +34,13 @@ func ParseTimetable() (
 	// do not rewrite this loop with concurrency because zpcg.me do not have enough resources to handle all those requests
 	// concurrency version is in the commit f5a2f983ce73fcc74f271d3bc4db51c2c56fe89f
 	for trainId, generalTimetable := range generalTimetableMap {
-		response, err := retryablehttp.Get(BaseUrl + generalTimetable.DetailedTimetableLink)
+		detailedTimetableFullLink := BaseUrl + generalTimetable.DetailedTimetableLink
+		response, err := retryablehttp.Get(detailedTimetableFullLink)
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "can not get route info with route id = %d, link = %s using retryablehttp.Get",
 				trainId, generalTimetable.DetailedTimetableLink)
 		}
-		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(model.TrainId(trainId), response.Body)
+		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(model.TrainId(trainId), detailedTimetableFullLink, response.Body)
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "trainId = %d, link = %s detailed_page.ParseDetailedTimetablePage",
 				trainId, generalTimetable.DetailedTimetableLink)
@@ -54,6 +55,8 @@ func ParseTimetable() (
 func GetStationsAndTrainsMaps(routes map[model.TrainId]parser_model.DetailedTimetable) (
 	map[model.StationId]model.TrainIdSet,
 	map[model.TrainId]model.StationIdToStationMap,
+// map[model.TrainId]string, TODO
+// map[model.StationId]string,
 ) {
 	var (
 		stationIdToTrainIdSetMap = make(map[model.StationId]model.TrainIdSet)

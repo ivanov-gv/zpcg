@@ -73,7 +73,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.GeneralTimetableRow, error) {
 		}
 
 		// parse detailed timetable link
-		if found, url := parserutils.FindAttribute(token.Attr, "", "href"); IsLinkToDetailedTimetabelFound(token) && found {
+		if found, url := parserutils.FindAttribute(token.Attr, "", "href"); IsLinkToDetailedTimetableFound(token) && found {
 			result.DetailedTimetableLink = url
 		}
 	}

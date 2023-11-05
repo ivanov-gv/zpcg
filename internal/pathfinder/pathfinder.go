@@ -78,23 +78,18 @@ func (p *PathFinder) FindDirectPaths(aStation, bStation model.StationId) []model
 	paths := make([]model.Path, 0, len(possibleRoutes))
 	for trainId := range possibleRoutes {
 		stations := p.trainIdToStationsMap[trainId]
-		departure := stations[aStation]
-		arrival := stations[bStation]
+		origin := stations[aStation]
+		Destination := stations[bStation]
 
-		if departure.Departure.After(arrival.Arrival) {
+		if origin.Departure.After(Destination.Arrival) {
 			// Departure is coming after arrival - it is a train in a wrong direction. skip
 			continue
 		}
 		// add found path
 		paths = append(paths, model.Path{
-			Origin: model.Stop{
-				Station: departure,
-				TrainId: trainId,
-			},
-			Destination: model.Stop{
-				Station: arrival,
-				TrainId: trainId,
-			},
+			TrainId:     trainId,
+			Origin:      origin,
+			Destination: Destination,
 		})
 	}
 	slices.SortFunc(paths, func(a, b model.Path) int {
