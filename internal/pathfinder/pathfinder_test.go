@@ -11,13 +11,25 @@ const (
 	TimetableGobFilepath = "../../resources/timetable.gob"
 )
 
-func TestPathfinder(t *testing.T) {
+func TestFindDirectPaths(t *testing.T) {
 	param1, param2, param3, err := transfer.ImportTimetable(TimetableGobFilepath)
 	assert.NoError(t, err)
-	pathFinder := NewPathFinder(param1, param2, param3)
 	stationNameToIdMap := lo.Invert(param3)
-	paths := pathFinder.FindStraightPaths(stationNameToIdMap["Nikšić"], stationNameToIdMap["Danilovgrad"])
+	transferStationId := stationNameToIdMap["Podgorica"]
+	pathFinder := NewPathFinder(param1, param2, param3, transferStationId)
+	paths := pathFinder.FindDirectPaths(stationNameToIdMap["Nikšić"], stationNameToIdMap["Danilovgrad"])
 	assert.NotNil(t, paths)
 	assert.NotEmpty(t, paths)
-	assert.Len(t, paths, 5)
+}
+
+func TestFindPaths(t *testing.T) {
+	param1, param2, param3, err := transfer.ImportTimetable(TimetableGobFilepath)
+	assert.NoError(t, err)
+	stationNameToIdMap := lo.Invert(param3)
+	transferStationId := stationNameToIdMap["Podgorica"]
+	pathFinder := NewPathFinder(param1, param2, param3, transferStationId)
+	paths, withTransfer := pathFinder.FindPaths(stationNameToIdMap["Nikšić"], stationNameToIdMap["Bar"])
+	assert.NotNil(t, paths)
+	assert.NotEmpty(t, paths)
+	assert.True(t, withTransfer)
 }

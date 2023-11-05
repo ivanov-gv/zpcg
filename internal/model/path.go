@@ -1,14 +1,10 @@
 package model
 
-import "time"
-
 type Stop struct {
-	StationId   StationId
-	StationName string
-	Arrival     time.Time
-	Departure   time.Time
+	Station
+	TrainId TrainId
 }
 
 type Path struct {
-	Departure, Arrival Station
+	Origin, Destination Stop
 }
