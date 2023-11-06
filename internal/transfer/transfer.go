@@ -3,6 +3,7 @@ package transfer
 import (
 	"encoding/gob"
 	"github.com/pkg/errors"
+	"io"
 	"os"
 	"zpcg/internal/model"
 )
@@ -27,16 +28,17 @@ func ImportTimetable(filename string) (*model.TimetableTransferFormat, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "can not open file with os.Open")
 	}
-	dec := gob.NewDecoder(file)
-	result := &model.TimetableTransferFormat{
-		//StationIdToTrainIdSet:            map[model.StationId]model.TrainIdSet{},
-		//TrainIdToStationMap:              map[model.TrainId]model.StationIdToStationMap{},
-		//StationIdToStaionMap:                     map[model.StationId]model.Station{},
-		//TrainIdToTrainInfoMap:            map[model.TrainId]model.TrainInfo{},
-		//UnifiedStationNameToStationIdMap: map[string]model.StationId{},
-		//UnifiedStationNameList:           []string{},
+	result, err := ImportTimetableFromReader(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "ImportTimetableFromReader")
 	}
-	err = dec.Decode(result)
+	return result, nil
+}
+
+func ImportTimetableFromReader(reader io.Reader) (*model.TimetableTransferFormat, error) {
+	dec := gob.NewDecoder(reader)
+	result := &model.TimetableTransferFormat{}
+	err := dec.Decode(result)
 	if err != nil {
 		return nil, errors.Wrap(err, "can not decode timetable with enc.Decode")
 	}

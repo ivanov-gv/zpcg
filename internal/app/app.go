@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"io"
 	"log"
 	"strings"
 	"zpcg/internal/model"
@@ -13,8 +14,8 @@ import (
 	"zpcg/internal/transfer"
 )
 
-func NewApp(timetableFilepath string) (*App, error) {
-	timetable, err := transfer.ImportTimetable(timetableFilepath)
+func NewApp(timetableReader io.Reader) (*App, error) {
+	timetable, err := transfer.ImportTimetableFromReader(timetableReader)
 	if err != nil {
 		return nil, fmt.Errorf("transfer.ImportTimetable: %w", err)
 	}

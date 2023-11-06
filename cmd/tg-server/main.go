@@ -2,70 +2,82 @@ package main
 
 import (
 	"context"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"encoding/json"
+	"errors"
 	"log"
+	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"zpcg/internal/app"
+	"zpcg/resources"
 )
 
 const (
-	TelegramApiTokenEnv = "TELEGRAM_APITOKEN"
-	TimetableGobPathEnv = "TIMETABLE_GOB_PATH"
+	TelegramApiTokenEnv  = "TELEGRAM_APITOKEN"
+	PortEnv              = "PORT"
+	TimetableGobFileName = "timetable.gob"
 )
 
 func main() {
 	const logfmt = "main: "
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	// config
 	telegramApiToken, found := os.LookupEnv(TelegramApiTokenEnv)
 	if !found {
 		log.Fatal(logfmt, "can't find telegram api token env: ", TelegramApiTokenEnv)
 	}
-	timetableGobPath, found := os.LookupEnv(TimetableGobPathEnv)
+	serverPort, found := os.LookupEnv(PortEnv)
 	if !found {
-		log.Fatal(logfmt, "can't find timetable gob path env env: ", TimetableGobPathEnv)
+		log.Fatal(logfmt, "can't find server port env env: ", PortEnv)
+	}
+	timetableReader, err := resources.FS.Open(TimetableGobFileName)
+	if err != nil {
+		log.Fatal(logfmt, "fs.Open", err)
 	}
 	// tg bot
 	bot, err := tgbotapi.NewBotAPI(telegramApiToken)
 	if err != nil {
-		log.Fatal(logfmt, "tgbotapi.NewBotAPI", err)
+		log.Fatal(logfmt, "tgbotapi.NewBotAPI ", err)
 	}
-	u := tgbotapi.NewUpdate(0)
-	updates := bot.GetUpdatesChan(u)
 	// app
-	_app, err := app.NewApp(timetableGobPath)
+	_app, err := app.NewApp(timetableReader)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// start
-	go receiveUpdates(ctx, _app, bot, updates)
-
-	// wait for interrupt signals
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
-	<-done
-	// done
-	cancel()
+	// server
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", newUpdatesHandler(ctx, _app, bot))
+	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) { return })
+	log.Printf("listening on port %s", serverPort)
+	if err := http.ListenAndServe(":"+serverPort, mux); !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal(err)
+	}
 }
 
-func receiveUpdates(ctx context.Context, _app *app.App, bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) {
+func newUpdatesHandler(ctx context.Context, _app *app.App, bot *tgbotapi.BotAPI) func(http.ResponseWriter, *http.Request) {
 	const logfmt = "receiveUpdates: "
-	for {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if ctx.Err() != nil {
 			return
 		}
-		msg, isNotEmpty := _app.HandleUpdate(<-updates)
-		if !isNotEmpty {
-			continue
+		var update tgbotapi.Update
+		err := json.NewDecoder(r.Body).Decode(&update)
+		if err != nil {
+			log.Println(logfmt, "json.NewDecoder(r.Body).Decode(&update): ", err)
+			return
 		}
-		_, err := bot.Send(msg)
+		msg, isNotEmpty := _app.HandleUpdate(update)
+		if !isNotEmpty {
+			return
+		}
+		_, err = bot.Send(msg)
 		if err != nil {
 			log.Println(logfmt, "bot.Send: ", err)
+			return
 		}
 	}
 }

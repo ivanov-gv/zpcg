@@ -11,10 +11,10 @@ const (
 	timetableGobFilePath = "../../resources/timetable.gob"
 )
 
-func TestParser(t *testing.T) {
+func TestApp(t *testing.T) {
 	_app, err := app.NewApp(timetableGobFilePath)
 	assert.NoError(t, err)
-	message := _app.GenerateRoute("niksic", "bar")
+	message, _ := _app.GenerateRoute("niksic", "bar")
 	t.Log("\n", message, "\n")
 	assert.NotEmpty(t, message)
 	numLines := strings.Count(message, "\n")
