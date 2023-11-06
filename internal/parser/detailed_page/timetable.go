@@ -1,9 +1,11 @@
 package detailed_page
 
 import (
+	"github.com/samber/lo"
 	"io"
 	"strings"
 	"time"
+	"zpcg/internal/utils"
 
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
@@ -125,9 +127,25 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 	var result parser_model.DetailedTimetable
 	for token := tokenizer.Token(); !parserutils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if parserutils.IsRowBeginningReached(token) {
-			station, err := ParseRow(tokenizer)
+			// if the time is not present in the timetable - just get the last station departure time or empty one
+			var fallbackTime time.Time
+			if prevStop, err := lo.Last(result.Stations); err == nil {
+				fallbackTime = prevStop.Departure
+			}
+			station, err := ParseRow(tokenizer, fallbackTime)
 			if err != nil {
 				return parser_model.DetailedTimetable{}, errors.Wrap(err, "ParseRow")
+			}
+			// there might be a train with stops after midnight
+			// in this case we need to add 24h to the arrival/departure time
+			if prevStop, err := lo.Last(result.Stations); err == nil &&
+				(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
+					prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
+					station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02
+				if !station.Arrival.After(station.Departure) {  // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
+					station.Arrival = station.Arrival.Add(utils.Day)
+				}
+				station.Departure = station.Departure.Add(utils.Day)
 			}
 			result.Stations = append(result.Stations, station)
 		}
@@ -135,7 +153,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 	return result, nil
 }
 
-func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
+func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (model.Stop, error) {
 	var (
 		cellNumber         = -1
 		stationName        string
@@ -183,7 +201,13 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
 		}
 	}
 
-	// for the first and the last station of the route departure or arrival is not present in timetable
+	// timetable has empty lines sometimes
+	if departure.IsZero() && arrival.IsZero() {
+		departure = fallbackTime
+		arrival = fallbackTime
+	}
+
+	// for the first and the last station of the route departure or arrival is not present in the timetable
 	if departure.IsZero() {
 		departure = arrival
 	}

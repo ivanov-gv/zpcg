@@ -13,26 +13,26 @@ func TestDirectRoutes(t *testing.T) {
 			TrainId: 1111,
 			Origin: model.Stop{
 				Id:        1,
-				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.UTC),
 			},
 		},
 		{
 			TrainId: 222,
 			Origin: model.Stop{
 				Id:        1,
-				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.UTC),
 			},
 		},
 	}
@@ -72,26 +72,26 @@ func TestTransferRoutes(t *testing.T) {
 			TrainId: 1111,
 			Origin: model.Stop{
 				Id:        1,
-				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.UTC),
 			},
 		},
 		{
 			TrainId: 222,
 			Origin: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        3,
-				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.UTC),
 			},
 		},
 	}
