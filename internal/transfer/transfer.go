@@ -11,7 +11,7 @@ import (
 )
 
 func ExportTimetable(filename string, timetable model.TimetableTransferFormat) error {
-	file, err := os.OpenFile(filename+".gob", os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
 	defer file.Close()
 	if err != nil {
 		return errors.Wrap(err, "can not open file with os.OpenFile")
