@@ -1,20 +1,25 @@
 package integration
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"zpcg/internal/app"
+	"zpcg/resources"
 )
 
 const (
-	timetableGobFilePath = "../../resources/timetable.gob"
+	timetableGobFilePath = "timetable.gob"
 )
 
-func TestParser(t *testing.T) {
-	_app, err := app.NewApp(timetableGobFilePath)
+func TestApp(t *testing.T) {
+	timetableReader, err := resources.FS.Open(timetableGobFilePath)
 	assert.NoError(t, err)
-	message := _app.GenerateRoute("niksic", "bar")
+	_app, err := app.NewApp(timetableReader)
+	assert.NoError(t, err)
+	message, _ := _app.GenerateRoute("niksic", "bar")
 	t.Log("\n", message, "\n")
 	assert.NotEmpty(t, message)
 	numLines := strings.Count(message, "\n")

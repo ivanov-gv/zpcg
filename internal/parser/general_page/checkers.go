@@ -2,6 +2,7 @@ package general_page
 
 import (
 	"golang.org/x/net/html"
+
 	"zpcg/internal/parser/utils"
 )
 
@@ -18,7 +19,13 @@ func IsTableReached(token html.Token) bool {
 		utils.HasAttribute(token.Attr, GeneralTimetableOpeningTagNamespace, GeneralTimetableOpeningTagKey, GeneralTimetableOpeningTagValue)
 }
 
+const (
+	DetailedTimetableLinkTokenData      = "a"
+	DetailedTimetableLinkAttributeKey   = "title"
+	DetailedTimetableLinkAttributeValue = "Detalji"
+)
+
 func IsLinkToDetailedTimetableFound(token html.Token) bool {
-	return token.Type == html.StartTagToken && token.Data == "a" &&
-		utils.HasAttribute(token.Attr, "", "title", "Detalji")
+	return token.Type == html.StartTagToken && token.Data == DetailedTimetableLinkTokenData &&
+		utils.HasAttribute(token.Attr, "", DetailedTimetableLinkAttributeKey, DetailedTimetableLinkAttributeValue)
 }

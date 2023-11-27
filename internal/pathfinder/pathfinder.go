@@ -2,6 +2,7 @@ package pathfinder
 
 import (
 	"slices"
+
 	"zpcg/internal/model"
 	"zpcg/internal/utils"
 )
@@ -23,16 +24,20 @@ type PathFinder struct {
 	transferStation          model.StationId
 }
 
-func (p *PathFinder) FindRoutes(aStation, bStation model.StationId) (routes []model.Path, isDirect bool) {
-	var paths []model.Path
+func (p *PathFinder) FindRoutes(aStation, bStation model.StationId) (routes []model.Path, isDirectRoute bool) {
+	var (
+		paths    []model.Path
+		isDirect bool
+	)
 	// try to find direct paths
-	paths = p.findDirectPaths(aStation, bStation)
-	if len(paths) != 0 {
-		return paths, true
+	if paths = p.findDirectPaths(aStation, bStation); len(paths) != 0 {
+		isDirect = true
+	} else {
+		// find paths with transfer
+		paths = p.findPathsWithTransfer(aStation, bStation)
+		isDirect = false
 	}
-	// find paths with transfer
-	paths = p.findPathsWithTransfer(aStation, bStation)
-	return paths, false
+	return paths, isDirect
 }
 
 func (p *PathFinder) findPathsWithTransfer(aStation, bStation model.StationId) []model.Path {
@@ -83,9 +88,9 @@ func (p *PathFinder) findDirectPaths(aStation, bStation model.StationId) []model
 	for trainId := range possibleRoutes {
 		stations := p.trainIdToStationsMap[trainId]
 		origin := stations[aStation]
-		Destination := stations[bStation]
+		destination := stations[bStation]
 
-		if origin.Departure.After(Destination.Arrival) {
+		if origin.Departure.After(destination.Arrival) { // <- this if is the reason we need to add 24h to the time and then normalize it back
 			// Departure is coming after arrival - it is a train in a wrong direction. skip
 			continue
 		}
@@ -93,9 +98,11 @@ func (p *PathFinder) findDirectPaths(aStation, bStation model.StationId) []model
 		paths = append(paths, model.Path{
 			TrainId:     trainId,
 			Origin:      origin,
-			Destination: Destination,
+			Destination: destination,
 		})
 	}
+	// normalize time - make it all in a range 00:00 - 23:59
+	utils.NormalizeTimeInPaths(paths)
 	slices.SortFunc(paths, func(a, b model.Path) int {
 		return a.Origin.Departure.Compare(b.Origin.Departure)
 	})

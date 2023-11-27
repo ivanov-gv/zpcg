@@ -1,16 +1,18 @@
 package detailed_page
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"golang.org/x/net/html"
 
 	"zpcg/internal/model"
 	parser_model "zpcg/internal/parser/model"
-	parserutils "zpcg/internal/parser/utils"
+	parser_utils "zpcg/internal/parser/utils"
+	"zpcg/internal/utils"
 )
 
 func ParseDetailedTimetablePage(routeNumber model.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {
@@ -22,28 +24,23 @@ func ParseDetailedTimetablePage(routeNumber model.TrainId, detailedTimetableUrl 
 		}
 		// tokenType == html.StartTagToken
 		token := tokenizer.Token()
-		if IsTimetableReached(token) {
-			// check table type
-			if tableType := GetTableType(tokenizer); tableType != DetailedTableRoute {
-				continue
-			}
-			// found timetable with detailed route
-			parsedTimetable, err := ParseRouteTable(tokenizer)
-			if err != nil {
-				return parser_model.DetailedTimetable{}, errors.Wrap(err, "ParseRouteTable")
-			}
-			timetable = parsedTimetable
+		if !IsTimetableReached(token) {
+			continue
 		}
+		// check table type
+		if tableType := GetTableType(tokenizer); tableType != DetailedTableRoute {
+			continue
+		}
+		// found timetable with detailed route
+		parsedTimetable, err := ParseRouteTable(tokenizer)
+		if err != nil {
+			return parser_model.DetailedTimetable{}, fmt.Errorf("ParseRouteTable: %w", err)
+		}
+		timetable = parsedTimetable
 	}
 	timetable.TrainId = routeNumber
 	timetable.TimetableUrl = detailedTimetableUrl
 	return timetable, nil
-}
-
-func IsTimetableReached(token html.Token) bool {
-	//<div id="detail-stop-grid" class="grid-view">
-	return token.Type == html.StartTagToken && token.Data == "div" &&
-		parserutils.HasAttribute(token.Attr, "", "id", "detail-stop-grid")
 }
 
 type DetailedTableType int
@@ -89,19 +86,19 @@ func GetTableType(tokenizer *html.Tokenizer) DetailedTableType {
 
 		// we found two subsequent tags - thTag and textTag. check them
 		switch {
-		case parserutils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c0") &&
+		case parser_utils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c0") &&
 			textTag.Data == "Stanica":
 			foundTagThStanica = true
-		case parserutils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c1") &&
+		case parser_utils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c1") &&
 			textTag.Data == "Dolazak":
 			foundTagThDolazak = true
-		case parserutils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c2") &&
+		case parser_utils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c2") &&
 			textTag.Data == "Polazak":
 			foundTagThPolazak = true
-		case parserutils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c1") &&
+		case parser_utils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c1") &&
 			textTag.Data == "Drugi razred":
 			foundTagThDrugiRazred = true
-		case parserutils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c2") &&
+		case parser_utils.HasAttribute(thTag.Attr, "", "id", "detail-stop-grid_c2") &&
 			textTag.Data == "Prvi razred":
 			foundTagThPrviRazred = true
 		}
@@ -116,40 +113,53 @@ func GetTableType(tokenizer *html.Tokenizer) DetailedTableType {
 	}
 }
 
-func IsTableHeadEndReached(token html.Token) bool {
-	//</thead>
-	return token.Type == html.EndTagToken && token.Data == "thead"
-}
-
 func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable, error) {
 	var result parser_model.DetailedTimetable
-	for token := tokenizer.Token(); !parserutils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
-		if parserutils.IsRowBeginningReached(token) {
-			station, err := ParseRow(tokenizer)
-			if err != nil {
-				return parser_model.DetailedTimetable{}, errors.Wrap(err, "ParseRow")
-			}
-			result.Stations = append(result.Stations, station)
+	for token := tokenizer.Token(); !parser_utils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
+		if !parser_utils.IsRowBeginningReached(token) {
+			continue
 		}
+		// row beginning reached
+		// if the time is not present in the timetable - just get the last station departure time or empty one
+		var fallbackTime time.Time
+		if prevStop, err := lo.Last(result.Stops); err == nil {
+			fallbackTime = prevStop.Departure
+		}
+		station, err := ParseRow(tokenizer, fallbackTime)
+		if err != nil {
+			return parser_model.DetailedTimetable{}, fmt.Errorf("ParseRow: %w", err)
+		}
+		// there might be a train with stops after midnight
+		// in this case we need to add 24h to the arrival/departure time
+		if prevStop, err := lo.Last(result.Stops); err == nil &&
+			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
+				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
+				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02
+			if !station.Arrival.After(station.Departure) { // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
+				station.Arrival = station.Arrival.Add(utils.Day)
+			}
+			station.Departure = station.Departure.Add(utils.Day)
+		}
+		result.Stops = append(result.Stops, station)
 	}
 	return result, nil
 }
 
-func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
+func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (model.Stop, error) {
 	var (
 		cellNumber         = -1
 		stationName        string
 		arrival, departure time.Time
 	)
-	for token := tokenizer.Token(); !parserutils.IsRowEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
-		if parserutils.IsCellBeginningReached(token) {
+	for token := tokenizer.Token(); !parser_utils.IsRowEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
+		if parser_utils.IsCellBeginningReached(token) {
 			cellNumber++
 			continue
 		}
 		if cellNumber == -1 {
 			continue
 		}
-		if parserutils.IsCellEndReached(token) {
+		if parser_utils.IsCellEndReached(token) {
 			continue
 		}
 
@@ -166,7 +176,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
 			var err error
 			arrival, err = time.Parse("15:04", token.Data)
 			if err != nil {
-				return model.Stop{}, errors.Wrap(err, "can not parse arrival with time.Parse")
+				return model.Stop{}, fmt.Errorf("can not parse arrival with time.Parse: %w", err)
 			}
 		}
 
@@ -178,12 +188,18 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
 			var err error
 			departure, err = time.Parse("15:04", token.Data)
 			if err != nil {
-				return model.Stop{}, errors.Wrap(err, "can not parse departure with time.Parse")
+				return model.Stop{}, fmt.Errorf("can not parse departure with time.Parse: %w", err)
 			}
 		}
 	}
 
-	// for the first and the last station of the route departure or arrival is not present in timetable
+	// timetable has empty lines sometimes
+	if departure.IsZero() && arrival.IsZero() {
+		departure = fallbackTime
+		arrival = fallbackTime
+	}
+
+	// for the first and the last station of the route departure or arrival is not present in the timetable
 	if departure.IsZero() {
 		departure = arrival
 	}
@@ -192,7 +208,7 @@ func ParseRow(tokenizer *html.Tokenizer) (model.Stop, error) {
 	}
 	return model.Stop{
 		Id:        generateStationId(stationName),
-		Arrival:   arrival,
+		Arrival:   departure, // this is not a bug, this is how trains in Crna Gora are usually comes - at the departure time. see issue https://github.com/ivanov-gv/zpcg/issues/4
 		Departure: departure,
 	}, nil
 }

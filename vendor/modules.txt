@@ -1,18 +1,33 @@
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
+# github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
+## explicit; go 1.16
+github.com/go-telegram-bot-api/telegram-bot-api/v5
 # github.com/hashicorp/go-cleanhttp v0.5.2
 ## explicit; go 1.13
 github.com/hashicorp/go-cleanhttp
 # github.com/hashicorp/go-retryablehttp v0.7.4
 ## explicit; go 1.13
 github.com/hashicorp/go-retryablehttp
+# github.com/mattn/go-colorable v0.1.13
+## explicit; go 1.15
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.19
+## explicit; go 1.15
+github.com/mattn/go-isatty
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
+# github.com/rs/zerolog v1.31.0
+## explicit; go 1.15
+github.com/rs/zerolog
+github.com/rs/zerolog/internal/cbor
+github.com/rs/zerolog/internal/json
+github.com/rs/zerolog/log
 # github.com/samber/lo v1.38.1
 ## explicit; go 1.18
 github.com/samber/lo
@@ -26,6 +41,9 @@ golang.org/x/exp/constraints
 ## explicit; go 1.17
 golang.org/x/net/html
 golang.org/x/net/html/atom
+# golang.org/x/sys v0.12.0
+## explicit; go 1.17
+golang.org/x/sys/unix
 # golang.org/x/text v0.11.0
 ## explicit; go 1.17
 golang.org/x/text/runes

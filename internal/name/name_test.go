@@ -1,9 +1,10 @@
 package name
 
 import (
+	"testing"
+
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestUnify(t *testing.T) {

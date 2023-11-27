@@ -1,6 +1,8 @@
 package utils
 
-import "golang.org/x/net/html"
+import (
+	"golang.org/x/net/html"
+)
 
 func FindAttribute(attributes []html.Attribute, namespace, key string) (found bool, value string) {
 	for _, attribute := range attributes {

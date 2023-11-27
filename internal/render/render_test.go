@@ -1,9 +1,11 @@
 package render
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
 	"zpcg/internal/model"
 )
 
@@ -13,26 +15,26 @@ func TestDirectRoutes(t *testing.T) {
 			TrainId: 1111,
 			Origin: model.Stop{
 				Id:        1,
-				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.UTC),
 			},
 		},
 		{
 			TrainId: 222,
 			Origin: model.Stop{
 				Id:        1,
-				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.UTC),
 			},
 		},
 	}
@@ -56,14 +58,14 @@ func TestDirectRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).DirectRoutes(paths)
+	message, _ := NewRender(stationsMap, trainMap).DirectRoutes(paths)
 	t.Logf("\n%s\n", message)
-	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111)")
-	assert.Contains(t, message, "222](https:/somesite.com/timetable/222)")
-	assert.Contains(t, message, "12:10")
-	assert.Contains(t, message, "12:30")
-	assert.Contains(t, message, "08:10")
-	assert.Contains(t, message, "08:30")
+	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111")
+	assert.Contains(t, message, "222](https:/somesite.com/timetable/222")
+	assert.Contains(t, message, "12:00")
+	assert.Contains(t, message, "12:40")
+	assert.Contains(t, message, "08:00")
+	assert.Contains(t, message, "08:40")
 }
 
 func TestTransferRoutes(t *testing.T) {
@@ -72,26 +74,26 @@ func TestTransferRoutes(t *testing.T) {
 			TrainId: 1111,
 			Origin: model.Stop{
 				Id:        1,
-				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.UTC),
 			},
 		},
 		{
 			TrainId: 222,
 			Origin: model.Stop{
 				Id:        2,
-				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.UTC),
 			},
 			Destination: model.Stop{
 				Id:        3,
-				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.Local),
-				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.Local),
+				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.UTC),
 			},
 		},
 	}
@@ -119,12 +121,12 @@ func TestTransferRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).TransferRoutes(paths, 1, 2, 3)
+	message, _ := NewRender(stationsMap, trainMap).TransferRoutes(paths, 1, 2, 3)
 	t.Logf("\n%s\n", message)
-	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111)")
-	assert.Contains(t, message, "222](https:/somesite.com/timetable/222)")
-	assert.Contains(t, message, "12:10")
-	assert.Contains(t, message, "12:30")
-	assert.Contains(t, message, "08:10")
-	assert.Contains(t, message, "08:30")
+	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111")
+	assert.Contains(t, message, "222](https:/somesite.com/timetable/222")
+	assert.Contains(t, message, "12:00")
+	assert.Contains(t, message, "12:40")
+	assert.Contains(t, message, "08:00")
+	assert.Contains(t, message, "08:40")
 }
