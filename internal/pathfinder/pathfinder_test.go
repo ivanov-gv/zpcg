@@ -7,6 +7,7 @@ import (
 
 	"zpcg/internal/name"
 	"zpcg/internal/transfer"
+	"zpcg/resources"
 )
 
 const (
@@ -17,7 +18,9 @@ const (
 )
 
 func TestFindDirectPaths(t *testing.T) {
-	timetable, err := transfer.ImportTimetable(TimetableGobFilepath)
+	timetableReader, err := resources.FS.Open(TimetableGobFilepath)
+	assert.NoError(t, err)
+	timetable, err := transfer.ImportTimetableFromReader(timetableReader)
 	assert.NoError(t, err)
 	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
 	paths := pathFinder.findDirectPaths(
@@ -28,7 +31,9 @@ func TestFindDirectPaths(t *testing.T) {
 }
 
 func TestFindPaths(t *testing.T) {
-	timetable, err := transfer.ImportTimetable(TimetableGobFilepath)
+	timetableReader, err := resources.FS.Open(TimetableGobFilepath)
+	assert.NoError(t, err)
+	timetable, err := transfer.ImportTimetableFromReader(timetableReader)
 	assert.NoError(t, err)
 	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
 	paths := pathFinder.findPathsWithTransfer(

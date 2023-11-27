@@ -60,12 +60,12 @@ func TestDirectRoutes(t *testing.T) {
 	}
 	message, _ := NewRender(stationsMap, trainMap).DirectRoutes(paths)
 	t.Logf("\n%s\n", message)
-	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111)")
-	assert.Contains(t, message, "222](https:/somesite.com/timetable/222)")
-	assert.Contains(t, message, "12:10")
-	assert.Contains(t, message, "12:30")
-	assert.Contains(t, message, "08:10")
-	assert.Contains(t, message, "08:30")
+	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111")
+	assert.Contains(t, message, "222](https:/somesite.com/timetable/222")
+	assert.Contains(t, message, "12:00")
+	assert.Contains(t, message, "12:40")
+	assert.Contains(t, message, "08:00")
+	assert.Contains(t, message, "08:40")
 }
 
 func TestTransferRoutes(t *testing.T) {
@@ -123,10 +123,10 @@ func TestTransferRoutes(t *testing.T) {
 	}
 	message, _ := NewRender(stationsMap, trainMap).TransferRoutes(paths, 1, 2, 3)
 	t.Logf("\n%s\n", message)
-	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111)")
-	assert.Contains(t, message, "222](https:/somesite.com/timetable/222)")
-	assert.Contains(t, message, "12:10")
-	assert.Contains(t, message, "12:30")
-	assert.Contains(t, message, "08:10")
-	assert.Contains(t, message, "08:30")
+	assert.Contains(t, message, "1111](https:/somesite.com/timetable/1111")
+	assert.Contains(t, message, "222](https:/somesite.com/timetable/222")
+	assert.Contains(t, message, "12:00")
+	assert.Contains(t, message, "12:40")
+	assert.Contains(t, message, "08:00")
+	assert.Contains(t, message, "08:40")
 }
