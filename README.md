@@ -1,3 +1,5 @@
-telegram bot to get timetable in Montenegro railways
+# Montenegro Railways Timetable Bot
 
-// TODO: readme
+*currently in beta*
+
+try it yourself - [@TESTCrnaGoraTrainTimetableBot](https://t.me/TESTCrnaGoraTrainTimetableBot)
