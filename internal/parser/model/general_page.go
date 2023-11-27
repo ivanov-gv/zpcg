@@ -1,6 +1,9 @@
 package model
 
+import "zpcg/internal/model"
+
 type GeneralTimetableRow struct {
-	TrainId               int
+	TrainId               model.TrainId
+	TrainType             model.TrainType
 	DetailedTimetableLink string
 }

@@ -2,10 +2,12 @@ package app
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"io"
 	"log"
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"zpcg/internal/model"
 	"zpcg/internal/name"
 	"zpcg/internal/render"

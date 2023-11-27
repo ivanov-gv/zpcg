@@ -1,13 +1,13 @@
 package parser
 
 import (
-	"github.com/samber/lo"
-	"zpcg/internal/model"
-	"zpcg/internal/name"
+	"fmt"
 
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/pkg/errors"
+	"github.com/samber/lo"
 
+	"zpcg/internal/model"
+	"zpcg/internal/name"
 	"zpcg/internal/parser/detailed_page"
 	"zpcg/internal/parser/general_page"
 	parser_model "zpcg/internal/parser/model"
@@ -21,11 +21,11 @@ const (
 func ParseTimetable() (model.TimetableTransferFormat, error) {
 	generalTimetableResponse, err := retryablehttp.Get(GeneralTimetablePageUrl)
 	if err != nil {
-		return model.TimetableTransferFormat{}, errors.Wrap(err, "can not get general timetable page with retryablehttp.Get")
+		return model.TimetableTransferFormat{}, fmt.Errorf("can not get general timetable page with retryablehttp.Get: %w", err)
 	}
 	generalTimetableMap, err := general_page.ParseGeneralTimetablePage(generalTimetableResponse.Body)
 	if err != nil {
-		return model.TimetableTransferFormat{}, errors.Wrap(err, "general_page.ParseGeneralTimetablePage")
+		return model.TimetableTransferFormat{}, fmt.Errorf("general_page.ParseGeneralTimetablePage: %w", err)
 	}
 
 	detailedTimetableMap := make(map[model.TrainId]parser_model.DetailedTimetable, len(generalTimetableMap))
@@ -35,13 +35,13 @@ func ParseTimetable() (model.TimetableTransferFormat, error) {
 		detailedTimetableFullLink := BaseUrl + generalTimetable.DetailedTimetableLink
 		response, err := retryablehttp.Get(detailedTimetableFullLink)
 		if err != nil {
-			return model.TimetableTransferFormat{}, errors.Wrapf(err, "can not get route info with route id = %d, link = %s using retryablehttp.Get",
-				trainId, generalTimetable.DetailedTimetableLink)
+			return model.TimetableTransferFormat{}, fmt.Errorf("can not get route info with route id = %d, link = %s using retryablehttp.Get: %w",
+				trainId, generalTimetable.DetailedTimetableLink, err)
 		}
-		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(model.TrainId(trainId), detailedTimetableFullLink, response.Body)
+		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(trainId, detailedTimetableFullLink, response.Body)
 		if err != nil {
-			return model.TimetableTransferFormat{}, errors.Wrapf(err, "trainId = %d, link = %s detailed_page.ParseDetailedTimetablePage",
-				trainId, generalTimetable.DetailedTimetableLink)
+			return model.TimetableTransferFormat{}, fmt.Errorf("trainId = %d, link = %s detailed_page.ParseDetailedTimetablePage: %w",
+				trainId, generalTimetable.DetailedTimetableLink, err)
 		}
 		detailedTimetableMap[detailedTimetable.TrainId] = detailedTimetable
 	}
@@ -54,7 +54,7 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 	// fill stationIdToTrainIdSetMap
 	var stationIdToTrainIdSetMap = make(map[model.StationId]model.TrainIdSet)
 	for trainId, route := range routes {
-		for _, station := range route.Stations {
+		for _, station := range route.Stops {
 			// add route to the station
 			if trainIdSet, ok := stationIdToTrainIdSetMap[station.Id]; ok { // found
 				trainIdSet[trainId] = struct{}{}
@@ -68,8 +68,8 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 	// fill trainIdToStationsMap
 	var trainIdToStationsMap = make(map[model.TrainId]model.StationIdToStationMap, len(routes))
 	for trainId, route := range routes {
-		var routeStationsMap = make(model.StationIdToStationMap, len(route.Stations))
-		for _, station := range route.Stations {
+		var routeStationsMap = make(model.StationIdToStationMap, len(route.Stops))
+		for _, station := range route.Stops {
 			// add station to the route
 			routeStationsMap[station.Id] = station
 		}
@@ -95,7 +95,7 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 	// fill unifiedStationNameToStationIdMap
 	var unifiedStationNameToStationIdMap = make(map[string]model.StationId)
 	for _, route := range routes {
-		for _, station := range route.Stations {
+		for _, station := range route.Stops {
 			stationName := detailed_page.GetStationIdToNameMap()[station.Id]
 			unifiedStationNameToStationIdMap[name.Unify(stationName)] = station.Id
 		}

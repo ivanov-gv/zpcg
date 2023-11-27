@@ -2,9 +2,11 @@ package transfer
 
 import (
 	"encoding/gob"
-	"github.com/pkg/errors"
 	"io"
 	"os"
+
+	"github.com/pkg/errors"
+
 	"zpcg/internal/model"
 )
 

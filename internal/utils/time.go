@@ -1,8 +1,10 @@
 package utils
 
 import (
-	"github.com/samber/lo"
 	"time"
+
+	"github.com/samber/lo"
+
 	"zpcg/internal/model"
 )
 

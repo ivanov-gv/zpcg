@@ -1,14 +1,19 @@
 package app
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"zpcg/resources"
 )
 
-const TimetableGobFilepath = "../../resources/timetable.gob"
+const TimetableGobFilepath = "timetable.gob"
 
 func TestNewApp(t *testing.T) {
-	app, err := NewApp(TimetableGobFilepath)
+	timetableReader, err := resources.FS.Open(TimetableGobFilepath)
+	assert.NoError(t, err)
+	app, err := NewApp(timetableReader)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 }
@@ -23,15 +28,17 @@ const (
 )
 
 func TestGenerateRoute(t *testing.T) {
-	app, err := NewApp(TimetableGobFilepath)
+	timetableReader, err := resources.FS.Open(TimetableGobFilepath)
+	assert.NoError(t, err)
+	app, err := NewApp(timetableReader)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
-	message := app.GenerateRoute(NiksicWrongStationName, DanilovgradWrongStationName)
+	message, _ := app.GenerateRoute(NiksicWrongStationName, DanilovgradWrongStationName)
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message, NiksicStationName)
 	assert.Contains(t, message, DanilovgradStationName)
-	message = app.GenerateRoute(NiksicWrongStationName, BarWronStationName)
+	message, _ = app.GenerateRoute(NiksicWrongStationName, BarWronStationName)
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message, NiksicStationName)

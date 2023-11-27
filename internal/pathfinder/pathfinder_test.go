@@ -1,14 +1,16 @@
 package pathfinder
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"zpcg/internal/name"
 	"zpcg/internal/transfer"
 )
 
 const (
-	TimetableGobFilepath   = "../../resources/timetable.gob"
+	TimetableGobFilepath   = "timetable.gob"
 	NiksicStationName      = "Nikšić"
 	DanilovgradStationName = "Danilovgrad"
 	BarStationName         = "Bar"
