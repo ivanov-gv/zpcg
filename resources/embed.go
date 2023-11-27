@@ -1,6 +1,8 @@
 package resources
 
-import "embed"
+import (
+	"embed"
+)
 
 //go:embed timetable.gob
 var FS embed.FS

@@ -7,14 +7,12 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-
-	"zpcg/internal/utils"
-
 	"golang.org/x/net/html"
 
 	"zpcg/internal/model"
 	parser_model "zpcg/internal/parser/model"
 	parser_utils "zpcg/internal/parser/utils"
+	"zpcg/internal/utils"
 )
 
 func ParseDetailedTimetablePage(routeNumber model.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {
@@ -137,7 +135,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
 				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
 				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02
-			if !station.Arrival.After(station.Departure) {  // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
+			if !station.Arrival.After(station.Departure) { // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
 				station.Arrival = station.Arrival.Add(utils.Day)
 			}
 			station.Departure = station.Departure.Add(utils.Day)

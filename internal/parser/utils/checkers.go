@@ -1,6 +1,8 @@
 package utils
 
-import "golang.org/x/net/html"
+import (
+	"golang.org/x/net/html"
+)
 
 const tableEndTokenData = "table"
 

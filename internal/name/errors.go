@@ -1,6 +1,8 @@
 package name
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	ErrNoMatchesFound = errors.New("no matches found")
