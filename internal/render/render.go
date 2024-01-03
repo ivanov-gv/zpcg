@@ -94,6 +94,6 @@ func (r *Render) StartMessage(languageCode language.Tag) (message, parseMode str
 	case language.Russian:
 		return StartMessageRu, tgbotapi.ModeMarkdownV2
 	default:
-		return ErrorMessageDefault, tgbotapi.ModeMarkdownV2
+		return StartMessageDefault, tgbotapi.ModeMarkdownV2
 	}
 }
