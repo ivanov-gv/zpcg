@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"golang.org/x/text/language"
 
 	"zpcg/internal/model"
 )
@@ -79,36 +80,20 @@ func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destin
 	return strings.Join(lines, "\n"), tgbotapi.ModeMarkdownV2
 }
 
-const ErrorMessage = `Try again - two stations, separated by a comma. Just like that:
-Podgorica, Niksic`
-
-func (r *Render) ErrorMessage() (message, parseMode string) {
-	return ErrorMessage, ""
+func (r *Render) ErrorMessage(languageCode language.Tag) (message, parseMode string) {
+	switch languageCode {
+	case language.Russian:
+		return ErrorMessageRu, ""
+	default:
+		return ErrorMessageDefault, ""
+	}
 }
 
-const StartMessage = "" +
-	"*Montenegro Railways Timetable*\n" +
-	"\n" +
-	"Please enter two station names separated by a comma: \n" +
-	"\n" +
-	"*Podgorica, Bijelo Polje*\n" +
-	"\n" +
-	"Once you provide the station names, I will send you the timetable:\n" +
-	"\n" +
-	"Podgorica \\-\\> Bijelo Polje\n" +
-	"[6100](https://zpcg.me/details?timetable=41)  `06:20 \\-\\> 08:38` \n" +
-	"\\.\\.\\.\n" +
-	"\n" +
-	"Not sure about the correct spelling of the station names? No problem, just type them, and I will take care of the rest\\.\n" +
-	"\n" +
-	"*PADAGORNICCCCA , BELO POLLLLLE*\n" +
-	"\n" +
-	"Podgorica \\-\\> Bijelo Polje\n" +
-	"[6100](https://zpcg.me/details?timetable=41)  `06:20 \\-\\> 08:38` \n" +
-	"\\.\\.\\.\n" +
-	"\n" +
-	"Now it's your turn\\!"
-
-func (r *Render) StartMessage() (message, parseMode string) {
-	return StartMessage, tgbotapi.ModeMarkdownV2
+func (r *Render) StartMessage(languageCode language.Tag) (message, parseMode string) {
+	switch languageCode {
+	case language.Russian:
+		return StartMessageRu, tgbotapi.ModeMarkdownV2
+	default:
+		return ErrorMessageDefault, tgbotapi.ModeMarkdownV2
+	}
 }

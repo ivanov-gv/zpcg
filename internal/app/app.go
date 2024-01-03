@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"golang.org/x/text/language"
 
 	"zpcg/internal/model"
 	"zpcg/internal/name"
@@ -39,26 +40,40 @@ type App struct {
 }
 
 func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfig, isNotEmpty bool) {
-	const logFmf = "handleUpdate: "
+	const logFmt = "handleUpdate: "
 	if update.Message == nil || update.Message.From == nil {
 		return tgbotapi.MessageConfig{}, false
 	}
 	// process message
 	message := update.Message
-	log.Println(logFmf, "got new message: ", message.From.FirstName, message.From.UserName, message.Text)
+	languageTag := parseLanguageTag(update.SentFrom().LanguageCode)
+	log.Println(logFmt, "got new message: ", message.From.FirstName, message.From.UserName,
+		update.SentFrom().LanguageCode, languageTag.String(),
+		message.Text)
 	// generate answer
-	var answerText, parseMode string
+	var (
+		answerText, parseMode string
+		err                   error
+	)
 	switch {
 	case strings.HasPrefix(message.Text, "/"):
 		// got command - send start message
-		answerText, parseMode = a.StartMessage()
+		answerText, parseMode = a.StartMessage(languageTag)
 	case strings.Contains(message.Text, ","):
 		// got message with stations - send a timetable
 		originStation, destinationStation, _ := strings.Cut(message.Text, ",")
-		answerText, parseMode = a.GenerateRoute(originStation, destinationStation)
+		answerText, parseMode, err = a.GenerateRoute(originStation, destinationStation)
+		if err != nil {
+			err = fmt.Errorf("a.GenerateRoute: %w", err)
+		}
 	default:
 		// error otherwise
-		answerText, parseMode = a.ErrorMessage()
+		err = fmt.Errorf("unknown message type: %s", message.Text)
+	}
+	// handle error
+	if err != nil {
+		log.Println(logFmt, "err", err)
+		answerText, parseMode = a.ErrorMessage(languageTag)
 	}
 	// create message and return
 	answer = tgbotapi.NewMessage(message.Chat.ID, answerText)
@@ -66,32 +81,42 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	return answer, true
 }
 
-func (a *App) GenerateRoute(origin, destination string) (message, parseMode string) {
-	const logfmt = "GenerateRoute: "
+func (a *App) GenerateRoute(origin, destination string) (message, parseMode string, err error) {
 	// find station ids
 	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
 	if err != nil {
-		log.Println(logfmt, "err", err, "origin", origin)
-		return a.render.ErrorMessage()
+		return "", "", fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+			"can't find station name [origin='%s']: %w", origin, err)
 	}
 	destinationStationId, err := a.stationNameResolver.FindStationIdByApproximateName(destination)
 	if err != nil {
-		log.Println(logfmt, "err", err, "destination", destination)
-		return a.render.ErrorMessage()
+		return "", "", fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+			"can't find station name [destination='%s']: %w", destination, err)
 	}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// render message
 	if isDirect {
-		return a.render.DirectRoutes(routes)
+		message, parseMode = a.render.DirectRoutes(routes)
+		return message, parseMode, nil
 	}
-	return a.render.TransferRoutes(routes, originStationId, a.transferStationId, destinationStationId)
+	// if !isDirect - transfer route
+	message, parseMode = a.render.TransferRoutes(routes, originStationId, a.transferStationId, destinationStationId)
+	return message, parseMode, nil
 }
 
-func (a *App) StartMessage() (message, parseMode string) {
-	return a.render.StartMessage()
+func parseLanguageTag(languageCode string) language.Tag {
+	tag, err := language.Parse(languageCode)
+	if err != nil {
+		return render.DefaultLanguageTag
+	}
+	return tag
 }
 
-func (a *App) ErrorMessage() (message, parseMode string) {
-	return a.render.ErrorMessage()
+func (a *App) StartMessage(languageTag language.Tag) (message, parseMode string) {
+	return a.render.StartMessage(languageTag)
+}
+
+func (a *App) ErrorMessage(languageTag language.Tag) (message, parseMode string) {
+	return a.render.ErrorMessage(languageTag)
 }
