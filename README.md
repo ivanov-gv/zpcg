@@ -2,4 +2,4 @@
 
 *currently in beta*
 
-try it yourself - [@TESTCrnaGoraTrainTimetableBot](https://t.me/TESTCrnaGoraTrainTimetableBot)
+try it yourself - [@Monterails_bot](https://t.me/Monterails_bot)
