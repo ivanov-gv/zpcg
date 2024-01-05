@@ -78,6 +78,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	// create message and return
 	answer = tgbotapi.NewMessage(message.Chat.ID, answerText)
 	answer.ParseMode = parseMode
+	answer.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false) // TODO: removes keyboard for the users who has it from the older versions of the @monterails_bot
 	return answer, true
 }
 
