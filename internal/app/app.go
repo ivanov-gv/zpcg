@@ -3,10 +3,10 @@ package app
 import (
 	"fmt"
 	"io"
-	"log"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 
 	"zpcg/internal/model"
@@ -40,16 +40,19 @@ type App struct {
 }
 
 func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfig, isNotEmpty bool) {
-	const logFmt = "handleUpdate: "
+	const logFmt = "handleUpdate: %s"
 	if update.Message == nil || update.Message.From == nil {
 		return tgbotapi.MessageConfig{}, false
 	}
 	// process message
 	message := update.Message
 	languageTag := parseLanguageTag(update.SentFrom().LanguageCode)
-	log.Println(logFmt, "got new message: ", message.From.FirstName, message.From.UserName,
-		update.SentFrom().LanguageCode, languageTag.String(),
-		message.Text)
+	log.Trace().
+		Int64("chatId", message.Chat.ID).
+		Str("languageCode", update.SentFrom().LanguageCode).
+		Str("languageTag", languageTag.String()).
+		Str("message", message.Text).
+		Msgf(logFmt, "got new message")
 	// generate answer
 	var (
 		answerText, parseMode string
@@ -72,7 +75,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	}
 	// handle error
 	if err != nil {
-		log.Println(logFmt, "err", err)
+		log.Error().Err(err).Send()
 		answerText, parseMode = a.ErrorMessage(languageTag)
 	}
 	// create message and return

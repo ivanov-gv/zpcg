@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
+
+	"github.com/rs/zerolog/log"
 
 	"zpcg/internal/parser"
 	"zpcg/internal/transfer"
@@ -17,14 +19,14 @@ func main() {
 	log.Print("starting to parse timetable...  ")
 	detailedTimetable, err := parser.ParseTimetable()
 	if err != nil {
-		log.Fatalf("can not parse timetable: %s", err.Error())
+		log.Fatal().Err(fmt.Errorf("can not parse timetable: %w", err)).Send()
 	}
-	log.Println("success")
+	log.Trace().Msg("success")
 
 	log.Print("starting to export timetable...  ")
 	err = transfer.ExportTimetable(*timetableFilepath, detailedTimetable)
 	if err != nil {
-		log.Fatalf("can not parse timetable: %s", err.Error())
+		log.Fatal().Err(fmt.Errorf("can not parse timetable: %w", err)).Send()
 	}
-	log.Println("success")
+	log.Trace().Msg("success")
 }
