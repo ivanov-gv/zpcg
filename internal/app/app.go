@@ -51,7 +51,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 		Int64("chatId", message.Chat.ID).
 		Str("languageCode", update.SentFrom().LanguageCode).
 		Str("languageTag", languageTag.String()).
-		Str("message", message.Text).
+		Str("messageText", message.Text).
 		Msgf(logFmt, "got new message")
 	// generate answer
 	var (

@@ -19,7 +19,7 @@ func TestApp(t *testing.T) {
 	assert.NoError(t, err)
 	_app, err := app.NewApp(timetableReader)
 	assert.NoError(t, err)
-	message, _ := _app.GenerateRoute("niksic", "bar")
+	message, _, _ := _app.GenerateRoute("niksic", "bar")
 	t.Log("\n", message, "\n")
 	assert.NotEmpty(t, message)
 	numLines := strings.Count(message, "\n")
