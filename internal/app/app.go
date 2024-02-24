@@ -2,28 +2,40 @@ package app
 
 import (
 	"fmt"
-	"io"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 
+	"zpcg/internal/config"
 	"zpcg/internal/model"
-	"zpcg/internal/name"
-	"zpcg/internal/pathfinder"
-	"zpcg/internal/render"
-	"zpcg/internal/transfer"
+	"zpcg/internal/service/name"
+	"zpcg/internal/service/pathfinder"
+	"zpcg/internal/service/render"
+	"zpcg/internal/service/transfer"
+	"zpcg/resources"
 )
 
-func NewApp(timetableReader io.Reader) (*App, error) {
+func NewApp(_config config.Config) (*App, error) {
+	// timetable reader
+	timetableReader, err := resources.FS.Open(_config.TimetableGobFileName)
+	if err != nil {
+		return nil, fmt.Errorf("fs.Open: %w", err)
+	}
+	// timetable
 	timetable, err := transfer.ImportTimetableFromReader(timetableReader)
 	if err != nil {
 		return nil, fmt.Errorf("transfer.ImportTimetable: %w", err)
 	}
+	// finder
 	finder := pathfinder.NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
+	// name resolver
 	stationNameResolver := name.NewStationNameResolver(timetable.UnifiedStationNameToStationIdMap, timetable.UnifiedStationNameList)
+	// render
 	_render := render.NewRender(timetable.StationIdToStaionMap, timetable.TrainIdToTrainInfoMap)
+
+	// complete app
 	return &App{
 		finder:              finder,
 		stationNameResolver: stationNameResolver,

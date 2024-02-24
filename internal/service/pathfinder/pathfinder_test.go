@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/internal/name"
-	"zpcg/internal/transfer"
+	"zpcg/internal/service/name"
+	"zpcg/internal/service/transfer"
 	"zpcg/resources"
 )
 

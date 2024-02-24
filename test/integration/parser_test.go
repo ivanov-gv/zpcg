@@ -7,17 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"zpcg/internal/app"
+	"zpcg/internal/config"
 	"zpcg/resources"
 )
 
-const (
-	timetableGobFilePath = "timetable.gob"
-)
-
 func TestApp(t *testing.T) {
-	timetableReader, err := resources.FS.Open(timetableGobFilePath)
-	assert.NoError(t, err)
-	_app, err := app.NewApp(timetableReader)
+	var _config config.Config
+	_config.TimetableGobFileName = resources.TimetableGobFileName
+	_app, err := app.NewApp(_config)
 	assert.NoError(t, err)
 	message, _, _ := _app.GenerateRoute("niksic", "bar")
 	t.Log("\n", message, "\n")
