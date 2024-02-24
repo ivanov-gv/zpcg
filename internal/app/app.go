@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 
@@ -52,19 +53,12 @@ type App struct {
 }
 
 func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfig, isNotEmpty bool) {
-	const logFmt = "handleUpdate: %s"
 	if update.Message == nil || update.Message.From == nil {
 		return tgbotapi.MessageConfig{}, false
 	}
 	// process message
 	message := update.Message
 	languageTag := parseLanguageTag(update.SentFrom().LanguageCode)
-	log.Trace().
-		Int64("chatId", message.Chat.ID).
-		Str("languageCode", update.SentFrom().LanguageCode).
-		Str("languageTag", languageTag.String()).
-		Str("messageText", message.Text).
-		Msgf(logFmt, "got new message")
 	// generate answer
 	var (
 		answerText, parseMode string
@@ -87,13 +81,14 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	}
 	// handle error
 	if err != nil {
-		log.Error().Err(err).Send()
 		answerText, parseMode = a.ErrorMessage(languageTag)
 	}
 	// create message and return
 	answer = tgbotapi.NewMessage(message.Chat.ID, answerText)
 	answer.ParseMode = parseMode
 	answer.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false) // TODO: removes keyboard for the users who has it from the older versions of the @monterails_bot
+	// log answer
+	logTrace(update, answer, languageTag, err)
 	return answer, true
 }
 
@@ -127,6 +122,34 @@ func parseLanguageTag(languageCode string) language.Tag {
 		return render.DefaultLanguageTag
 	}
 	return tag
+}
+
+func logTrace(update tgbotapi.Update, answer tgbotapi.MessageConfig, languageTag language.Tag, err error) {
+	const logFmt = "handleUpdate: %s"
+	var (
+		message  = update.Message
+		logEvent *zerolog.Event
+	)
+	// set level
+	if err != nil {
+		logEvent = log.Warn().Err(err)
+	} else {
+		logEvent = log.Trace()
+	}
+	// get first 2 lines of the answer
+	answerLines := strings.Split(answer.Text, "\n")
+	if len(answerLines) > 2 {
+		answerLines = answerLines[:2]
+	}
+	answerShort := strings.Join(answerLines, "\n")
+	// log
+	logEvent.
+		Int64("chatId", message.Chat.ID).
+		Str("languageCode", update.SentFrom().LanguageCode).
+		Str("languageTag", languageTag.String()).
+		Str("messageText", message.Text).
+		Str("answerShort", answerShort).
+		Msgf(logFmt, "new message handled")
 }
 
 func (a *App) StartMessage(languageTag language.Tag) (message, parseMode string) {
