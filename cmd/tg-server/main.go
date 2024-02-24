@@ -29,6 +29,6 @@ func main() {
 	// server
 	err = server.RunServer(ctx, _config, _app)
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf(logfmt+"app.NewApp: %w", err)).Send()
+		log.Fatal().Err(fmt.Errorf(logfmt+"server.RunServer: %w", err)).Send()
 	}
 }
