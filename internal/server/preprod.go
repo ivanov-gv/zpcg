@@ -1,15 +1,12 @@
 package server
 
 import (
-	"fmt"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/samber/lo"
 )
 
-func AddTestEnvWarning(message tgbotapi.MessageConfig) tgbotapi.MessageConfig {
-	const format = "" +
-		"%s \n " +
-		"\n" +
+func AddTestEnvWarning(messages ...tgbotapi.MessageConfig) []tgbotapi.MessageConfig {
+	const warningText = "" +
 		"THIS IS A TEST VERSION. DO NOT USE IT \n" +
 		"ЭТО ТЕСТОВАЯ ВЕРСИЯ. НЕ ИСПОЛЬЗУЙТЕ ЕЕ \n" +
 		"\n" +
@@ -19,6 +16,13 @@ func AddTestEnvWarning(message tgbotapi.MessageConfig) tgbotapi.MessageConfig {
 		"@Monterails_bot \n" +
 		"@Monterails_bot \n" +
 		"@Monterails_bot \n"
-	message.Text = fmt.Sprintf(format, message.Text)
-	return message
+
+	chatIdSet := lo.SliceToMap(messages, func(item tgbotapi.MessageConfig) (int64, struct{}) {
+		return item.ChatID, struct{}{}
+	})
+
+	for chatId := range chatIdSet {
+		messages = append(messages, tgbotapi.NewMessage(chatId, warningText))
+	}
+	return messages
 }

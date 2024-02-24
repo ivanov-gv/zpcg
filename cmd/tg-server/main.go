@@ -19,16 +19,16 @@ func main() {
 	// config
 	_config, err := config.Load()
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf(logfmt+"can't load config: %w", err))
+		log.Fatal().Err(fmt.Errorf(logfmt+"can't load config: %w", err)).Send()
 	}
 	// app
 	_app, err := app.NewApp(_config)
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf(logfmt+"app.NewApp: %w", err))
+		log.Fatal().Err(fmt.Errorf(logfmt+"app.NewApp: %w", err)).Send()
 	}
 	// server
 	err = server.RunServer(ctx, _config, _app)
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf(logfmt+"app.NewApp: %w", err))
+		log.Fatal().Err(fmt.Errorf(logfmt+"app.NewApp: %w", err)).Send()
 	}
 }

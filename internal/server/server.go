@@ -38,7 +38,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	}
 	// server
 	mux := http.NewServeMux()
-	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot))))
+	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot, postHandlers...))))
 	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) { return })
 	// start
 	if err := http.ListenAndServe(":"+_config.Port, mux); !errors.Is(err, http.ErrServerClosed) {
@@ -47,7 +47,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	return nil
 }
 
-type PostTgMsgHandler func(tgbotapi.MessageConfig) tgbotapi.MessageConfig
+type PostTgMsgHandler func(...tgbotapi.MessageConfig) []tgbotapi.MessageConfig
 
 func newUpdatesHandler(ctx context.Context, _app App, bot *tgbotapi.BotAPI,
 	messagePostHandler ...PostTgMsgHandler) func(http.ResponseWriter, *http.Request) {
@@ -70,15 +70,22 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *tgbotapi.BotAPI,
 			return
 		}
 		// post update handlers
+		var postMessages = []tgbotapi.MessageConfig{msg}
 		for _, handler := range messagePostHandler {
 			if handler == nil {
 				continue
 			}
-			msg = handler(msg)
+			postMessages = handler(postMessages...)
 		}
 		// send
-		_, err = bot.Send(msg)
-		if err != nil {
+		var sendError error
+		for _, finalMessage := range postMessages {
+			_, err := bot.Send(finalMessage)
+			if err != nil {
+				sendError = errors.Join(sendError, err)
+			}
+		}
+		if sendError != nil {
 			logger.Error().Err(fmt.Errorf(logfmt+"bot.Send: %w", err)).Send()
 			return
 		}

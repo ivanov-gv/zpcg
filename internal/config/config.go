@@ -21,7 +21,7 @@ type Config struct {
 }
 
 func Load() (Config, error) {
-	var _config *Config
+	var _config = &Config{}
 	err := env.Parse(_config)
 	if err != nil {
 		return Config{}, fmt.Errorf("env.Parse: %w", err)
