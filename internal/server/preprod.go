@@ -8,10 +8,7 @@ import (
 func AddTestEnvWarning(messages ...tgbotapi.MessageConfig) []tgbotapi.MessageConfig {
 	const warningText = "" +
 		"THIS IS A TEST VERSION. DO NOT USE IT \n" +
-		"ЭТО ТЕСТОВАЯ ВЕРСИЯ. НЕ ИСПОЛЬЗУЙТЕ ЕЕ \n" +
-		"\n" +
-		"FULL VERSION IS HERE: @Monterails_bot \n" +
-		"ПОЛНАЯ ВЕРСИЯ ЗДЕСЬ: @Monterails_bot \n" +
+		"FULL VERSION IS HERE: \n" +
 		"\n" +
 		"@Monterails_bot \n" +
 		"@Monterails_bot \n" +
