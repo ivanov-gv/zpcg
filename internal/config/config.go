@@ -8,10 +8,16 @@ import (
 	"zpcg/resources"
 )
 
+const (
+	EnvironmentProdValue    = "PROD"
+	EnvironmentPreProdValue = "PREPROD"
+)
+
 type Config struct {
 	TelegramApiToken     string `env:"TELEGRAM_APITOKEN,required"`
 	Port                 string `env:"PORT,required"`
 	TimetableGobFileName string `env:"TIMETABLE_GOB_FILENAME"`
+	Environment          string `env:"ENVIRONMENT" envDefault:"PROD"`
 }
 
 func Load() (Config, error) {

@@ -29,6 +29,13 @@ func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	if err != nil {
 		return fmt.Errorf("tgbotapi.NewBotAPI: %w", err)
 	}
+
+	// server middlewares
+	var postHandlers []PostTgMsgHandler
+	if _config.Environment == config.EnvironmentPreProdValue {
+		// add test env warning to every message
+		postHandlers = append(postHandlers, AddTestEnvWarning)
+	}
 	// server
 	mux := http.NewServeMux()
 	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot))))
@@ -40,8 +47,10 @@ func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	return nil
 }
 
+type PostTgMsgHandler func(tgbotapi.MessageConfig) tgbotapi.MessageConfig
+
 func newUpdatesHandler(ctx context.Context, _app App, bot *tgbotapi.BotAPI,
-	messagePostHandler ...func(tgbotapi.MessageConfig) tgbotapi.MessageConfig) func(http.ResponseWriter, *http.Request) {
+	messagePostHandler ...PostTgMsgHandler) func(http.ResponseWriter, *http.Request) {
 	const logfmt = "receiveUpdates: "
 	return func(w http.ResponseWriter, r *http.Request) {
 		if ctx.Err() != nil {
