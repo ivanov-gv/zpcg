@@ -7,10 +7,10 @@ import (
 	"github.com/samber/lo"
 
 	"zpcg/internal/model"
-	"zpcg/internal/name"
-	"zpcg/internal/parser/detailed_page"
-	"zpcg/internal/parser/general_page"
-	parser_model "zpcg/internal/parser/model"
+	"zpcg/internal/service/name"
+	"zpcg/internal/service/parser/detailed_page"
+	"zpcg/internal/service/parser/general_page"
+	parser_model "zpcg/internal/service/parser/model"
 )
 
 const (

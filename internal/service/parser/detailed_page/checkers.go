@@ -3,7 +3,7 @@ package detailed_page
 import (
 	"golang.org/x/net/html"
 
-	"zpcg/internal/parser/utils"
+	"zpcg/internal/service/parser/utils"
 )
 
 const (

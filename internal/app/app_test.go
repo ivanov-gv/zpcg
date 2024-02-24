@@ -5,15 +5,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"zpcg/internal/config"
 	"zpcg/resources"
 )
 
-const TimetableGobFilepath = "timetable.gob"
-
 func TestNewApp(t *testing.T) {
-	timetableReader, err := resources.FS.Open(TimetableGobFilepath)
-	assert.NoError(t, err)
-	app, err := NewApp(timetableReader)
+	var _config config.Config
+	_config.TimetableGobFileName = resources.TimetableGobFileName
+	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 }
@@ -24,21 +23,21 @@ const (
 	DanilovgradStationName      = "Danilovgrad"
 	DanilovgradWrongStationName = "DaNil ovgrad"
 	BarStationName              = "Bar"
-	BarWronStationName          = "Barrrrrr"
+	BarWrongStationName         = "Barrrrrr"
 )
 
 func TestGenerateRoute(t *testing.T) {
-	timetableReader, err := resources.FS.Open(TimetableGobFilepath)
-	assert.NoError(t, err)
-	app, err := NewApp(timetableReader)
+	var _config config.Config
+	_config.TimetableGobFileName = resources.TimetableGobFileName
+	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
-	message, _ := app.GenerateRoute(NiksicWrongStationName, DanilovgradWrongStationName)
+	message, _, _ := app.GenerateRoute(NiksicWrongStationName, DanilovgradWrongStationName)
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message, NiksicStationName)
 	assert.Contains(t, message, DanilovgradStationName)
-	message, _ = app.GenerateRoute(NiksicWrongStationName, BarWronStationName)
+	message, _, _ = app.GenerateRoute(NiksicWrongStationName, BarWrongStationName)
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message, NiksicStationName)

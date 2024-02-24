@@ -1,16 +1,15 @@
 package general_page
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"zpcg/test/resources"
 )
 
-const generalTimetableHtmlFilepath = "../../../resources/Željeznički prevoz Crne Gore - Polasci.html"
-
 func TestGeneralTimetablePageParser(t *testing.T) {
-	f, err := os.Open(generalTimetableHtmlFilepath)
+	f, err := resources.TestFS.Open(resources.GeneralTimetableHtmlFilepath)
 	assert.NoError(t, err, "os.Open")
 	parsedLinks, err := ParseGeneralTimetablePage(f)
 	assert.NoError(t, err, "ParseGeneralTimetablePage")

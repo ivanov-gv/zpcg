@@ -10,8 +10,8 @@ import (
 	"golang.org/x/net/html"
 
 	"zpcg/internal/model"
-	parser_model "zpcg/internal/parser/model"
-	parser_utils "zpcg/internal/parser/utils"
+	parser_model "zpcg/internal/service/parser/model"
+	parser_utils "zpcg/internal/service/parser/utils"
 	"zpcg/internal/utils"
 )
 
