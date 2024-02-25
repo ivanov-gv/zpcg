@@ -52,6 +52,14 @@ type App struct {
 	transferStationId   model.StationId
 }
 
+const (
+	stationsDelimitersSet = stationsDelimiterComma +
+		stationsDelimiterArrow
+
+	stationsDelimiterComma = ","
+	stationsDelimiterArrow = ">"
+)
+
 func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfig, isNotEmpty bool) {
 	if update.Message == nil || update.Message.From == nil {
 		return tgbotapi.MessageConfig{}, false
@@ -68,9 +76,17 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	case strings.HasPrefix(message.Text, "/"):
 		// got command - send start message
 		answerText, parseMode = a.StartMessage(languageTag)
-	case strings.Contains(message.Text, ","):
+	case strings.ContainsAny(message.Text, stationsDelimitersSet):
 		// got message with stations - send a timetable
-		originStation, destinationStation, _ := strings.Cut(message.Text, ",")
+		var (
+			originStation, destinationStation string
+		)
+		// parse stations
+		if _origin, _destination, found := strings.Cut(message.Text, stationsDelimiterComma); found {
+			originStation, destinationStation = _origin, _destination
+		} else if _origin, _destination, found := strings.Cut(message.Text, stationsDelimiterArrow); found {
+			originStation, destinationStation = _origin, _destination
+		}
 		answerText, parseMode, err = a.GenerateRoute(originStation, destinationStation)
 		if err != nil {
 			err = fmt.Errorf("a.GenerateRoute: %w", err)
