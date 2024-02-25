@@ -23,7 +23,11 @@ type Render struct {
 	trainsMap   map[model.TrainId]model.TrainInfo
 }
 
-const timetableLinkAnchor = "#tab3"
+const (
+	timetableLinkAnchor = "#tab3"
+	stationsDelimiter   = "\\>"
+	timeLayout          = "15:04"
+)
 
 func (r *Render) DirectRoutes(paths []model.Path) (message, parseMode string) {
 	// render each line for the result message
@@ -31,16 +35,15 @@ func (r *Render) DirectRoutes(paths []model.Path) (message, parseMode string) {
 	// render header
 	origin := r.stationsMap[paths[0].Origin.Id]
 	destination := r.stationsMap[paths[0].Destination.Id]
-	header := fmt.Sprintf("`%10s \\-\\> %s`", origin.Name, destination.Name)
+	header := fmt.Sprintf("`%10s %s %s`", origin.Name, stationsDelimiter, destination.Name)
 	// add prefix to align header with table content
 	lines = append(lines, header)
 	// render the rest of the message
 	for _, path := range paths {
 		train := r.trainsMap[path.TrainId]
-		line := fmt.Sprintf("[%04d](%s%s)` %s \\-\\> %s `",
+		line := fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
 			train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-			path.Origin.Arrival.Format("15:04"),
-			path.Destination.Departure.Format("15:04"))
+			path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
 		lines = append(lines, line)
 	}
 	return strings.Join(lines, "\n"), tgbotapi.ModeMarkdownV2
@@ -53,7 +56,8 @@ func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destin
 	origin := r.stationsMap[originId]
 	transfer := r.stationsMap[transferId]
 	destination := r.stationsMap[destinationId]
-	header := fmt.Sprintf("`%s \\-\\> %s \\-\\> %s`", origin.Name, transfer.Name, destination.Name)
+	header := fmt.Sprintf("`%s %s %s %s %s`",
+		origin.Name, stationsDelimiter, transfer.Name, stationsDelimiter, destination.Name)
 	// add header
 	lines = append(lines, header)
 	// add other lines
@@ -64,16 +68,14 @@ func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destin
 		)
 		if path.Origin.Id == originId && path.Destination.Id == transferId {
 			// left side of the table - A -> Transfer Stop
-			line = fmt.Sprintf("[%04d](%s%s)` %s \\-\\> %s `",
+			line = fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
 				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-				path.Origin.Arrival.Format("15:04"),
-				path.Destination.Departure.Format("15:04"))
+				path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
 		} else {
 			// right side of the table - Transfer Stop -> B
-			line = fmt.Sprintf("[%04d](%s%s)`          %s \\-\\> %s `",
+			line = fmt.Sprintf("[%04d](%s%s)`         %s %s %s `",
 				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-				path.Origin.Arrival.Format("15:04"),
-				path.Destination.Departure.Format("15:04"))
+				path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
 		}
 		lines = append(lines, line)
 	}
