@@ -99,3 +99,11 @@ func (r *Render) StartMessage(languageCode language.Tag) (message, parseMode str
 		return StartMessageDefault, tgbotapi.ModeMarkdownV2
 	}
 }
+
+//func (r *Render) BlackListedStations(languageCode language.Tag, station1, station2 model.BlackListedStation) (message, parseMode string) {
+//	switch languageCode { // TODO: render
+//	case language.Russian:
+//	default:
+//
+//	}
+//}

@@ -34,7 +34,7 @@ func NewApp(_config config.Config) (*App, error) {
 	// name resolver
 	stationNameResolver := name.NewStationNameResolver(timetable.UnifiedStationNameToStationIdMap, timetable.UnifiedStationNameList)
 	// render
-	_render := render.NewRender(timetable.StationIdToStaionMap, timetable.TrainIdToTrainInfoMap)
+	_render := render.NewRender(timetable.StationIdToStationMap, timetable.TrainIdToTrainInfoMap)
 
 	// complete app
 	return &App{
@@ -87,7 +87,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 		} else if _origin, _destination, found := strings.Cut(message.Text, stationsDelimiterArrow); found {
 			originStation, destinationStation = _origin, _destination
 		}
-		answerText, parseMode, err = a.GenerateRoute(originStation, destinationStation)
+		answerText, parseMode, err = a.GenerateRoute(languageTag, originStation, destinationStation)
 		if err != nil {
 			err = fmt.Errorf("a.GenerateRoute: %w", err)
 		}
@@ -108,7 +108,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	return answer, true
 }
 
-func (a *App) GenerateRoute(origin, destination string) (message, parseMode string, err error) {
+func (a *App) GenerateRoute(languageTag language.Tag, origin, destination string) (message, parseMode string, err error) {
 	// find station ids
 	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
 	if err != nil {
@@ -120,6 +120,15 @@ func (a *App) GenerateRoute(origin, destination string) (message, parseMode stri
 		return "", "", fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
 			"can't find station name [destination='%s']: %w", destination, err)
 	}
+	// check blacklisted stations
+	//if originStationId <=0 || destinationStationId <= 0 { // TODO: map station id to blacklisted stations
+	//	var originStation, station2 model.BlackListedStation
+	//	if originStationId <= 0 {
+	//		originStation =
+	//	}
+	//	message, parseMode = a.render.BlackListedStations(languageTag, station1, station2)
+	//	return message, parseMode, nil
+	//}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// render message

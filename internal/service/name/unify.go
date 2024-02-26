@@ -25,3 +25,8 @@ func Unify(name string) string {
 	withoutUnicode, _, _ := transform.String(t, name)
 	return strings.ToLower(withoutUnicode)
 }
+
+// UnifyIterative is an alias for Unify to use with samber/lo functions
+func UnifyIterative(name string, _ int) string {
+	return Unify(name)
+}
