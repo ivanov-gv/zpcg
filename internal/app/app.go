@@ -11,6 +11,7 @@ import (
 
 	"zpcg/internal/config"
 	"zpcg/internal/model"
+	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/name"
 	"zpcg/internal/service/pathfinder"
 	"zpcg/internal/service/render"
@@ -35,12 +36,15 @@ func NewApp(_config config.Config) (*App, error) {
 	stationNameResolver := name.NewStationNameResolver(timetable.UnifiedStationNameToStationIdMap, timetable.UnifiedStationNameList)
 	// render
 	_render := render.NewRender(timetable.StationIdToStationMap, timetable.TrainIdToTrainInfoMap)
+	// blacklist
+	blackList := blacklist.NewBlackListService()
 
 	// complete app
 	return &App{
 		finder:              finder,
 		stationNameResolver: stationNameResolver,
 		render:              _render,
+		blackList:           blackList,
 		transferStationId:   timetable.TransferStationId,
 	}, nil
 }
@@ -49,6 +53,7 @@ type App struct {
 	finder              *pathfinder.PathFinder
 	stationNameResolver *name.StationNameResolver
 	render              *render.Render
+	blackList           *blacklist.BlackListService
 	transferStationId   model.StationId
 }
 
@@ -66,7 +71,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	}
 	// process message
 	message := update.Message
-	languageTag := parseLanguageTag(update.SentFrom().LanguageCode)
+	languageTag := render.ParseLanguageTag(update.SentFrom().LanguageCode)
 	// generate answer
 	var (
 		answerText, parseMode string
@@ -121,14 +126,10 @@ func (a *App) GenerateRoute(languageTag language.Tag, origin, destination string
 			"can't find station name [destination='%s']: %w", destination, err)
 	}
 	// check blacklisted stations
-	//if originStationId <=0 || destinationStationId <= 0 { // TODO: map station id to blacklisted stations
-	//	var originStation, station2 model.BlackListedStation
-	//	if originStationId <= 0 {
-	//		originStation =
-	//	}
-	//	message, parseMode = a.render.BlackListedStations(languageTag, station1, station2)
-	//	return message, parseMode, nil
-	//}
+	if isBlacklisted, stations := a.blackList.CheckBlackList(originStationId, destinationStationId); isBlacklisted {
+		message, parseMode = a.render.BlackListedStations(languageTag, stations...)
+		return message, parseMode, nil
+	}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// render message
@@ -139,14 +140,6 @@ func (a *App) GenerateRoute(languageTag language.Tag, origin, destination string
 	// if !isDirect - transfer route
 	message, parseMode = a.render.TransferRoutes(routes, originStationId, a.transferStationId, destinationStationId)
 	return message, parseMode, nil
-}
-
-func parseLanguageTag(languageCode string) language.Tag {
-	tag, err := language.Parse(languageCode)
-	if err != nil {
-		return render.DefaultLanguageTag
-	}
-	return tag
 }
 
 func logTrace(update tgbotapi.Update, answer tgbotapi.MessageConfig, languageTag language.Tag, err error) {

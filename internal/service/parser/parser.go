@@ -7,9 +7,8 @@ import (
 	"github.com/samber/lo"
 
 	"zpcg/internal/model"
+	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/name"
-	"zpcg/internal/service/parser/alias"
-	"zpcg/internal/service/parser/black_list"
 	"zpcg/internal/service/parser/detailed_page"
 	"zpcg/internal/service/parser/general_page"
 	parser_model "zpcg/internal/service/parser/model"
@@ -131,28 +130,28 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 
 func AddBlacklistedStations(timetable model.TimetableTransferFormat) (model.TimetableTransferFormat, error) {
 	// station name list - UnifiedStationNameList
-	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, black_list.BlackListUnifiedNames...)
+	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, blacklist.UnifiedNames...)
 
 	// map: station name -> station id - UnifiedStationNameToStationIdMap
 	newMap := lo.Assign(timetable.UnifiedStationNameToStationIdMap,
-		black_list.BlackListUnifiedStationNameToStationIdMap)
+		blacklist.UnifiedStationNameToStationIdMap)
 	// ensure map is not broken
-	if oldMapLen := len(timetable.UnifiedStationNameToStationIdMap) + len(black_list.BlackListUnifiedStationNameToStationIdMap); len(newMap) != oldMapLen {
+	if oldMapLen := len(timetable.UnifiedStationNameToStationIdMap) + len(blacklist.UnifiedStationNameToStationIdMap); len(newMap) != oldMapLen {
 		return model.TimetableTransferFormat{},
 			fmt.Errorf("seems like some stations got overriden by the black list [diff=%d]", len(newMap)-oldMapLen)
 	}
 	timetable.UnifiedStationNameToStationIdMap = newMap
 
 	// station id -> station -
-	timetable.BlacklistedStations = black_list.BlackListedStations
+	timetable.BlacklistedStations = blacklist.BlackListedStations
 	return timetable, nil
 }
 
 func AddAliases(timetable model.TimetableTransferFormat) (model.TimetableTransferFormat, error) {
 	// add aliases to stations list
-	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, alias.AliasesAsUnifiedStationNames...)
+	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, AliasesAsUnifiedStationNames...)
 	// add mapping from aliases to station id
-	for stationName, aliases := range alias.AliasOriginalUnifiedStationNameToUnifiedAliasesMap {
+	for stationName, aliases := range AliasesOriginalUnifiedStationNameToUnifiedAliasesMap {
 		stationId, ok := timetable.UnifiedStationNameToStationIdMap[stationName]
 		if !ok { // station not found
 			return model.TimetableTransferFormat{}, fmt.Errorf("can't find station to add aliases to: stationName = %s", stationName)

@@ -100,10 +100,27 @@ func (r *Render) StartMessage(languageCode language.Tag) (message, parseMode str
 	}
 }
 
-//func (r *Render) BlackListedStations(languageCode language.Tag, station1, station2 model.BlackListedStation) (message, parseMode string) {
-//	switch languageCode { // TODO: render
-//	case language.Russian:
-//	default:
-//
-//	}
-//}
+func (r *Render) BlackListedStations(languageCode language.Tag, stations ...model.BlackListedStation) (message, parseMode string) {
+	var lines []string
+	for _, station := range stations {
+		var line string
+		if customMessage, ok := station.LanguageTagToCustomErrorMessageMap[languageCode.String()]; ok {
+			line = customMessage
+		} else {
+			line = fmt.Sprintf("%s: %s", station.Name, StationDoesNotExistMessageMap[languageCode])
+		}
+		lines = append(lines, line)
+	}
+	lines = append(lines,
+		"", // empty line
+		StationDoesNotExistMessageSuffixMap[languageCode])
+	return strings.Join(lines, "\n"), ""
+}
+
+func ParseLanguageTag(languageCode string) language.Tag {
+	tag, err := language.Parse(languageCode)
+	if err != nil {
+		return DefaultLanguageTag
+	}
+	return tag
+}
