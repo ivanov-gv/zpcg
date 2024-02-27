@@ -1,10 +1,14 @@
 package render
 
 import (
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 
 	"zpcg/internal/model"
 )
@@ -129,4 +133,28 @@ func TestTransferRoutes(t *testing.T) {
 	assert.Contains(t, message, "12:40")
 	assert.Contains(t, message, "08:00")
 	assert.Contains(t, message, "08:40")
+}
+
+func TestConstants(t *testing.T) {
+	var constantsToTest = map[string]map[language.Tag]string{
+		"ErrorMessageMap":                     ErrorMessageMap,
+		"StartMessageMap":                     StartMessageMap,
+		"StationDoesNotExistMessageMap":       StationDoesNotExistMessageMap,
+		"StationDoesNotExistMessageSuffixMap": StationDoesNotExistMessageSuffixMap,
+	}
+
+	for name, _map := range constantsToTest {
+		t.Run(name, func(t *testing.T) {
+			// all the supported languages are present
+			languagesSortFunction := func(a, b language.Tag) int { return strings.Compare(a.String(), b.String()) }
+			actualLanguages := lo.Keys(_map)
+			slices.SortFunc(actualLanguages, languagesSortFunction)
+			expectedLanguages := SupportedLanguages
+			slices.SortFunc(SupportedLanguages, languagesSortFunction)
+			assert.EqualValuesf(t, expectedLanguages, actualLanguages, "all the supported languages are present")
+			// there is no repeating values (i.e. set of keys ~ set of values)
+			valuesSet := lo.SliceToMap(lo.Values(_map), func(item string) (string, struct{}) { return item, struct{}{} })
+			assert.Equal(t, len(lo.Keys(_map)), len(valuesSet), "there are no equal messages accidentally mapped for different languages")
+		})
+	}
 }

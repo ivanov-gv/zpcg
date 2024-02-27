@@ -11,6 +11,7 @@ import (
 
 	"zpcg/internal/config"
 	"zpcg/internal/model"
+	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/name"
 	"zpcg/internal/service/pathfinder"
 	"zpcg/internal/service/render"
@@ -34,13 +35,16 @@ func NewApp(_config config.Config) (*App, error) {
 	// name resolver
 	stationNameResolver := name.NewStationNameResolver(timetable.UnifiedStationNameToStationIdMap, timetable.UnifiedStationNameList)
 	// render
-	_render := render.NewRender(timetable.StationIdToStaionMap, timetable.TrainIdToTrainInfoMap)
+	_render := render.NewRender(timetable.StationIdToStationMap, timetable.TrainIdToTrainInfoMap)
+	// blacklist
+	blackList := blacklist.NewBlackListService()
 
 	// complete app
 	return &App{
 		finder:              finder,
 		stationNameResolver: stationNameResolver,
 		render:              _render,
+		blackList:           blackList,
 		transferStationId:   timetable.TransferStationId,
 	}, nil
 }
@@ -49,6 +53,7 @@ type App struct {
 	finder              *pathfinder.PathFinder
 	stationNameResolver *name.StationNameResolver
 	render              *render.Render
+	blackList           *blacklist.BlackListService
 	transferStationId   model.StationId
 }
 
@@ -66,7 +71,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	}
 	// process message
 	message := update.Message
-	languageTag := parseLanguageTag(update.SentFrom().LanguageCode)
+	languageTag := render.ParseLanguageTag(update.SentFrom().LanguageCode)
 	// generate answer
 	var (
 		answerText, parseMode string
@@ -87,7 +92,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 		} else if _origin, _destination, found := strings.Cut(message.Text, stationsDelimiterArrow); found {
 			originStation, destinationStation = _origin, _destination
 		}
-		answerText, parseMode, err = a.GenerateRoute(originStation, destinationStation)
+		answerText, parseMode, err = a.GenerateRoute(languageTag, originStation, destinationStation)
 		if err != nil {
 			err = fmt.Errorf("a.GenerateRoute: %w", err)
 		}
@@ -108,7 +113,7 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	return answer, true
 }
 
-func (a *App) GenerateRoute(origin, destination string) (message, parseMode string, err error) {
+func (a *App) GenerateRoute(languageTag language.Tag, origin, destination string) (message, parseMode string, err error) {
 	// find station ids
 	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
 	if err != nil {
@@ -120,6 +125,11 @@ func (a *App) GenerateRoute(origin, destination string) (message, parseMode stri
 		return "", "", fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
 			"can't find station name [destination='%s']: %w", destination, err)
 	}
+	// check blacklisted stations
+	if isBlacklisted, stations := a.blackList.CheckBlackList(originStationId, destinationStationId); isBlacklisted {
+		message, parseMode = a.render.BlackListedStations(languageTag, stations...)
+		return message, parseMode, nil
+	}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// render message
@@ -130,14 +140,6 @@ func (a *App) GenerateRoute(origin, destination string) (message, parseMode stri
 	// if !isDirect - transfer route
 	message, parseMode = a.render.TransferRoutes(routes, originStationId, a.transferStationId, destinationStationId)
 	return message, parseMode, nil
-}
-
-func parseLanguageTag(languageCode string) language.Tag {
-	tag, err := language.Parse(languageCode)
-	if err != nil {
-		return render.DefaultLanguageTag
-	}
-	return tag
 }
 
 func logTrace(update tgbotapi.Update, answer tgbotapi.MessageConfig, languageTag language.Tag, err error) {

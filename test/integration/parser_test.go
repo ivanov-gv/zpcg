@@ -8,6 +8,7 @@ import (
 
 	"zpcg/internal/app"
 	"zpcg/internal/config"
+	"zpcg/internal/service/render"
 	"zpcg/resources"
 )
 
@@ -16,7 +17,7 @@ func TestApp(t *testing.T) {
 	_config.TimetableGobFileName = resources.TimetableGobFileName
 	_app, err := app.NewApp(_config)
 	assert.NoError(t, err)
-	message, _, _ := _app.GenerateRoute("niksic", "bar")
+	message, _, _ := _app.GenerateRoute(render.DefaultLanguageTag, "niksic", "bar")
 	t.Log("\n", message, "\n")
 	assert.NotEmpty(t, message)
 	numLines := strings.Count(message, "\n")

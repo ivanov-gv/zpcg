@@ -11,6 +11,9 @@ var (
 	nameToIdMap                 = map[string]model.StationId{}
 )
 
+// generateStationId generates a unique StationId for the given stationName.
+// If the station is already present in the nameToIdMap,
+// it returns the existing id. Otherwise, it generates a new id, which is more or equal to 1.
 func generateStationId(stationName string) model.StationId {
 	if id, found := nameToIdMap[stationName]; found {
 		return id

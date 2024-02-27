@@ -5,10 +5,8 @@ import "embed"
 const (
 	DetailedTimetableFilepath    = "Željeznički prevoz Crne Gore - Broj voza 7108.html"
 	GeneralTimetableHtmlFilepath = "Željeznički prevoz Crne Gore - Polasci.html"
-	TestTimetableGobFilepath     = "test_timetable.gob"
 )
 
 //go:embed "Željeznički prevoz Crne Gore - Broj voza 7108.html"
 //go:embed "Željeznički prevoz Crne Gore - Polasci.html"
-//go:embed "test_timetable.gob"
 var TestFS embed.FS

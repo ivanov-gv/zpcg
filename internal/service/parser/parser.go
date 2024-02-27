@@ -7,6 +7,7 @@ import (
 	"github.com/samber/lo"
 
 	"zpcg/internal/model"
+	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/name"
 	"zpcg/internal/service/parser/detailed_page"
 	"zpcg/internal/service/parser/general_page"
@@ -47,6 +48,16 @@ func ParseTimetable() (model.TimetableTransferFormat, error) {
 	}
 	// convert to transfer format
 	transferFormat := MapTimetableToTransferFormat(detailedTimetableMap)
+	// add blacklisted stations
+	transferFormat, err = AddBlacklistedStations(transferFormat)
+	if err != nil {
+		return model.TimetableTransferFormat{}, fmt.Errorf("AddBlacklistedStations: %w", err)
+	}
+	// add aliases
+	transferFormat, err = AddAliases(transferFormat)
+	if err != nil {
+		return model.TimetableTransferFormat{}, fmt.Errorf("AddAliases: %w", err)
+	}
 	return transferFormat, nil
 }
 
@@ -109,10 +120,45 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 	return model.TimetableTransferFormat{
 		StationIdToTrainIdSet:            stationIdToTrainIdSetMap,
 		TrainIdToStationMap:              trainIdToStationsMap,
-		StationIdToStaionMap:             stationIdToStationMap,
+		StationIdToStationMap:            stationIdToStationMap,
 		TrainIdToTrainInfoMap:            trainIdToTrainInfoMap,
 		UnifiedStationNameToStationIdMap: unifiedStationNameToStationIdMap,
 		UnifiedStationNameList:           unifiedStationNameList,
 		TransferStationId:                transferStationId,
 	}
+}
+
+func AddBlacklistedStations(timetable model.TimetableTransferFormat) (model.TimetableTransferFormat, error) {
+	// station name list - UnifiedStationNameList
+	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, blacklist.UnifiedNames...)
+
+	// map: station name -> station id - UnifiedStationNameToStationIdMap
+	newMap := lo.Assign(timetable.UnifiedStationNameToStationIdMap,
+		blacklist.UnifiedStationNameToStationIdMap)
+	// ensure map is not broken
+	if oldMapLen := len(timetable.UnifiedStationNameToStationIdMap) + len(blacklist.UnifiedStationNameToStationIdMap); len(newMap) != oldMapLen {
+		return model.TimetableTransferFormat{},
+			fmt.Errorf("seems like some stations got overriden by the black list [diff=%d]", len(newMap)-oldMapLen)
+	}
+	timetable.UnifiedStationNameToStationIdMap = newMap
+
+	// station id -> station -
+	timetable.BlacklistedStations = blacklist.BlackListedStations
+	return timetable, nil
+}
+
+func AddAliases(timetable model.TimetableTransferFormat) (model.TimetableTransferFormat, error) {
+	// add aliases to stations list
+	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, AliasesAsUnifiedStationNames...)
+	// add mapping from aliases to station id
+	for stationName, aliases := range AliasesOriginalUnifiedStationNameToUnifiedAliasesMap {
+		stationId, ok := timetable.UnifiedStationNameToStationIdMap[stationName]
+		if !ok { // station not found
+			return model.TimetableTransferFormat{}, fmt.Errorf("can't find station to add aliases to: stationName = %s", stationName)
+		}
+		for _, _alias := range aliases {
+			timetable.UnifiedStationNameToStationIdMap[_alias] = stationId
+		}
+	}
+	return timetable, nil
 }
