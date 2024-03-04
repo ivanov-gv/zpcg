@@ -158,7 +158,8 @@ Response with a route without an intersection is in the following format:
 
 1. Header contains two station names (departure > arrival) written as in the official timetable
 2. Headers delimiter character '>' is aligned to match the timetable character, if possible
-3. Following rows contains a train number with a link to the official timetable, departure time from the departure station and departure time from the arrival station    
+3. Following rows contains a train number with a link to the official timetable, departure time from the
+   departure station and departure time from the arrival station
 4. Rows are sorted in the ascending order by the departure station time
 5. Whole message uses a monospace font to make it possible to match the indent of the header and
    the timetable rows
@@ -207,7 +208,7 @@ Podgorica, Niksic
 ### Path finding algorithm
 
 The bot uses its own path finding algorithm. It does not use Dijkstra or any other ways to solve the problem.
-The time and the memory complexity is O(n).
+The time complexity is const and the memory complexity is O(n).
 
 It built with some assumptions listed below.
 
@@ -225,12 +226,13 @@ Railway system of Montenegro consist of:
 
 So the assumptions are:
 
-1. For any two stations there is a straight route or a route with an intersection in Podgorica station.
+1. Each train passes every station in its route only once.
+2. For any two stations there is a straight route or a route with an intersection in Podgorica station.
    This means the Podgorica station might be used as the only intersection station. Also, there are no routes
    with two or more intersections.
-2. Routes without intersections are always faster (or just preferred) than the routes with one or more.
-3. Routes with intersection in Podgorica are always preferred than the routes with any other.
-4. The Montenegro railway system is an acyclic undirected graph. This means that for every train station,
+3. Routes without intersections are always faster (or just preferred) than the routes with one or more.
+4. Routes with intersection in Podgorica are always preferred than the routes with any other.
+5. The Montenegro railway system is an acyclic undirected graph. This means that for every train station,
    trains can travel in any direction, and it is impossible to circle from a station back to itself
    without repeating stations.
 
@@ -262,6 +264,70 @@ the Podgorica - Niksic line to the Sarajevo.
 It means we can easily rely on the assumptions listed above in order to optimize the path finding algorithm.
 
 #### Steps
+
+1. **Preparation: needed data structures**
+   1. **StationIdToTrainIdSetMap**: map: station -> set of train ids
+
+      This field is a map where each key is a StationId and each value is a set of TrainId.
+      This map allows the PathFinder to know which trains depart from any given station. This information is essential
+      for
+      identifying possible routes when calculating the paths between two stations.
+
+      Train ids are unique and for every station exist a set of trains that passes the station. Consequently, it is
+      possible to fill this structure correctly.
+
+   2. **TrainIdToStationsMap**: map: train id -> (set of stations -> {station name, arrival time, departure time})
+
+      This field is also a map. Each key is a TrainId and each value is a StationIdToStationMap
+      that contains every station that the train stops at. This map is important to derive the sequence of stations that
+      each train traverses along its route.
+
+      According to the assumptions, every train passes each station of its route only once. That makes possible to
+      build a set of route stations with details about the arrival/departure time.
+
+   3. **TransferStation**: station id for the interchange station
+
+      This field represents a predefined station which serves as the only transfer point in case there are no direct
+      paths available between two requested stations.
+
+2. **Check for Direct Path**
+
+   Find a direct path/route from station A (aStation) to station B (bStation).
+   "Direct" here means there are trains which go from station A to station B without the need for a transfer.
+
+   It is done by first checking which trains serve both the station A and station B using the
+   predefined StationIdToTrainIdSetMap:
+   ```go
+   trainIdSetA = p.stationIdToTrainIdSetMap[aStation]
+   trainIdSetB = p.stationIdToTrainIdSetMap[bStation]
+   // get intersection of maps of the trains 
+   possibleRoutes := utils.Intersection(trainIdSetA, trainIdSetB)
+   ```
+   If the set intersection is not empty - the directs paths are found.
+
+   The final result is defined by validating if the train/s found have a schedule such that it/they depart/s
+   from station A and arrive at station B consecutively. This information might be found using prepared
+   TrainIdToStationsMap. If the condition is met, then this direct path is valid and is added to the returning paths.
+
+   We assume that the direct paths are the preferred ones, so there is no need to look for another paths.
+
+   The problem is solved.
+
+3. **Check for Indirect Path**
+
+   If no direct path is found, paths with a transfer needed to be found. This is the step where the predefined
+   Transfer Station is being used.
+
+   In this step the algorithm essentially performs a two-part journey - first it finds the paths from station A
+   to the Transfer Station, then it finds the paths from the Transfer Station to station B the same way as it was done
+   in the previous step. These possible routes are merged together in a specific manner, in case of overlapping
+   schedules,
+   the route which arrives at the transfer station before the departure to station B is preferred.
+
+   We assume that the path through the Transfer station always exist and is the most suitable.
+
+4. **Returning Paths** - Finally return the paths found and a bool flag indicating whether the
+   found routes are direct or not.
 
 ### Parser
 
