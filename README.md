@@ -221,19 +221,45 @@ Railway system of Montenegro consist of:
 - Podgorica - Bar branch
 - Podgorica - Niksic branch
 - Podgorica - Belgrade branch (through Bijelo Polje)
-- Podgorica - Tuzi (and further to Tirane, Albania. This branch is fully abandoned and is not in use)
+- Podgorica - Tuzi (and further to Durrës/Tirane, Albania. This branch is fully abandoned and is not in use)
 
 So the assumptions are:
 
 1. For any two stations there is a straight route or a route with an intersection in Podgorica station.
    This means the Podgorica station might be used as the only intersection station. Also, there are no routes
    with two or more intersections.
-2. Routes without intersections are always faster (or just preferred) than the routes with one or more
-3. The Montenegro railway system is an acyclic undirected graph. This means that for every train station,
+2. Routes without intersections are always faster (or just preferred) than the routes with one or more.
+3. Routes with intersection in Podgorica are always preferred than the routes with any other.
+4. The Montenegro railway system is an acyclic undirected graph. This means that for every train station,
    trains can travel in any direction, and it is impossible to circle from a station back to itself
    without repeating stations.
 
+This means, that it is completely enough to return only one of two types of routes for every possible input:
+
+1. Straight route
+2. Route with exactly one interchange in Podgorica
+
 #### Future-proof
+
+Conditions that may disrupt the assumptions include:
+
+- If the timetable includes a train not passing through the Podgorica station
+- If the railway system has a route with any other preferred interchange station other than Podgorica
+- If a cycle occurs in the graph
+
+Possible improvements to the system might involve:
+
+Extending the Podgorica - Belgrade branch to the Subotica station and beyond to Hungary, in light of Subotica
+being mentioned in the [official timetable](https://www.zcg-prevoz.me/search) and the Subotica - Szeged rail line is now
+[reopened](https://www.railwaypro.com/wp/subotica-szeged-rail-passenger-services-resumed/). It may add new stations
+to the branch but not going to create a cycle. Some kind of fork might be added which mean there might be another
+preferred intersection change for trains going from Hungary to Serbia, but it is obviously outside the context of
+the Montenegro timetable bot.
+
+The same applies to the possible renovation of the Podgorica - Tuzi - Durrës/Tirane branch and an extension of
+the Podgorica - Niksic line to the Sarajevo.
+
+It means we can easily rely on the assumptions listed above in order to optimize the path finding algorithm.
 
 #### Steps
 
