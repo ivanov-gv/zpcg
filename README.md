@@ -40,79 +40,6 @@ This bot is an attempt to solve those issues.
    5. ✅ Uses only in-memory storage, no external database or cache
    6. ✅ Fully stateless, no persistence at all
 
-## Known issues
-
-### Input format
-
-Right now the bot requires an input in a certain way explained in the [Interface section](#timetable-request).
-
-This is a too strict format that makes some issue for users:
-
-- Sometimes users use other delimiters instead of a comma - and the bot returns an error.
-  Example: "Beograd - Podgorica"
-- Some users (russian and serbian speakers for examples) prefer cyrillic characters, like:
-  "Белград, Подгорица" or "Београд, Подгорица"
-- Some users copy the route from the previously sent messages in order to get a new timetable, like:
-  "Virpazar > Podgorica > Niksic"
-
-All those inputs might be parsed easily anyway. 
-
-The solution:
-1. Get the user input string
-2. Remove all the spaces
-3. Split the string using any non-alphanumeric characters as separators
-4. If there are less than 2 parts in the result of the splitting - return error
-5. Take the first and the last part of the result as a departure and an arrival station
-6. Convert cyrillic chars to latin ones
-7. Pass further to the existing pipeline
-
-### Cached keyboard from the previous version
-
-Telegram allows developers to use keyboards. However, it is cached in the users device telegram
-instance. Even though if it is no longer supported, the users might still
-attempt to use an old cached version of the keyboard.
-As a remedy, the keyboard is deleted with the first message received from
-the new version. For an efficient cleanup, consider clearing the cached keyboard with
-a broadcast update message.
-
-It might be a good idea to clear the cached keyboard with a broadcast update message.
-It might be also a good idea to do so after the new keyboard will be done in order to send only
-one message instead of two.
-
-### No general information about Montenegro Railways
-
-Some users are not familiar at all with the transport in Montenegro:
-do not know where the railways stations are, which cities have stations, etc.
-It leads users to blindly search for the stations that do not exist. There are some examples of the inputs:
-
-- "Sarajevo, Belgrad" - Sarajevo is the capital of Bosnia and Herzegovina,
-  Belgrade - the capital of Serbia. Why the users search those stations in the **Montenegro** Bot?
-- "Albania, Podgorica" - Albania is a country, not a city. Obviously, the user tried to find out are
-  there any ways to get from the Albania to the Podgorica by a train.
-- "Podgorica, Milan" - the same 
-- "Таганрог, Ростов Главный" - I'm not joking, that's the real input. And furthermore - the same
-  user tried to find this route 4 times with different inputs
-
-I think there should be some kind of `/help` command to return some general information
-about the bot, Montenegro and the transport.
-
-### Low user trust in the output
-
-Previous version of the bot was completely static, made in an hour using a free telegram bot constructor
-with hardcoded timetable. It was truly obvious that the timetable was not updated
-and might be (and actually was) outdated. So users have those trust issues now and the bot has to
-overcome this.
-
-There has to be:
-- The timetable last update time
-- Inline button to update it manually
-- Links to the official site 
-
-### Trains are frequently running late
-
-There has to be a warning about possible delays especially for routes with intersections, in summer and
-for the fast trains - they are usually late for several hours, unfortunately.
-
 # Solution details
 
 ## Interface
@@ -359,6 +286,8 @@ Therefore, basically, the algorithm has a linear time and space complexity.
 
 ### Approximate string match
 
+// TODO: move it to another repo
+
 #### Description
 
 Users usually make typos or simply do not know how to spell station names correctly. That's why we need to implement an
@@ -428,7 +357,7 @@ The file is embedded right into the executable using `"embed"` lib and is loaded
 
 # Ways to improve
 
-## Interface
+## Future plans
 
 ### Keyboard
 
@@ -436,10 +365,81 @@ The file is embedded right into the executable using `"embed"` lib and is loaded
 
 ### Links
 
-### Cyrillic alphabet
-
 ### Telegram WebApp
 
-## Additional info
+### Other platforms
 
-## Other platforms
+## Known issues
+
+### Input format
+
+Right now the bot requires an input in a certain way explained in the [Interface section](#timetable-request).
+
+This is a too strict format that makes some issue for users:
+
+- Sometimes users use other delimiters instead of a comma - and the bot returns an error.
+  Example: "Beograd - Podgorica"
+- Some users (russian and serbian speakers for examples) prefer cyrillic characters, like:
+  "Белград, Подгорица" or "Београд, Подгорица"
+- Some users copy the route from the previously sent messages in order to get a new timetable, like:
+  "Virpazar > Podgorica > Niksic"
+
+All those inputs might be parsed easily anyway.
+
+The solution:
+
+1. Get the user input string
+2. Remove all the spaces
+3. Split the string using any non-alphanumeric characters as separators
+4. If there are less than 2 parts in the result of the splitting - return error
+5. Take the first and the last part of the result as a departure and an arrival station
+6. Convert cyrillic chars to latin ones
+7. Pass further to the existing pipeline
+
+### Cached keyboard from the previous version
+
+Telegram allows developers to use keyboards. However, it is cached in the users device telegram
+instance. Even though if it is no longer supported, the users might still
+attempt to use an old cached version of the keyboard.
+As a remedy, the keyboard is deleted with the first message received from
+the new version. For an efficient cleanup, consider clearing the cached keyboard with
+a broadcast update message.
+
+It might be a good idea to clear the cached keyboard with a broadcast update message.
+It might be also a good idea to do so after the new keyboard will be done in order to send only
+one message instead of two.
+
+### No general information about Montenegro Railways
+
+Some users are not familiar at all with the transport in Montenegro:
+do not know where the railways stations are, which cities have stations, etc.
+It leads users to blindly search for the stations that do not exist. There are some examples of the inputs:
+
+- "Sarajevo, Belgrad" - Sarajevo is the capital of Bosnia and Herzegovina,
+  Belgrade - the capital of Serbia. Why the users search those stations in the **Montenegro** Bot?
+- "Albania, Podgorica" - Albania is a country, not a city. Obviously, the user tried to find out are
+  there any ways to get from the Albania to the Podgorica by a train.
+- "Podgorica, Milan" - the same
+- "Таганрог, Ростов Главный" - I'm not joking, that's the real input. And furthermore - the same
+  user tried to find this route 4 times with different inputs
+
+I think there should be some kind of `/help` command to return some general information
+about the bot, Montenegro and the transport.
+
+### Low user trust in the output
+
+Previous version of the bot was completely static, made in an hour using a free telegram bot constructor
+with hardcoded timetable. It was truly obvious that the timetable was not updated
+and might be (and actually was) outdated. So users have those trust issues now and the bot has to
+overcome this.
+
+There has to be:
+
+- The timetable last update time
+- Inline button to update it manually
+- Links to the official site
+
+### Trains are frequently running late
+
+There has to be a warning about possible delays especially for routes with intersections, in summer and
+for the fast trains - they are usually late for several hours, unfortunately.
