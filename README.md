@@ -38,17 +38,22 @@ This bot is an attempt to solve those issues.
    3. ✅ Scales up/down automatically
    4. ✅ Runs on 1~2 thread cpus with minimum RAM available on the cloud
    5. ✅ Uses only in-memory storage, no external database or cache
-   6. ✅ Fully stateless, no persistance at all 
+   6. ✅ Fully stateless, no persistence at all
 
 ## Known issues
 
 ### Input format
-Right now the bot requeires an input in a certaion way explained in the [Interface section](###Timetable-request).
+
+Right now the bot requires an input in a certain way explained in the [Interface section](#timetable-request).
 
 This is a too strict format that makes some issue for users:
-- Sometimes users use other delimiters instead of a comma - and the bot returns an error. Example: "Beograd - Podgorica"
-- Some users (russian and serbian speakers for examples) prefer cyrillic characters, like: "Белград, Подгорица" or "Београд, Подгорица"
-- Some users copy the route from the previously sent messages in order to get a new timetable, like: "Virpazar > Podgorica > Niksic"   
+
+- Sometimes users use other delimiters instead of a comma - and the bot returns an error.
+  Example: "Beograd - Podgorica"
+- Some users (russian and serbian speakers for examples) prefer cyrillic characters, like:
+  "Белград, Подгорица" or "Београд, Подгорица"
+- Some users copy the route from the previously sent messages in order to get a new timetable, like:
+  "Virpazar > Podgorica > Niksic"
 
 All those inputs might be parsed easily anyway. 
 
@@ -63,23 +68,40 @@ The solution:
 
 ### Cached keyboard from the previous version
 
-Telegram allows developers to use keyboards but it is cached in the users device telegram instance. Some users still tries to use it but it is not supported anymore. Now it is deleting with the first received message from the new version.
+Telegram allows developers to use keyboards. However, it is cached in the users device telegram
+instance. Even though if it is no longer supported, the users might still
+attempt to use an old cached version of the keyboard.
+As a remedy, the keyboard is deleted with the first message received from
+the new version. For an efficient cleanup, consider clearing the cached keyboard with
+a broadcast update message.
 
-It might be a good idea to clear the cached keyboard with a broadcasted update message. It might be also a good idea to do so after the new keybord will be done in order to send only one message instead of two.
+It might be a good idea to clear the cached keyboard with a broadcast update message.
+It might be also a good idea to do so after the new keyboard will be done in order to send only
+one message instead of two.
 
 ### No general information about Montenegro Railways
 
-Some users are not familiar at all with the transport in Montenegro: do not know where the railways stations are, which cities have stations, etc. It leads users to blindly search for the stations that do not exist. There are some examples of the inputs:
-- "Sarajevo, Belgrad" - Sarajevo is the capital of Bosnia and Herzegovina, Belgrade - the capital of Serbia. Why the users search those stations in the **Montenegro** Bot?
-- "Albania, Podgorica" - Albania is a country, not a city. Obviously, the user tried to find out are there any ways to get from the Albania to the Podgorica by a train.
-- "Podgorica, Milan" - the same 
-- "Таганрог, Ростов Главный" - I'm not joking, thats the real input. And furthermore - the same user tried to find this route 4 times with different inputs
+Some users are not familiar at all with the transport in Montenegro:
+do not know where the railways stations are, which cities have stations, etc.
+It leads users to blindly search for the stations that do not exist. There are some examples of the inputs:
 
-I think there should be some kind of a `/help` command to return some general information about the bot, Montenegro and the transport. 
+- "Sarajevo, Belgrad" - Sarajevo is the capital of Bosnia and Herzegovina,
+  Belgrade - the capital of Serbia. Why the users search those stations in the **Montenegro** Bot?
+- "Albania, Podgorica" - Albania is a country, not a city. Obviously, the user tried to find out are
+  there any ways to get from the Albania to the Podgorica by a train.
+- "Podgorica, Milan" - the same 
+- "Таганрог, Ростов Главный" - I'm not joking, that's the real input. And furthermore - the same
+  user tried to find this route 4 times with different inputs
+
+I think there should be some kind of `/help` command to return some general information
+about the bot, Montenegro and the transport.
 
 ### Low trust in the output
 
-Previous version of the bot was completely static, made in an hour using a free telegram bot constructor with hardcoded timetable. It was truly obvious that the timetable was not updated and might be (and actually was) outdated. So users have those trust issues now and the bot has to overcome this.
+Previous version of the bot was completely static, made in an hour using a free telegram bot constructor
+with hardcoded timetable. It was truly obvious that the timetable was not updated
+and might be (and actually was) outdated. So users have those trust issues now and the bot has to
+overcome this.
 
 There has to be:
 - The timetable last update time
@@ -88,7 +110,8 @@ There has to be:
 
 ### Trains are frequently running late
 
-There has to be a warning about possible delays especially for routes with intersections, in the summer season and for the fast trains - they are usually late for several hours, unfortunately.
+There has to be a warning about possible delays especially for routes with intersections, in summer and
+for the fast trains - they are usually late for several hours, unfortunately.
 
 # Solution details
 
@@ -98,25 +121,31 @@ The current solution uses a lot of assumptions in order to make it cost-effectiv
 
 ### /start
 
-`/start` is the first message the bot receives after the user starts the bot. It returns a quick, laconic instructions of how to use the bot.
+`/start` is the first message the bot receives after the user starts the bot. It returns a quick,
+laconic instructions of how to use the bot.
 
-Returns the message in the different language depending on the users telegram settings. If the users language is not supported - it uses English to communicate.
+Returns the message in the different language depending on the users telegram settings.
+If the users language is not supported - it uses English to communicate.
 
 ### Timetable request
 
 Any message without a `/` in it is parsed as a timetable request.
 
-The expected format is `{departure station name using only latin characters} {',' or '>' symbol} {arrival station name using only latin characters}`.
+The expected format is
+`{departure station name using only latin characters} {',' or '>' symbol}
+{arrival station name using only latin characters}`.
 
-Messages in the expected format are replyed with a timetable. Any other - an error.
+Messages in the expected format are replayed with a timetable. Any other - an error.
 
 The default error is defined in `/internal/service/render/{language_code}.go` files.
 
-If the input message is in the right format but contains a station name from the black list defined in `/internal/service/blacklist` - it will be responded with a custom warning usually telling the user that the station does not exist.
+If the input message is in the right format but contains a station name from the black list defined in
+`/internal/service/blacklist` - it will be responded with a custom warning usually telling the user
+that the station does not exist.
 
 #### No intersections
 
-Response with a route without an intesection is in the following format: 
+Response with a route without an intersection is in the following format:
 
 ```
  Podgorica > Danilovgrad
@@ -128,14 +157,15 @@ Response with a route without an intesection is in the following format:
 ```
 
 1. Header contains two station names (departure > arrival) written as in the official timetable
-2. Headers delimiter character '>' is alligned to match the timetable character, if possible
+2. Headers delimiter character '>' is aligned to match the timetable character, if possible
 3. Following rows contains a train number with a link to the official timetable, departure time from the departure station and departure time from the arrival station    
 4. Rows are sorted in the ascending order by the departure station time
-5. Whole message uses a monospace font to make it possible to match the allign of the header and the timetable rows
+5. Whole message uses a monospace font to make it possible to match the indent of the header and
+   the timetable rows
 
 #### With an intersection
 
-Response with a route with an intesection is in the following format: 
+Response with a route with an intersection is in the following format:
 
 ```
 Virpazar > Podgorica > Nikšić
@@ -156,7 +186,9 @@ Virpazar > Podgorica > Nikšić
 ```
 
 The format is the same as for the route without intersections but:
-1. There are three colums for the times: departure time from the departure station, departure time from the intersection station and the departure time from the arrival station
+
+1. There are three columns for the times: departure time from the departure station,
+   departure time from the intersection station and the departure time from the arrival station
 2. Rows are sorted by the time of the intersection station
 
 
@@ -174,7 +206,32 @@ Podgorica, Niksic
 
 ### Path finding algorithm
 
+The bot uses its own path finding algorithm. It does not use Dijkstra or any other ways to solve the problem.
+The time and the memory complexity is O(n).
+
+It built with some assumptions listed below.
+
 #### Assumptions
+
+![img.png](docs/img.png)
+
+Railway system of Montenegro consist of:
+
+- Main station Podgorica
+- Podgorica - Bar branch
+- Podgorica - Niksic branch
+- Podgorica - Belgrade branch (through Bijelo Polje)
+- Podgorica - Tuzi (and further to Tirane, Albania. This branch is fully abandoned and is not in use)
+
+So the assumptions are:
+
+1. For any two stations there is a straight route or a route with an intersection in Podgorica station.
+   This means the Podgorica station might be used as the only intersection station. Also, there are no routes
+   with two or more intersections.
+2. Routes without intersections are always faster (or just preferred) than the routes with one or more
+3. The Montenegro railway system is an acyclic undirected graph. This means that for every train station,
+   trains can travel in any direction, and it is impossible to circle from a station back to itself
+   without repeating stations.
 
 #### Future-proof
 
