@@ -96,7 +96,7 @@ It leads users to blindly search for the stations that do not exist. There are s
 I think there should be some kind of `/help` command to return some general information
 about the bot, Montenegro and the transport.
 
-### Low trust in the output
+### Low user trust in the output
 
 Previous version of the bot was completely static, made in an hour using a free telegram bot constructor
 with hardcoded timetable. It was truly obvious that the timetable was not updated
@@ -114,8 +114,6 @@ There has to be a warning about possible delays especially for routes with inter
 for the fast trains - they are usually late for several hours, unfortunately.
 
 # Solution details
-
-The current solution uses a lot of assumptions in order to make it cost-effective and fast.
 
 ## Interface
 
@@ -208,7 +206,6 @@ Podgorica, Niksic
 ### Path finding algorithm
 
 The bot uses its own path finding algorithm. It does not use Dijkstra or any other ways to solve the problem.
-The time complexity is const and the memory complexity is O(n).
 
 It built with some assumptions listed below.
 
@@ -326,8 +323,39 @@ It means we can easily rely on the assumptions listed above in order to optimize
 
    We assume that the path through the Transfer station always exist and is the most suitable.
 
-4. **Returning Paths** - Finally return the paths found and a bool flag indicating whether the
+4. **Returning Paths**
+
+   Finally return the paths found and a bool flag indicating whether the
    found routes are direct or not.
+
+#### Complexity
+
+In the first step, the algorithm iterates over each train in a set which contains the intersection of trains
+at station A and station B. The intersection operation would have a time complexity of O(n), where n is the number of
+elements in the larger train set. Then, for every train, it checks the conditions and possibly appends it to the paths.
+Adding all of this up, the time complexity of this operation can be considered to be O(n).
+
+In the second one, the algorithm repeats step one twice, so that would be 2*O(n) ~ O(n). Then it iterates through the
+lists
+of direct paths from station A to the transfer station and from the transfer station to station B, merging these paths
+as it goes. This merger can, in the worst case, have a time complexity of O(n + m), where n and m are the lengths of the
+two lists. Adding these together, the overall time complexity could be considered to be O(n + m) where n is the number
+of elements in the larger set and m is the total number of paths.
+
+The space complexity of the algorithm comes primarily from the storage of the 'paths'. In the worst case,
+it could potentially store each direct path from the source station to the destination, as well as each path
+via the transfer station. This gives a worst-case space complexity of O(n + m), where n and m are the numbers of
+direct and transfer paths, respectively.
+
+Please note: In these analyses, m and n are not necessarily numbers of stations or trains but rather the number
+of paths and matches the algorithm needs to keep track of. Thus, the actual time or space this algorithm takes might be
+different based on the specific graph structure of your train network.
+
+Also, the memory requirement of the StationIdToTrainIdSetMap and TrainIdToStationsMap structures scales linearly with
+the overall increase in the number of stations and trains. The exact growth can be viewed as O(n) and O(m) respectively,
+where 'n' is the number of train services and 'm' is the number of stations.
+
+Therefore, basically, the algorithm has a linear time and space complexity.
 
 ### Parser
 
