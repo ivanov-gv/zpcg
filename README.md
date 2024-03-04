@@ -295,10 +295,10 @@ It means we can easily rely on the assumptions listed above in order to optimize
    It is done by first checking which trains serve both the station A and station B using the
    predefined StationIdToTrainIdSetMap:
    ```go
-   trainIdSetA = p.stationIdToTrainIdSetMap[aStation]
-   trainIdSetB = p.stationIdToTrainIdSetMap[bStation]
-   // get intersection of maps of the trains 
-   possibleRoutes := utils.Intersection(trainIdSetA, trainIdSetB)
+       trainIdSetA = p.stationIdToTrainIdSetMap[aStation]
+       trainIdSetB = p.stationIdToTrainIdSetMap[bStation]
+       // get intersection of maps of the trains 
+       possibleRoutes := utils.Intersection(trainIdSetA, trainIdSetB)
    ```
    If the set intersection is not empty - the directs paths are found.
 
@@ -349,7 +349,7 @@ direct and transfer paths, respectively.
 
 Please note: In these analyses, m and n are not necessarily numbers of stations or trains but rather the number
 of paths and matches the algorithm needs to keep track of. Thus, the actual time or space this algorithm takes might be
-different based on the specific graph structure of your train network.
+different based on the specific graph structure of the train network.
 
 Also, the memory requirement of the StationIdToTrainIdSetMap and TrainIdToStationsMap structures scales linearly with
 the overall increase in the number of stations and trains. The exact growth can be viewed as O(n) and O(m) respectively,
@@ -357,23 +357,74 @@ where 'n' is the number of train services and 'm' is the number of stations.
 
 Therefore, basically, the algorithm has a linear time and space complexity.
 
-### Parser
+### Approximate string match
 
-#### Parsing algo
+#### Description
 
-#### Timetable storage
+Users usually make typos or simply do not know how to spell station names correctly. That's why we need to implement an
+approximate search for the station names.
+
+Let's define the closest to a sample word as:
+
+- It has the longest common substring. Length of the substring has to be more than 0
+- It has the same set of letters or, at least, this set has minimal difference with sample's set
+
+This definition allows us to filter completely unsuitable words - if a word has no matching substrings with the sample,
+it means they have 0 common letters and then can not be called 'close'.
+
+At the same time our definition explicitly marks the closest word not only a word with the closest letters set match
+but also uses information about letters order.
+
+The search steps are:
+
+1. First, for each character in the sample word, we count how many times it appears.
+   We also make a list of all 'end parts' (suffixes) of the word that start with the same character.
+2. Then, for each word we're comparing to the sample, we do the same - we list out 'end parts' (suffixes) and
+   check them against the 'end parts' list we made previously for the sample. We're specifically trying to match the
+   beginnings of the 'end parts'. We keep track of the longest match we find.
+3. We also tally up the characters used in each word and compare these 'character sets' between the sample and each
+   word.
+4. At the end, we choose the word that had the smallest difference in the 'character sets' and the longest match in
+   'end parts'. This is our best match.
+
+#### Complexity
+
+The time complexity of this algorithm can be determined by examining the operations performed:
+
+1. Building RuneStat for the sample string requires scanning each character for a total of O(n) operations,
+   where n is the length of the sample string.
+2. The next loop involves iterating over each word in the search list. The worst-case scenario for each word is when
+   it equals the sample—the loops would result in O(m^2) operations, where m is the size of the word.
+   As this is performed for each word in the searchList, the worst-case time complexity becomes O(k * m^2),
+   where k is the size of the searchList.
+3. To find the minimum word, we need to scan all the words stored, this procedure will take O(k).
+
+Given this, the overall time complexity is dominated by the second step, resulting in O(m^2 * k) in the worst-case
+scenario.
+
+Space complexity depends on the storage of the intermediate RuneStats and Words:
+
+1. Storage of the RuneStat objects for the sample string is O(n).
+2. Within the loop, the creation of the words slice can lead to a space complexity of O(k).
+
+Therefore, the worst-case space complexity of the algorithm is O(n + k), considering the storage of RuneStat objects
+for n sample characters and the storage for k words in the search list
+
+// TODO: compare with others:
+https://github.com/lithammer/fuzzysearch ,
+https://github.com/schollz/closestmatch ,
+https://github.com/antzucaro/matchr
+
+### Exporter
+
+Exporter prepares the needed data structures for finding routes. It parses the [official site](https://zpcg.me/search)
+and saves structures as a file in .gob format using `"encoding/gob"` golang lib.
+
+The file is embedded right into the executable using `"embed"` lib and is loaded to the memory at a startup.
 
 ### Telegram bot
 
-#### Start-up and scalability
-
-#### Approximate match for the station names
-
-#### Path finder
-
-#### Render
-
-### DevOps
+#### DevOps
 
 # Ways to improve
 
