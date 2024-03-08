@@ -12,5 +12,4 @@ type TimetableTransferFormat struct {
 	UnifiedStationNameToStationIdMap map[string]StationId
 	UnifiedStationNameList           []string
 	TransferStationId                StationId
-	BlacklistedStations              []BlackListedStation
 }

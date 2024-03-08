@@ -135,15 +135,12 @@ func AddBlacklistedStations(timetable model.TimetableTransferFormat) (model.Time
 	// map: station name -> station id - UnifiedStationNameToStationIdMap
 	newMap := lo.Assign(timetable.UnifiedStationNameToStationIdMap,
 		blacklist.UnifiedStationNameToStationIdMap)
-	// ensure map is not broken
+	// ensure the map is not broken
 	if oldMapLen := len(timetable.UnifiedStationNameToStationIdMap) + len(blacklist.UnifiedStationNameToStationIdMap); len(newMap) != oldMapLen {
 		return model.TimetableTransferFormat{},
 			fmt.Errorf("seems like some stations got overriden by the black list [diff=%d]", len(newMap)-oldMapLen)
 	}
 	timetable.UnifiedStationNameToStationIdMap = newMap
-
-	// station id -> station -
-	timetable.BlacklistedStations = blacklist.BlackListedStations
 	return timetable, nil
 }
 
