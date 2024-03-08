@@ -1,6 +1,6 @@
 # Montenegro Railways Timetable Bot
 
-A Telegram bot that simplifies finding train schedules in Montenegro.
+A Telegram bot that simplifies finding train timetables in Montenegro.
 
 **[@Monterails_bot](https://t.me/Monterails_bot)**
 
@@ -8,14 +8,14 @@ A Telegram bot that simplifies finding train schedules in Montenegro.
 
 Original timetable - https://zpcg.me/search
 
-The site does not have a mobile version, pretty hard to navigate and can't show intersection routes.
+The site does not have a mobile version, is hard to navigate and can't show intersecting routes.
 This bot is an attempt to solve those issues.
 
 ## Requirements
 
 1. Ensure it's straightforward and user-friendly to the greatest extent possible
-   1. ✅ Provides a menu with all the supported commands
-   2. ✅ Has a start message with laconic and complete description of how to get the timetable
+   1. ✅ Provides a menu with all available commands
+   2. ✅ Has a start message with brief and complete description of how to get the timetable
    3. ✅ Returns the requested timetable even if the user made a typo
    4. ✅ In case of an error returns message with a detailed description of how to resolve the issue
    5. ✅ Has enough logging to check if the users reach their goals
@@ -50,22 +50,22 @@ This bot is an attempt to solve those issues.
 laconic instructions of how to use the bot.
 
 Returns the message in the different language depending on the users telegram settings.
-If the users language is not supported - it uses English to communicate.
+If the user's language is not supported, it uses English for communication.
 
 ### Timetable request
 
-Any message without a `/` in it is parsed as a timetable request.
+Any message without a `/` is parsed as a timetable request.
 
 The expected format is
-`{departure station name using only latin characters} {',' or '>' symbol}
-{arrival station name using only latin characters}`.
+`{departure station name using only Latin characters} {',' or '>' symbol}
+{arrival station name using only Latin characters}`.
 
-Messages in the expected format are replayed with a timetable. Any other - an error.
+Messages in the expected format are replied with a timetable. For any other format, there will be an error.
 
 The default error is defined in `/internal/service/render/{language_code}.go` files.
 
 If the input message is in the right format but contains a station name from the black list defined in
-`/internal/service/blacklist` - it will be responded with a custom warning usually telling the user
+`/internal/service/blacklist` - it is responded with a custom warning usually telling the user
 that the station does not exist.
 
 #### No intersections
@@ -82,11 +82,11 @@ Response with a route without an intersection is in the following format:
 ```
 
 1. Header contains two station names (departure > arrival) written as in the official timetable
-2. Headers delimiter character '>' is aligned to match the timetable character, if possible
+2. Headers' delimiter character '>' is aligned to match the timetable character, if possible
 3. Following rows contains a train number with a link to the official timetable, departure time from the
    departure station and departure time from the arrival station
 4. Rows are sorted in the ascending order by the departure station time
-5. Whole message uses a monospace font to make it possible to match the indent of the header and
+5. The entire message uses a monospace font to make it possible to match the indent of the header and
    the timetable rows
 
 #### With an intersection
@@ -134,7 +134,7 @@ Podgorica, Niksic
 
 The bot uses its own path finding algorithm. It does not use Dijkstra or any other ways to solve the problem.
 
-It built with some assumptions listed below.
+It is built with some assumptions listed below.
 
 #### Assumptions
 
@@ -278,71 +278,11 @@ Please note: In these analyses, m and n are not necessarily numbers of stations 
 of paths and matches the algorithm needs to keep track of. Thus, the actual time or space this algorithm takes might be
 different based on the specific graph structure of the train network.
 
-Also, the memory requirement of the StationIdToTrainIdSetMap and TrainIdToStationsMap structures scales linearly with
+Also, the memory requirement of the StationIdToTrainIdSetMap and TrainIdToStationsMap structures scale linearly with
 the overall increase in the number of stations and trains. The exact growth can be viewed as O(n) and O(m) respectively,
 where 'n' is the number of train services and 'm' is the number of stations.
 
 Therefore, basically, the algorithm has a linear time and space complexity.
-
-### Approximate string match
-
-// TODO: move it to another repo
-
-#### Description
-
-Users usually make typos or simply do not know how to spell station names correctly. That's why we need to implement an
-approximate search for the station names.
-
-Let's define the closest to a sample word as:
-
-- It has the longest common substring. Length of the substring has to be more than 0
-- It has the same set of letters or, at least, this set has minimal difference with sample's set
-
-This definition allows us to filter completely unsuitable words - if a word has no matching substrings with the sample,
-it means they have 0 common letters and then can not be called 'close'.
-
-At the same time our definition explicitly marks the closest word not only a word with the closest letters set match
-but also uses information about letters order.
-
-The search steps are:
-
-1. First, for each character in the sample word, we count how many times it appears.
-   We also make a list of all 'end parts' (suffixes) of the word that start with the same character.
-2. Then, for each word we're comparing to the sample, we do the same - we list out 'end parts' (suffixes) and
-   check them against the 'end parts' list we made previously for the sample. We're specifically trying to match the
-   beginnings of the 'end parts'. We keep track of the longest match we find.
-3. We also tally up the characters used in each word and compare these 'character sets' between the sample and each
-   word.
-4. At the end, we choose the word that had the smallest difference in the 'character sets' and the longest match in
-   'end parts'. This is our best match.
-
-#### Complexity
-
-The time complexity of this algorithm can be determined by examining the operations performed:
-
-1. Building RuneStat for the sample string requires scanning each character for a total of O(n) operations,
-   where n is the length of the sample string.
-2. The next loop involves iterating over each word in the search list. The worst-case scenario for each word is when
-   it equals the sample—the loops would result in O(m^2) operations, where m is the size of the word.
-   As this is performed for each word in the searchList, the worst-case time complexity becomes O(k * m^2),
-   where k is the size of the searchList.
-3. To find the minimum word, we need to scan all the words stored, this procedure will take O(k).
-
-Given this, the overall time complexity is dominated by the second step, resulting in O(m^2 * k) in the worst-case
-scenario.
-
-Space complexity depends on the storage of the intermediate RuneStats and Words:
-
-1. Storage of the RuneStat objects for the sample string is O(n).
-2. Within the loop, the creation of the words slice can lead to a space complexity of O(k).
-
-Therefore, the worst-case space complexity of the algorithm is O(n + k), considering the storage of RuneStat objects
-for n sample characters and the storage for k words in the search list
-
-// TODO: compare with others:
-https://github.com/lithammer/fuzzysearch ,
-https://github.com/schollz/closestmatch ,
-https://github.com/antzucaro/matchr
 
 ### Exporter
 
@@ -353,21 +293,71 @@ The file is embedded right into the executable using `"embed"` lib and is loaded
 
 ### Telegram bot
 
-#### DevOps
+The bot waits for HTTP requests from Telegram, handles and sends messages to users. It runs on the Google Cloud Run
+platform,
+invokes on every request (i.e. is not running all time long) which makes it cost-effective.
+
+It is running on the smallest cpu and memory available: 1 vCPU and 128Mb RAM. And uses usually no more than 15% of this
+memory.
+
+The life cycle is simple:
+
+1. A user request is received. If there are no running instances of the bot - a new one is started. It takes less than a
+   second to wake up and response correctly to a live probe.
+2. Request is handled, route is generated, reply message is sent. It takes about 200ms.
+3. If there is no more requests for ~15 minutes - Cloud Run automatically scales it all down
+
+The request handling time (~200ms) is the only billable time in this lifecycle. The overall cost of the bot right now
+is about 0 ~ 0.13 euros per month. (TODO: add metrics and count num of requests/month)
+
+The bot is almost free to maintain and as cost-effective as possible.
 
 # Ways to improve
+
+This project might be improved in several ways in order to meet the requirements listed above.
 
 ## Future plans
 
 ### Keyboard
 
-### Inline buttons
+"I prefer clicking buttons over a raw keyboard input" - this is a common feedback I get from users. Implementing
+keyboard is a great way to improve UX. But how can the implementation still be stateless and fast enough then?
+
+[Force reply feature](https://core.telegram.org/bots/api#forcereply) is going to be helpful for that.
+
+### Inline keyboard
+
+For each timetable message there has to be a way to update it without sending additional input. It be implemented
+using [inline keyboards](https://core.telegram.org/bots/features#inline-keyboards).
 
 ### Links
 
+For now messages contain only links to a one train route timetable,
+like [this](https://zpcg.me/details?timetable=102#tab3).
+However, it might be a better option to provide a link to the requested route, containing all possible train routes.
+
+It is going to be difficult to implement because all the timetables are accessible via the same
+link - https://zpcg.me/search.
+
 ### Telegram WebApp
 
+Additional info like price, route stations, ticket offices working hours, etc. must be provided. But it is impossible
+to print in one small message. It might be done using [WebApps](https://core.telegram.org/bots/features#web-apps)
+feature
+and [GitHub Pages](https://github.com/revenkroz/telegram-web-app-bot-example) as a host.
+
 ### Other platforms
+
+Telegram bots API is powerful, but the Telegram itself is mostly used by a russian speaking community. In Montenegro
+Viber is widely used and WhatsApp is the best option for any other tourists or foreigners. It is a good idea to
+port this solution to other platforms in order to reach the audience.
+
+ZPCG has a [Viber chat](https://www.zcg-prevoz.me/Informisanje-o-redu-voznje-vozova-putem-aplikacije-Viber.html)
+to get info about the timetable. But it is replies to messages only on working days from 07:00 to 15:00, probably
+because
+there is a person behind the scenes that is answering all the questions. I think it is a good idea to provide the same
+service
+but working fast and 24/7.
 
 ## Known issues
 
@@ -399,7 +389,7 @@ The solution:
 ### Cached keyboard from the previous version
 
 Telegram allows developers to use keyboards. However, it is cached in the users device telegram
-instance. Even though if it is no longer supported, the users might still
+instance. Even though if it may no longer be supported, the users might still
 attempt to use an old cached version of the keyboard.
 As a remedy, the keyboard is deleted with the first message received from
 the new version. For an efficient cleanup, consider clearing the cached keyboard with
@@ -409,9 +399,9 @@ It might be a good idea to clear the cached keyboard with a broadcast update mes
 It might be also a good idea to do so after the new keyboard will be done in order to send only
 one message instead of two.
 
-### No general information about Montenegro Railways
+### No general information about Montenegro railways
 
-Some users are not familiar at all with the transport in Montenegro:
+Some users are not familiar with the transportation in Montenegro:
 do not know where the railways stations are, which cities have stations, etc.
 It leads users to blindly search for the stations that do not exist. There are some examples of the inputs:
 
@@ -439,7 +429,7 @@ There has to be:
 - Inline button to update it manually
 - Links to the official site
 
-### Trains are frequently running late
+### Trains frequently run late
 
 There has to be a warning about possible delays especially for routes with intersections, in summer and
 for the fast trains - they are usually late for several hours, unfortunately.
