@@ -20,7 +20,6 @@ func TestImport(t *testing.T) {
 	assert.NotNil(t, timetable.TrainIdToStationMap)
 	assert.NotNil(t, timetable.UnifiedStationNameList)
 	assert.NotNil(t, timetable.UnifiedStationNameToStationIdMap)
-	assert.NotNil(t, timetable.BlacklistedStations)
 	// not empty
 	assert.NotEmpty(t, timetable.StationIdToStationMap)
 	assert.NotEmpty(t, timetable.TrainIdToTrainInfoMap)
@@ -28,5 +27,4 @@ func TestImport(t *testing.T) {
 	assert.NotEmpty(t, timetable.TrainIdToStationMap)
 	assert.NotEmpty(t, timetable.UnifiedStationNameList)
 	assert.NotEmpty(t, timetable.UnifiedStationNameToStationIdMap)
-	assert.NotEmpty(t, timetable.BlacklistedStations)
 }

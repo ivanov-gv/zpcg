@@ -379,7 +379,7 @@ All those inputs might be parsed easily anyway.
 The solution:
 
 1. Get the user input string
-2. Remove all the spaces
+2. Remove all spaces
 3. Split the string using any non-alphanumeric characters as separators
 4. If there are less than 2 parts in the result of the splitting - return error
 5. Take the first and the last part of the result as a departure and an arrival station
