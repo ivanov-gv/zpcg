@@ -33,8 +33,9 @@ var (
 var DefaultLanguageTag = language.English
 
 const (
-	StartMessageDefault = StartMessageEn
-	ErrorMessageDefault = ErrorMessageEn
+	StartMessageDefault      = StartMessageEn
+	ErrorMessageDefault      = ErrorMessageEn
+	OfficialTimetableUrlText = OfficialTimetableUrlTextEn
 )
 
 // English
@@ -65,6 +66,7 @@ Podgorica, Niksic`
 
 	StationDoesNotExistMessageEn       = "This station does not exist"
 	StationDoesNotExistMessageSuffixEn = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
+	OfficialTimetableUrlTextEn         = "Official site"
 )
 
 // Russian
@@ -94,5 +96,6 @@ Podgorica, Niksic`
 		"Теперь ваша очередь\\!"
 
 	StationDoesNotExistMessageRu       = "Такой станции не существует"
-	StationDoesNotExistMessageSuffixRu = "" // TODO: add /info "Хотите узнать где в Черногории есть жд сообщение? Используйте команду /info"
+	StationDoesNotExistMessageSuffixRu = "  " // TODO: add /info "Хотите узнать где в Черногории есть жд сообщение? Используйте команду /info"
+	OfficialTimetableUrlTextRu         = "Официальный сайт"
 )

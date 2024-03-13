@@ -138,7 +138,7 @@ It is built with some assumptions listed below.
 
 #### Assumptions
 
-![img.png](docs/img.png)
+![img.png](docs/resources/img.png)
 
 Railway system of Montenegro consist of:
 

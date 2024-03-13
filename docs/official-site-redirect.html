@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="">
+<body onload="populateFormFieldsAndSubmit()">
+<form action="https://zpcg.me/search/" id="redirectForm" method="POST">
+    <input id="stopFromName" name="SearchForm[stopFromName]" type="hidden" value="">
+    <input id="travelDate" name="SearchForm[travelDate]" type="hidden" value="">
+    <input id="stopToName" name="SearchForm[stopToName]" type="hidden" value="">
+    <input name="yt0" type="hidden" value="pretraži red vožnje">
+</form>
+
+<script>
+    function populateFormFieldsAndSubmit() {
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById("stopFromName").value = params.get('from');
+        document.getElementById("travelDate").value = params.get('date');
+        document.getElementById("stopToName").value = params.get('to');
+        document.forms['redirectForm'].submit();
+    }
+</script>
+
+</body>
+</html>
