@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
 	"zpcg/internal/config"
@@ -57,42 +58,25 @@ type App struct {
 	transferStationId   model.StationId
 }
 
-const (
-	stationsDelimitersSet = stationsDelimiterComma +
-		stationsDelimiterArrow
-
-	stationsDelimiterComma = ","
-	stationsDelimiterArrow = ">"
-)
-
-func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfig, isNotEmpty bool) {
+func (a *App) HandleUpdate(update tgbotapi.Update) []tgbotapi.MessageConfig {
 	if update.Message == nil || update.Message.From == nil {
-		return tgbotapi.MessageConfig{}, false
+		return nil
 	}
 	// process message
 	message := update.Message
 	languageTag := render.ParseLanguageTag(update.SentFrom().LanguageCode)
-	// generate answer
+	// generate output
 	var (
-		answerText, parseMode string
-		err                   error
+		response model.Response
+		err      error
 	)
 	switch {
 	case strings.HasPrefix(message.Text, "/"):
 		// got command - send start message
-		answerText, parseMode = a.StartMessage(languageTag)
-	case strings.ContainsAny(message.Text, stationsDelimitersSet):
+		response = a.render.StartMessage(languageTag)
+	case strings.ContainsAny(message.Text, string(lo.SpecialCharset)):
 		// got message with stations - send a timetable
-		var (
-			originStation, destinationStation string
-		)
-		// parse stations
-		if _origin, _destination, found := strings.Cut(message.Text, stationsDelimiterComma); found {
-			originStation, destinationStation = _origin, _destination
-		} else if _origin, _destination, found := strings.Cut(message.Text, stationsDelimiterArrow); found {
-			originStation, destinationStation = _origin, _destination
-		}
-		answerText, parseMode, err = a.GenerateRoute(languageTag, originStation, destinationStation)
+		response, err = a.GenerateRoute(languageTag, message.Text)
 		if err != nil {
 			err = fmt.Errorf("a.GenerateRoute: %w", err)
 		}
@@ -102,44 +86,64 @@ func (a *App) HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfi
 	}
 	// handle error
 	if err != nil {
-		answerText, parseMode = a.ErrorMessage(languageTag)
+		response = a.render.ErrorMessage(languageTag)
 	}
-	// create message and return
-	answer = tgbotapi.NewMessage(message.Chat.ID, answerText)
-	answer.ParseMode = parseMode
-	answer.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false) // TODO: removes keyboard for the users who has it from the older versions of the @monterails_bot
-	// log answer
-	logTrace(update, answer, languageTag, err)
-	return answer, true
+	output := ResponseToTelegram(message.Chat.ID, response)
+	// log output
+	logTrace(update, output, languageTag, err)
+	return []tgbotapi.MessageConfig{output}
 }
 
-func (a *App) GenerateRoute(languageTag language.Tag, origin, destination string) (message, parseMode string, err error) {
+const stationsDelimiter = ','
+
+func parseInputStations(input string) (originStation, destinationStation string, err error) {
+	// convert all special chars to stationsDelimiterComma
+	inputWithProperDelimiter := strings.Map(func(r rune) rune {
+		if strings.ContainsAny(string(r), string(lo.SpecialCharset)) {
+			return stationsDelimiter
+		}
+		return r
+	}, input)
+
+	// parse stations
+	stations := strings.Split(inputWithProperDelimiter, string(stationsDelimiter))
+	if len(stations) < 2 {
+		return "", "", fmt.Errorf("not enough stations provided: %s", inputWithProperDelimiter)
+	}
+	return stations[0], lo.Must(lo.Last(stations)), nil
+}
+
+func (a *App) GenerateRoute(languageTag language.Tag, input string) (model.Response, error) {
+	origin, destination, err := parseInputStations(input)
+	if err != nil {
+		return model.Response{}, fmt.Errorf("parseInputStations: %w", err)
+	}
 	// find station ids
 	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
 	if err != nil {
-		return "", "", fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+		return model.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
 			"can't find station name [origin='%s']: %w", origin, err)
 	}
 	destinationStationId, err := a.stationNameResolver.FindStationIdByApproximateName(destination)
 	if err != nil {
-		return "", "", fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+		return model.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
 			"can't find station name [destination='%s']: %w", destination, err)
 	}
 	// check blacklisted stations
 	if isBlacklisted, stations := a.blackList.CheckBlackList(originStationId, destinationStationId); isBlacklisted {
-		message, parseMode = a.render.BlackListedStations(languageTag, stations...)
-		return message, parseMode, nil
+		message := a.render.BlackListedStations(languageTag, stations...)
+		return message, nil
 	}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// render message
 	if isDirect {
-		message, parseMode = a.render.DirectRoutes(routes)
-		return message, parseMode, nil
+		message := a.render.DirectRoutes(languageTag, routes)
+		return message, nil
 	}
 	// if !isDirect - transfer route
-	message, parseMode = a.render.TransferRoutes(routes, originStationId, a.transferStationId, destinationStationId)
-	return message, parseMode, nil
+	message := a.render.TransferRoutes(languageTag, routes, originStationId, a.transferStationId, destinationStationId)
+	return message, nil
 }
 
 func logTrace(update tgbotapi.Update, answer tgbotapi.MessageConfig, languageTag language.Tag, err error) {
@@ -168,12 +172,4 @@ func logTrace(update tgbotapi.Update, answer tgbotapi.MessageConfig, languageTag
 		Str("messageText", message.Text).
 		Str("answerShort", answerShort).
 		Msgf(logFmt, "new message handled")
-}
-
-func (a *App) StartMessage(languageTag language.Tag) (message, parseMode string) {
-	return a.render.StartMessage(languageTag)
-}
-
-func (a *App) ErrorMessage(languageTag language.Tag) (message, parseMode string) {
-	return a.render.ErrorMessage(languageTag)
 }

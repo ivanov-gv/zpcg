@@ -1,8 +1,10 @@
 package app
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
 	"zpcg/internal/config"
@@ -34,16 +36,36 @@ func TestGenerateRoute(t *testing.T) {
 	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
-	message, _, _ := app.GenerateRoute(render.DefaultLanguageTag, NiksicWrongStationName, DanilovgradWrongStationName)
+	message, _ := app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, DanilovgradWrongStationName))
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
-	assert.Contains(t, message, NiksicStationName)
-	assert.Contains(t, message, DanilovgradStationName)
-	message, _, _ = app.GenerateRoute(render.DefaultLanguageTag, NiksicWrongStationName, BarWrongStationName)
+	assert.Contains(t, message.Text, NiksicStationName)
+	assert.Contains(t, message.Text, DanilovgradStationName)
+	assert.NotEmpty(t, message.InlineKeyboard)
+	message, _ = app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, BarWrongStationName))
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
-	assert.Contains(t, message, NiksicStationName)
-	assert.Contains(t, message, BarStationName)
+	assert.Contains(t, message.Text, NiksicStationName)
+	assert.Contains(t, message.Text, BarStationName)
+}
+
+func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
+	var _config config.Config
+	_config.TimetableGobFileName = resources.TimetableGobFileName
+	app, err := NewApp(_config)
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+	message, _ := app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), DanilovgradWrongStationName))
+	t.Log("\n", message)
+	assert.NotEmpty(t, message)
+	assert.Contains(t, message.Text, NiksicStationName)
+	assert.Contains(t, message.Text, DanilovgradStationName)
+	assert.NotEmpty(t, message.InlineKeyboard)
+	message, _ = app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), BarWrongStationName))
+	t.Log("\n", message)
+	assert.NotEmpty(t, message)
+	assert.Contains(t, message.Text, NiksicStationName)
+	assert.Contains(t, message.Text, BarStationName)
 }
 
 func TestBlackList(t *testing.T) {
@@ -56,9 +78,9 @@ func TestBlackList(t *testing.T) {
 	for _, station := range blacklist.BlackListedStations {
 		for _, language := range render.SupportedLanguages {
 			t.Run(station.Name+"/"+language.String(), func(t *testing.T) {
-				message, _, err := app.GenerateRoute(language, BarStationName, station.Name)
+				message, err := app.GenerateRoute(language, fmt.Sprintf("%s, %s", BarStationName, station.Name))
 				assert.NoError(t, err)
-				assert.Contains(t, message, station.LanguageTagToCustomErrorMessageMap[language.String()])
+				assert.Contains(t, message.Text, station.LanguageTagToCustomErrorMessageMap[language.String()])
 			})
 		}
 	}

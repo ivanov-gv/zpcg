@@ -17,7 +17,7 @@ import (
 )
 
 type App interface {
-	HandleUpdate(update tgbotapi.Update) (answer tgbotapi.MessageConfig, isNotEmpty bool)
+	HandleUpdate(update tgbotapi.Update) []tgbotapi.MessageConfig
 }
 
 func RunServer(ctx context.Context, _config config.Config, _app App) error {
@@ -65,21 +65,20 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *tgbotapi.BotAPI,
 			logger.Error().Err(fmt.Errorf(logfmt+"json.NewDecoder(r.Body).Decode(&update): %w", err)).Send()
 			return
 		}
-		msg, isNotEmpty := _app.HandleUpdate(update)
-		if !isNotEmpty {
+		messages := _app.HandleUpdate(update)
+		if len(messages) == 0 {
 			return
 		}
 		// post update handlers
-		var postMessages = []tgbotapi.MessageConfig{msg}
 		for _, handler := range messagePostHandler {
 			if handler == nil {
 				continue
 			}
-			postMessages = handler(postMessages...)
+			messages = handler(messages...)
 		}
 		// send
 		var sendError error
-		for _, finalMessage := range postMessages {
+		for _, finalMessage := range messages {
 			_, err := bot.Send(finalMessage)
 			if err != nil {
 				sendError = errors.Join(sendError, err)

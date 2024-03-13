@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"golang.org/x/text/language"
@@ -29,7 +30,21 @@ const (
 	timeLayout          = "15:04"
 )
 
-func (r *Render) DirectRoutes(paths []model.Path) (message, parseMode string) {
+func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, destination string) model.InlineButton {
+	var text string
+	switch languageCode {
+	case language.Russian:
+		text = OfficialTimetableUrlTextRu
+	default:
+		text = OfficialTimetableUrlText
+	}
+	return model.InlineButton{
+		Text: text,
+		Url:  getUrlToTimetable(origin, destination, time.Time{}),
+	}
+}
+
+func (r *Render) DirectRoutes(languageTag language.Tag, paths []model.Path) model.Response {
 	// render each line for the result message
 	var lines []string
 	// render header
@@ -46,10 +61,17 @@ func (r *Render) DirectRoutes(paths []model.Path) (message, parseMode string) {
 			path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
 		lines = append(lines, line)
 	}
-	return strings.Join(lines, "\n"), tgbotapi.ModeMarkdownV2
+	// add inline keyboard with url to the official website
+	inlineKeyboard := [][]model.InlineButton{{inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, destination.Name)}}
+	return model.Response{
+		Text:           strings.Join(lines, "\n"),
+		ParseMode:      tgbotapi.ModeMarkdownV2,
+		InlineKeyboard: inlineKeyboard,
+	}
 }
 
-func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destinationId model.StationId) (message, parseMode string) {
+func (r *Render) TransferRoutes(languageTag language.Tag, paths []model.Path,
+	originId, transferId, destinationId model.StationId) model.Response {
 	// render each line for the result message
 	var lines []string
 	// render header
@@ -79,28 +101,39 @@ func (r *Render) TransferRoutes(paths []model.Path, originId, transferId, destin
 		}
 		lines = append(lines, line)
 	}
-	return strings.Join(lines, "\n"), tgbotapi.ModeMarkdownV2
-}
-
-func (r *Render) ErrorMessage(languageCode language.Tag) (message, parseMode string) {
-	switch languageCode {
-	case language.Russian:
-		return ErrorMessageRu, ""
-	default:
-		return ErrorMessageDefault, ""
+	// add inline keyboard with url to the official website
+	inlineKeyboard := [][]model.InlineButton{
+		{
+			inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, transfer.Name),
+			inlineButtonWithOfficialTimetableUrl(languageTag, transfer.Name, destination.Name),
+		},
+	}
+	return model.Response{
+		Text:           strings.Join(lines, "\n"),
+		ParseMode:      tgbotapi.ModeMarkdownV2,
+		InlineKeyboard: inlineKeyboard,
 	}
 }
 
-func (r *Render) StartMessage(languageCode language.Tag) (message, parseMode string) {
+func (r *Render) ErrorMessage(languageCode language.Tag) model.Response {
 	switch languageCode {
 	case language.Russian:
-		return StartMessageRu, tgbotapi.ModeMarkdownV2
+		return model.Response{Text: ErrorMessageRu}
 	default:
-		return StartMessageDefault, tgbotapi.ModeMarkdownV2
+		return model.Response{Text: ErrorMessageDefault}
 	}
 }
 
-func (r *Render) BlackListedStations(languageCode language.Tag, stations ...model.BlackListedStation) (message, parseMode string) {
+func (r *Render) StartMessage(languageCode language.Tag) model.Response {
+	switch languageCode {
+	case language.Russian:
+		return model.Response{Text: StartMessageRu, ParseMode: tgbotapi.ModeMarkdownV2}
+	default:
+		return model.Response{Text: StartMessageDefault, ParseMode: tgbotapi.ModeMarkdownV2}
+	}
+}
+
+func (r *Render) BlackListedStations(languageCode language.Tag, stations ...model.BlackListedStation) model.Response {
 	var lines []string
 	for _, station := range stations {
 		var line string
@@ -114,7 +147,10 @@ func (r *Render) BlackListedStations(languageCode language.Tag, stations ...mode
 	lines = append(lines,
 		"", // empty line
 		StationDoesNotExistMessageSuffixMap[languageCode])
-	return strings.Join(lines, "\n"), ""
+	return model.Response{
+		Text:      strings.Join(lines, "\n"),
+		ParseMode: "",
+	}
 }
 
 func ParseLanguageTag(languageCode string) language.Tag {
