@@ -14,7 +14,7 @@ func ResponseToTelegram(chatId int64, response model.Response) tgbotapi.MessageC
 
 	// FIXME: removes keyboard for the users who has it from the older versions of the @monterails_bot
 	//   we need to send RemoveKeyboard message silently to everyone with an update text after the brand new version will be implemented
-	if output.ReplyMarkup != nil {
+	if output.ReplyMarkup == nil {
 		output.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false)
 	}
 	return output
