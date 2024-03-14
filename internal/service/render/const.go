@@ -66,7 +66,7 @@ Podgorica, Niksic`
 
 	StationDoesNotExistMessageEn       = "This station does not exist"
 	StationDoesNotExistMessageSuffixEn = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
-	OfficialTimetableUrlTextEn         = "Official site"
+	OfficialTimetableUrlTextEn         = "More info"
 )
 
 // Russian
@@ -97,5 +97,5 @@ Podgorica, Niksic`
 
 	StationDoesNotExistMessageRu       = "Такой станции не существует"
 	StationDoesNotExistMessageSuffixRu = "  " // TODO: add /info "Хотите узнать где в Черногории есть жд сообщение? Используйте команду /info"
-	OfficialTimetableUrlTextRu         = "Официальный сайт"
+	OfficialTimetableUrlTextRu         = "Подробнее"
 )
