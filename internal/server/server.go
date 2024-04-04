@@ -7,25 +7,31 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/yfuruyama/crzerolog"
 
 	"zpcg/internal/config"
+	"zpcg/internal/model"
 )
 
 type App interface {
-	HandleUpdate(update tgbotapi.Update) []tgbotapi.MessageConfig
+	HandleUpdate(update model.Update) (response []model.ResponseWithChatId, warning error)
 }
 
+// RunServer starts all processes needed to communicate with environment - initializes http server, logger,
+// middlewares, k8s probes, etc. It knows nothing about business logic, only handles communication
 func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	// logger
 	rootLogger := zerolog.New(os.Stdout)
 	middleware := crzerolog.InjectLogger(&rootLogger)
 	// tg bot
-	bot, err := tgbotapi.NewBotAPI(_config.TelegramApiToken)
+	bot, err := gotgbot.NewBot(_config.TelegramApiToken, &gotgbot.BotOpts{
+		DisableTokenCheck: true,
+	})
 	if err != nil {
 		return fmt.Errorf("tgbotapi.NewBotAPI: %w", err)
 	}
@@ -47,25 +53,37 @@ func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	return nil
 }
 
-type PostTgMsgHandler func(...tgbotapi.MessageConfig) []tgbotapi.MessageConfig
+type PostTgMsgHandler func(...model.ResponseWithChatId) []model.ResponseWithChatId
 
-func newUpdatesHandler(ctx context.Context, _app App, bot *tgbotapi.BotAPI,
+func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 	messagePostHandler ...PostTgMsgHandler) func(http.ResponseWriter, *http.Request) {
 	const logfmt = "receiveUpdates: "
 	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			update              gotgbot.Update
+			responses           []string
+			finalError, warning error
+			httpStatus          = http.StatusOK
+		)
+		defer func() {
+			logTrace(update, responses, warning, finalError)
+			w.WriteHeader(httpStatus)
+		}()
+
+		// handle update
 		if ctx.Err() != nil {
+			finalError = ctx.Err()
+			httpStatus = http.StatusInternalServerError
 			return
 		}
-		var (
-			update tgbotapi.Update
-			logger = log.Ctx(r.Context())
-		)
 		err := json.NewDecoder(r.Body).Decode(&update)
 		if err != nil {
-			logger.Error().Err(fmt.Errorf(logfmt+"json.NewDecoder(r.Body).Decode(&update): %w", err)).Send()
+			finalError = fmt.Errorf(logfmt+"json.NewDecoder(r.Body).Decode(&update): %w", err)
+			httpStatus = http.StatusBadRequest
 			return
 		}
-		messages := _app.HandleUpdate(update)
+		var messages []model.ResponseWithChatId
+		messages, warning = _app.HandleUpdate(UpdateFromTelegram(update))
 		if len(messages) == 0 {
 			return
 		}
@@ -79,14 +97,51 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *tgbotapi.BotAPI,
 		// send
 		var sendError error
 		for _, finalMessage := range messages {
-			_, err := bot.Send(finalMessage)
+			chatId, response, opts := ResponseToTelegram(finalMessage)
+			responses = append(responses, response)
+			_, err := bot.SendMessage(chatId, response, opts)
 			if err != nil {
 				sendError = errors.Join(sendError, err)
 			}
 		}
 		if sendError != nil {
-			logger.Error().Err(fmt.Errorf(logfmt+"bot.Send: %w", err)).Send()
+			finalError = fmt.Errorf(logfmt+"bot.SendMessage: %w", sendError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	}
+}
+
+func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError error) {
+	const logFmt = "handleUpdate: %s"
+	var (
+		message  = update.Message
+		logEvent *zerolog.Event
+	)
+	// set level
+	switch {
+	case finalError != nil:
+		logEvent = log.Error().AnErr("error", finalError).AnErr("warning", warning)
+	case warning != nil:
+		logEvent = log.Warn().AnErr("warning", warning)
+	default:
+		logEvent = log.Trace()
+	}
+	// log responseTexts
+	var responseShorts []string
+	for _, response := range responseTexts {
+		// get first 2 lines of the response
+		responseLines := strings.Split(response, "\n")
+		if len(responseLines) > 2 {
+			responseLines = responseLines[:2]
+		}
+		responseShorts = append(responseShorts, strings.Join(responseLines, "\n"))
+	}
+	// log
+	logEvent.
+		Int64("chatId", message.Chat.Id).
+		Str("languageCode", update.Message.From.LanguageCode).
+		Str("messageText", message.Text).
+		Strs("responseShorts", responseShorts).
+		Msgf(logFmt, "new message handled")
 }

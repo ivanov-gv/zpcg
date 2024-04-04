@@ -1,25 +1,31 @@
 package server
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/samber/lo"
+
+	"zpcg/internal/model"
 )
 
-func AddTestEnvWarning(messages ...tgbotapi.MessageConfig) []tgbotapi.MessageConfig {
+func AddTestEnvWarning(messages ...model.ResponseWithChatId) []model.ResponseWithChatId {
 	const warningText = "" +
 		"THIS IS A TEST VERSION. DO NOT USE IT \n" +
-		"FULL VERSION IS HERE: \n" +
+		"THE RELEASE VERSION IS HERE: \n" +
 		"\n" +
 		"@Monterails_bot \n" +
 		"@Monterails_bot \n" +
 		"@Monterails_bot \n"
 
-	chatIdSet := lo.SliceToMap(messages, func(item tgbotapi.MessageConfig) (int64, struct{}) {
-		return item.ChatID, struct{}{}
+	chatIdSet := lo.SliceToMap(messages, func(item model.ResponseWithChatId) (int64, struct{}) {
+		return item.ChatId, struct{}{}
 	})
 
 	for chatId := range chatIdSet {
-		messages = append(messages, tgbotapi.NewMessage(chatId, warningText))
+		messages = append(messages, model.ResponseWithChatId{
+			Response: model.Response{
+				Text: warningText,
+			},
+			ChatId: chatId,
+		})
 	}
 	return messages
 }

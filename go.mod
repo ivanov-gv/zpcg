@@ -3,8 +3,8 @@ module zpcg
 go 1.22
 
 require (
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.25
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.32.0
