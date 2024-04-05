@@ -125,17 +125,38 @@ var (
 			},
 		},
 		{
+			Name: "Albania",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Albania",
+			},
+		},
+		{
 			Name: "Tirana",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
-				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории.",
-				language.English.String(): "There are no routes between Montenegro and Albania.",
+				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Albania",
+			},
+		},
+		{
+			Name: "Shkoder",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Albania",
+			},
+		},
+		{
+			Name: "Bosnia and Herzegovina",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Bosnia and Herzegovina",
 			},
 		},
 		{
 			Name: "Sarajevo",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
-				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории.",
-				language.English.String(): "There are no routes between Montenegro and Bosnia and Herzegovina.",
+				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Bosnia and Herzegovina",
 			},
 		},
 	}
