@@ -21,11 +21,11 @@ This bot is an attempt to solve those issues.
    5. ✅ Has enough logging to check if the users reach their goals
    6. ❌ Recognizes latin and cyrillic alphabet
    7. ❌ Provides button interface for the most used stations
-   8. ❌ Provides additional information:
+   8. ~ Provides additional information:
       1. ❌ Price and discounts
       2. ❌ Marks trains as local/fast
       3. ❌ Stations location, ticket office availability
-      4. ❌ Official website links
+      4. ✅ Official website links
       5. ❌ Last update time
 2. Has a full, updated timetable
    1. ✅ Parses original website automatically
@@ -49,16 +49,27 @@ This bot is an attempt to solve those issues.
 `/start` is the first message the bot receives after the user starts the bot. It returns a quick,
 laconic instructions of how to use the bot.
 
-Returns the message in the different language depending on the users telegram settings.
+Returns the message in different languages depending on the users telegram settings.
 If the user's language is not supported, it uses English for communication.
 
 ### Timetable request
 
 Any message without a `/` is parsed as a timetable request.
 
-The expected format is
-`{departure station name using only Latin characters} {',' or '>' symbol}
-{arrival station name using only Latin characters}`.
+Let's introduce two definitions
+
+`{delimiter symbol}` - one of !@#$%^&*()_+-=[]{}|;':",./<>? chars
+
+`{departure/arrival station name}` - any number of Latin chars. It may contain any other chars other than delimiter
+symbols, but they will be ignored
+
+The request is expected to be in following formats:
+
+`{departure station name} {delimiter symbol} {arrival station name}`
+
+or
+
+`{departure station name} {delimiter symbol} {any number of any chars} {delimiter symbol} {arrival station name}`
 
 Messages in the expected format are replied with a timetable. For any other format, there will be an error.
 
@@ -79,6 +90,8 @@ Response with a route without an intersection is in the following format:
 [7104](https://zpcg.me/details?timetable=160#tab3) 15:35 > 16:04 
 [7106](https://zpcg.me/details?timetable=204#tab3) 18:30 > 18:59 
 [7108](https://zpcg.me/details?timetable=203#tab3) 21:45 > 22:14
+
+{inline button with a link to the route on zpcg.me}
 ```
 
 1. Header contains two station names (departure > arrival) written as in the official timetable
@@ -88,6 +101,7 @@ Response with a route without an intersection is in the following format:
 4. Rows are sorted in the ascending order by the departure station time
 5. The entire message uses a monospace font to make it possible to match the indent of the header and
    the timetable rows
+6. Inline button is showed under the message
 
 #### With an intersection
 
@@ -109,6 +123,8 @@ Virpazar > Podgorica > Nikšić
 [6104](https://zpcg.me/details?timetable=205#tab3) 18:25 > 19:15 
 [7108](https://zpcg.me/details?timetable=203#tab3)         21:45 > 22:48 
 [6160](https://zpcg.me/details?timetable=225#tab3) 21:29 > 22:00
+
+{inline button with a link to the first route on zpcg.me} {inline button with a link to the second route on zpcg.me}
 ```
 
 The format is the same as for the route without intersections but:
@@ -116,6 +132,7 @@ The format is the same as for the route without intersections but:
 1. There are three columns for the times: departure time from the departure station,
    departure time from the intersection station and the departure time from the arrival station
 2. Rows are sorted by the time of the intersection station
+3. The message has two inline buttons for each route link
 
 
 ### Error message
@@ -330,15 +347,6 @@ keyboard is a great way to improve UX. But how can the implementation still be s
 For each timetable message there has to be a way to update it without sending additional input. It be implemented
 using [inline keyboards](https://core.telegram.org/bots/features#inline-keyboards).
 
-### Links
-
-For now messages contain only links to a one train route timetable,
-like [this](https://zpcg.me/details?timetable=102#tab3).
-However, it might be a better option to provide a link to the requested route, containing all possible train routes.
-
-It is going to be difficult to implement because all the timetables are accessible via the same
-link - https://zpcg.me/search.
-
 ### Telegram WebApp
 
 Additional info like price, route stations, ticket offices working hours, etc. must be provided. But it is impossible
@@ -360,31 +368,6 @@ service
 but working fast and 24/7.
 
 ## Known issues
-
-### Input format
-
-Right now the bot requires an input in a certain way explained in the [Interface section](#timetable-request).
-
-This is a too strict format that makes some issue for users:
-
-- Sometimes users use other delimiters instead of a comma - and the bot returns an error.
-  Example: "Beograd - Podgorica"
-- Some users (russian and serbian speakers for examples) prefer cyrillic characters, like:
-  "Белград, Подгорица" or "Београд, Подгорица"
-- Some users copy the route from the previously sent messages in order to get a new timetable, like:
-  "Virpazar > Podgorica > Niksic"
-
-All those inputs might be parsed easily anyway.
-
-The solution:
-
-1. Get the user input string
-2. Remove all spaces
-3. Split the string using any non-alphanumeric characters as separators
-4. If there are less than 2 parts in the result of the splitting - return error
-5. Take the first and the last part of the result as a departure and an arrival station
-6. Convert cyrillic chars to latin ones
-7. Pass further to the existing pipeline
 
 ### Cached keyboard from the previous version
 
