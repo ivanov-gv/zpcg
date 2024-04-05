@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
@@ -50,6 +47,8 @@ func NewApp(_config config.Config) (*App, error) {
 	}, nil
 }
 
+// App handles requests in the most general form. It has to know nothing about specific messenger, api, libs etc.
+// It simply takes message and generates response. Contains whole business logic and business logic only
 type App struct {
 	finder              *pathfinder.PathFinder
 	stationNameResolver *name.StationNameResolver
@@ -58,13 +57,13 @@ type App struct {
 	transferStationId   model.StationId
 }
 
-func (a *App) HandleUpdate(update tgbotapi.Update) []tgbotapi.MessageConfig {
-	if update.Message == nil || update.Message.From == nil {
-		return nil
+func (a *App) HandleUpdate(update model.Update) (responseWithChatIds []model.ResponseWithChatId, warning error) {
+	if !update.Message.IsFilled || !update.Message.From.IsFilled {
+		return nil, nil
 	}
 	// process message
 	message := update.Message
-	languageTag := render.ParseLanguageTag(update.SentFrom().LanguageCode)
+	languageTag := render.ParseLanguageTag(update.Message.From.LanguageCode)
 	// generate output
 	var (
 		response model.Response
@@ -88,10 +87,11 @@ func (a *App) HandleUpdate(update tgbotapi.Update) []tgbotapi.MessageConfig {
 	if err != nil {
 		response = a.render.ErrorMessage(languageTag)
 	}
-	output := ResponseToTelegram(message.Chat.ID, response)
-	// log output
-	logTrace(update, output, languageTag, err)
-	return []tgbotapi.MessageConfig{output}
+	output := model.ResponseWithChatId{
+		Response: response,
+		ChatId:   message.ChatId,
+	}
+	return []model.ResponseWithChatId{output}, err
 }
 
 const stationsDelimiter = ','
@@ -144,32 +144,4 @@ func (a *App) GenerateRoute(languageTag language.Tag, input string) (model.Respo
 	// if !isDirect - transfer route
 	message := a.render.TransferRoutes(languageTag, routes, originStationId, a.transferStationId, destinationStationId)
 	return message, nil
-}
-
-func logTrace(update tgbotapi.Update, answer tgbotapi.MessageConfig, languageTag language.Tag, err error) {
-	const logFmt = "handleUpdate: %s"
-	var (
-		message  = update.Message
-		logEvent *zerolog.Event
-	)
-	// set level
-	if err != nil {
-		logEvent = log.Warn().Err(err)
-	} else {
-		logEvent = log.Trace()
-	}
-	// get first 2 lines of the answer
-	answerLines := strings.Split(answer.Text, "\n")
-	if len(answerLines) > 2 {
-		answerLines = answerLines[:2]
-	}
-	answerShort := strings.Join(answerLines, "\n")
-	// log
-	logEvent.
-		Int64("chatId", message.Chat.ID).
-		Str("languageCode", update.SentFrom().LanguageCode).
-		Str("languageTag", languageTag.String()).
-		Str("messageText", message.Text).
-		Str("answerShort", answerShort).
-		Msgf(logFmt, "new message handled")
 }

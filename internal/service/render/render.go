@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"golang.org/x/text/language"
 
 	"zpcg/internal/model"
@@ -65,7 +64,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []model.Path) mode
 	inlineKeyboard := [][]model.InlineButton{{inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, destination.Name)}}
 	return model.Response{
 		Text:           strings.Join(lines, "\n"),
-		ParseMode:      tgbotapi.ModeMarkdownV2,
+		ParseMode:      model.ModeMarkdownV2,
 		InlineKeyboard: inlineKeyboard,
 	}
 }
@@ -110,7 +109,7 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []model.Path,
 	}
 	return model.Response{
 		Text:           strings.Join(lines, "\n"),
-		ParseMode:      tgbotapi.ModeMarkdownV2,
+		ParseMode:      model.ModeMarkdownV2,
 		InlineKeyboard: inlineKeyboard,
 	}
 }
@@ -127,9 +126,9 @@ func (r *Render) ErrorMessage(languageCode language.Tag) model.Response {
 func (r *Render) StartMessage(languageCode language.Tag) model.Response {
 	switch languageCode {
 	case language.Russian:
-		return model.Response{Text: StartMessageRu, ParseMode: tgbotapi.ModeMarkdownV2}
+		return model.Response{Text: StartMessageRu, ParseMode: model.ModeMarkdownV2}
 	default:
-		return model.Response{Text: StartMessageDefault, ParseMode: tgbotapi.ModeMarkdownV2}
+		return model.Response{Text: StartMessageDefault, ParseMode: model.ModeMarkdownV2}
 	}
 }
 
@@ -149,7 +148,7 @@ func (r *Render) BlackListedStations(languageCode language.Tag, stations ...mode
 		StationDoesNotExistMessageSuffixMap[languageCode])
 	return model.Response{
 		Text:      strings.Join(lines, "\n"),
-		ParseMode: "",
+		ParseMode: model.ModeNone,
 	}
 }
 
