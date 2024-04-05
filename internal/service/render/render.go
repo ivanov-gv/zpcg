@@ -58,7 +58,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []model.Path) mode
 		train := r.trainsMap[path.TrainId]
 		line := fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
 			train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-			path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
+			path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		lines = append(lines, line)
 	}
 	// add inline keyboard with url to the official website
@@ -92,12 +92,12 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []model.Path,
 			// left side of the table - A -> Transfer Stop
 			line = fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
 				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-				path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
+				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		} else {
 			// right side of the table - Transfer Stop -> B
 			line = fmt.Sprintf("[%04d](%s%s)`         %s %s %s `",
 				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-				path.Origin.Arrival.Format(timeLayout), stationsDelimiter, path.Destination.Departure.Format(timeLayout))
+				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		}
 		lines = append(lines, line)
 	}
