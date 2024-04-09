@@ -1,48 +1,39 @@
 package transfer
 
 import (
-	"encoding/gob"
-	"io"
+	"fmt"
 	"os"
 
-	"github.com/pkg/errors"
+	"zpcg/gen/timetable"
+	"zpcg/internal/model"
+)
+
+const timetableGoFileFormat = `
+package timetable
+
+import (
+	"time"
 
 	"zpcg/internal/model"
 )
 
+var Timetable = %#v
+`
+
 func ExportTimetable(filename string, timetable model.TimetableTransferFormat) error {
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
+	fileContent := fmt.Sprintf(timetableGoFileFormat, timetable)
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer file.Close()
 	if err != nil {
-		return errors.Wrap(err, "can not open file with os.OpenFile")
+		return fmt.Errorf("can not open file with os.OpenFile: %w", err)
 	}
-	enc := gob.NewEncoder(file)
-	err = enc.Encode(timetable)
+	_, err = file.WriteString(fileContent)
 	if err != nil {
-		return errors.Wrap(err, "can not encode timetable with enc.Encode")
+		return fmt.Errorf("can not encode timetable with enc.Encode: %w", err)
 	}
 	return nil
 }
 
-func ImportTimetable(filename string) (*model.TimetableTransferFormat, error) {
-	file, err := os.Open(filename)
-	defer file.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "can not open file with os.Open")
-	}
-	result, err := ImportTimetableFromReader(file)
-	if err != nil {
-		return nil, errors.Wrap(err, "ImportTimetableFromReader")
-	}
-	return result, nil
-}
-
-func ImportTimetableFromReader(reader io.Reader) (*model.TimetableTransferFormat, error) {
-	dec := gob.NewDecoder(reader)
-	result := &model.TimetableTransferFormat{}
-	err := dec.Decode(result)
-	if err != nil {
-		return nil, errors.Wrap(err, "can not decode timetable with enc.Decode")
-	}
-	return result, nil
+func ImportTimetable() model.TimetableTransferFormat {
+	return timetable.Timetable
 }

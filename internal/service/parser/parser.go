@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/samber/lo"
@@ -114,6 +115,8 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 	// fill unifiedStationNameList
 	var unifiedStationNameList []string
 	unifiedStationNameList = lo.Keys(unifiedStationNameToStationIdMap)
+	// sort for more predictable output
+	sort.Strings(unifiedStationNameList)
 	// get transfer station id
 	var transferStationId = unifiedStationNameToStationIdMap[name.Unify(model.TransferStationName)]
 

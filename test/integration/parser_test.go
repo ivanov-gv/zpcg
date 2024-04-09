@@ -9,12 +9,10 @@ import (
 	"zpcg/internal/app"
 	"zpcg/internal/config"
 	"zpcg/internal/service/render"
-	"zpcg/resources"
 )
 
 func TestApp(t *testing.T) {
 	var _config config.Config
-	_config.TimetableGobFileName = resources.TimetableGobFileName
 	_app, err := app.NewApp(_config)
 	assert.NoError(t, err)
 	message, _ := _app.GenerateRoute(render.DefaultLanguageTag, "niksic, bar")

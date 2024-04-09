@@ -10,12 +10,10 @@ import (
 	"zpcg/internal/config"
 	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/render"
-	"zpcg/resources"
 )
 
 func TestNewApp(t *testing.T) {
 	var _config config.Config
-	_config.TimetableGobFileName = resources.TimetableGobFileName
 	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
@@ -32,7 +30,6 @@ const (
 
 func TestGenerateRoute(t *testing.T) {
 	var _config config.Config
-	_config.TimetableGobFileName = resources.TimetableGobFileName
 	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
@@ -51,7 +48,6 @@ func TestGenerateRoute(t *testing.T) {
 
 func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
 	var _config config.Config
-	_config.TimetableGobFileName = resources.TimetableGobFileName
 	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
@@ -70,7 +66,6 @@ func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
 
 func TestBlackList(t *testing.T) {
 	var _config config.Config
-	_config.TimetableGobFileName = resources.TimetableGobFileName
 	app, err := NewApp(_config)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)

@@ -4,15 +4,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"zpcg/resources"
 )
 
 func TestImport(t *testing.T) {
-	f, err := resources.FS.Open(resources.TimetableGobFileName)
-	assert.NoError(t, err)
-	timetable, err := ImportTimetableFromReader(f)
-	assert.NoError(t, err)
+	timetable := ImportTimetable()
 	// not nil
 	assert.NotNil(t, timetable.StationIdToStationMap)
 	assert.NotNil(t, timetable.TrainIdToTrainInfoMap)
