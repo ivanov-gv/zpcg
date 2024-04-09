@@ -21,6 +21,7 @@ var Timetable = %#v
 `
 
 func ExportTimetable(filename string, timetable model.TimetableTransferFormat) error {
+	// TODO: the output is not stable - generates different files on the same timetable
 	fileContent := fmt.Sprintf(timetableGoFileFormat, timetable)
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer file.Close()
