@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -33,7 +34,10 @@ func ParseTimetable() (model.TimetableTransferFormat, error) {
 	detailedTimetableMap := make(map[model.TrainId]parser_model.DetailedTimetable, len(generalTimetableMap))
 	// do not rewrite this loop with concurrency because zpcg.me do not have enough resources to handle all those requests
 	// concurrency version is in the commit f5a2f983ce73fcc74f271d3bc4db51c2c56fe89f
-	for trainId, generalTimetable := range generalTimetableMap {
+	trainIds := lo.Keys(generalTimetableMap)
+	slices.Sort(trainIds) // sort to make output stable
+	for _, trainId := range trainIds {
+		generalTimetable := generalTimetableMap[trainId]
 		detailedTimetableFullLink := BaseUrl + generalTimetable.DetailedTimetableLink
 		response, err := retryablehttp.Get(detailedTimetableFullLink)
 		if err != nil {
