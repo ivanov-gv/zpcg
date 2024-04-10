@@ -7,14 +7,12 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/internal/config"
 	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/render"
 )
 
 func TestNewApp(t *testing.T) {
-	var _config config.Config
-	app, err := NewApp(_config)
+	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 }
@@ -29,8 +27,7 @@ const (
 )
 
 func TestGenerateRoute(t *testing.T) {
-	var _config config.Config
-	app, err := NewApp(_config)
+	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 	message, _ := app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, DanilovgradWrongStationName))
@@ -47,8 +44,7 @@ func TestGenerateRoute(t *testing.T) {
 }
 
 func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
-	var _config config.Config
-	app, err := NewApp(_config)
+	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 	message, _ := app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), DanilovgradWrongStationName))
@@ -65,8 +61,7 @@ func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
 }
 
 func TestBlackList(t *testing.T) {
-	var _config config.Config
-	app, err := NewApp(_config)
+	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 

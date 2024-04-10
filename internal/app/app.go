@@ -7,7 +7,6 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/config"
 	"zpcg/internal/model"
 	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/name"
@@ -16,12 +15,7 @@ import (
 	"zpcg/internal/service/transfer"
 )
 
-func NewApp(_config config.Config) (*App, error) {
-	//// timetable reader
-	//timetableReader, err := resources.FS.Open(_config.TimetableGobFileName)
-	//if err != nil {
-	//	return nil, fmt.Errorf("fs.Open: %w", err)
-	//}
+func NewApp() (*App, error) {
 	// timetable
 	timetable := transfer.ImportTimetable()
 	// finder
