@@ -7,15 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"zpcg/internal/app"
-	"zpcg/internal/config"
 	"zpcg/internal/service/render"
-	"zpcg/resources"
 )
 
 func TestApp(t *testing.T) {
-	var _config config.Config
-	_config.TimetableGobFileName = resources.TimetableGobFileName
-	_app, err := app.NewApp(_config)
+	_app, err := app.NewApp()
 	assert.NoError(t, err)
 	message, _ := _app.GenerateRoute(render.DefaultLanguageTag, "niksic, bar")
 	t.Log("\n", message, "\n")

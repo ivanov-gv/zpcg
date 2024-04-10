@@ -7,27 +7,17 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/config"
 	"zpcg/internal/model"
 	"zpcg/internal/service/blacklist"
 	"zpcg/internal/service/name"
 	"zpcg/internal/service/pathfinder"
 	"zpcg/internal/service/render"
 	"zpcg/internal/service/transfer"
-	"zpcg/resources"
 )
 
-func NewApp(_config config.Config) (*App, error) {
-	// timetable reader
-	timetableReader, err := resources.FS.Open(_config.TimetableGobFileName)
-	if err != nil {
-		return nil, fmt.Errorf("fs.Open: %w", err)
-	}
+func NewApp() (*App, error) {
 	// timetable
-	timetable, err := transfer.ImportTimetableFromReader(timetableReader)
-	if err != nil {
-		return nil, fmt.Errorf("transfer.ImportTimetable: %w", err)
-	}
+	timetable := transfer.ImportTimetable()
 	// finder
 	finder := pathfinder.NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
 	// name resolver
