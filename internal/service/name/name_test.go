@@ -19,6 +19,10 @@ func TestFindBestMatch(t *testing.T) {
 	match, err := findBestMatch([]rune(Unify("Nikschichsss   ")), timetable.Timetable.UnifiedStationNameList)
 	assert.NoError(t, err)
 	assert.Equal(t, "niksic", match)
+	// susan
+	match, err = findBestMatch([]rune(Unify("shushan")), timetable.Timetable.UnifiedStationNameList)
+	assert.NoError(t, err)
+	assert.Equal(t, "susanj", match)
 	// никшич
 	match, err = findBestMatch([]rune(Unify("никшич")), timetable.Timetable.UnifiedStationNameList)
 	assert.NoError(t, err)
