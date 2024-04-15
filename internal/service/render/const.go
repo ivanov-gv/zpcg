@@ -54,6 +54,10 @@ Podgorica, Niksic`
 		"\n" +
 		">*Podgorica, Bijelo Polje*\n" +
 		"\n" +
+		"Or using cyrillic:\n" +
+		"\n" +
+		">*Подгорица, Бијело Поље*\n" +
+		"\n" +
 		"And I will send you the timetable:\n" +
 		"\n" +
 		">Podgorica \\> Bijelo Polje\n" +
