@@ -10,6 +10,6 @@ type TimetableTransferFormat struct {
 	StationIdToStationMap            map[StationId]Station
 	TrainIdToTrainInfoMap            map[TrainId]TrainInfo
 	UnifiedStationNameToStationIdMap map[string]StationId
-	UnifiedStationNameList           []string
+	UnifiedStationNameList           [][]rune
 	TransferStationId                StationId
 }

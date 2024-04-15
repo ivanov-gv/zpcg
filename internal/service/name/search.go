@@ -7,31 +7,33 @@ import (
 // RuneStat contains num of occurrences and all substrings starting with this letter
 type RuneStat struct {
 	num        int
-	substrings []string
+	substrings [][]rune
 }
 
 // Word contains fields for ranking word matches
 type Word struct {
-	word         string
+	word         []rune
 	longestMatch int // len of longest matching substring
 	diff         int // difference between word and the given sample
 }
 
 // lenPrefix returns number of the first matching runes in all given strings, len of the longest prefix
-func lenPrefix(sample string, strings ...string) int {
+func lenPrefix(sample []rune, strings ...[]rune) int {
 	prefixEnds := make(map[int]bool, len(strings))
 
 	for i, letter := range sample {
 		match := false
 		for j, str := range strings {
-			if !prefixEnds[j] && i < len(str) && letter == rune(str[i]) {
+			if !prefixEnds[j] && i < len(str) && letter == str[i] { // <- TODO: here letter != rune(str[i])
+				// if prefix of strings[j] is not ended yet and there is another matching char - it is a match
 				match = true
 			} else {
+				// if prefix is already ended or this char is not matching - mark prefix as ended
 				prefixEnds[j] = true
 			}
 		}
 
-		if !match {
+		if !match { // there is no match in any of the 'strings' anymore. we don't need to compare further chars - return current position which is the longest prefix length
 			return i
 		}
 	}
@@ -53,7 +55,7 @@ func diff(wordStat map[rune]int) int {
 }
 
 // findBestMatch returns words, first of them are more likely to be the same as sample
-func findBestMatch(sample string, searchList []string) (string, error) {
+func findBestMatch(sample []rune, searchList [][]rune) (string, error) {
 	sampleRunes := map[rune]RuneStat{}
 	// define number of every letter in the sample, save every substring starting with that letter
 	for i, char := range sample {
@@ -122,5 +124,5 @@ func findBestMatch(sample string, searchList []string) (string, error) {
 		}
 		return 0
 	})
-	return match.word, nil
+	return string(match.word), nil
 }
