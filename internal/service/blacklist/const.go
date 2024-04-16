@@ -34,7 +34,21 @@ var (
 			},
 		},
 		{
+			Name: "Будва",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Будве нет жд станций",
+				language.English.String(): "There is no train station in Budva",
+			},
+		},
+		{
 			Name: "Tivat",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Тивате нет жд станций",
+				language.English.String(): "There is no train station in Tivat",
+			},
+		},
+		{
+			Name: "Тиват",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Тивате нет жд станций",
 				language.English.String(): "There is no train station in Tivat",
@@ -48,7 +62,21 @@ var (
 			},
 		},
 		{
+			Name: "Котор",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Которе нет жд станций",
+				language.English.String(): "There is no train station in Kotor",
+			},
+		},
+		{
 			Name: "Cetinje",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Цетине нет жд станций",
+				language.English.String(): "There is no train station in Cetinje",
+			},
+		},
+		{
+			Name: "Цетине",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Цетине нет жд станций",
 				language.English.String(): "There is no train station in Cetinje",
@@ -62,7 +90,21 @@ var (
 			},
 		},
 		{
+			Name: "Пераст",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Перасте нет жд станций",
+				language.English.String(): "There is no train station in Perast",
+			},
+		},
+		{
 			Name: "Durmitor",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Дурмиторе нет жд станций",
+				language.English.String(): "There is no train station in Durmitor",
+			},
+		},
+		{
+			Name: "Дурмитор",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Дурмиторе нет жд станций",
 				language.English.String(): "There is no train station in Durmitor",
@@ -76,7 +118,21 @@ var (
 			},
 		},
 		{
+			Name: "Петровац",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Петроваце нет жд станций",
+				language.English.String(): "There is no train station in Petrovac",
+			},
+		},
+		{
 			Name: "Ulcinj",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Ульцине нет жд станций",
+				language.English.String(): "There is no train station in Ulcinj",
+			},
+		},
+		{
+			Name: "Ульцин",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Ульцине нет жд станций",
 				language.English.String(): "There is no train station in Ulcinj",
@@ -90,7 +146,21 @@ var (
 			},
 		},
 		{
+			Name: "Свети Стефан",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Свети Стефан нет жд станций",
+				language.English.String(): "There is no train station in Sveti Stefan",
+			},
+		},
+		{
 			Name: "Becici",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Бечичи нет жд станций",
+				language.English.String(): "There is no train station in Becici",
+			},
+		},
+		{
+			Name: "Бечичи",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Бечичи нет жд станций",
 				language.English.String(): "There is no train station in Becici",
@@ -104,7 +174,21 @@ var (
 			},
 		},
 		{
+			Name: "Херцег Нови",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Херцег-Нови нет жд станций",
+				language.English.String(): "There is no train station in Herceg Novi",
+			},
+		},
+		{
 			Name: "Savnik",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Шавнике нет жд станций",
+				language.English.String(): "There is no train station in Savnik",
+			},
+		},
+		{
+			Name: "Шавник",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Шавнике нет жд станций",
 				language.English.String(): "There is no train station in Savnik",
@@ -118,7 +202,21 @@ var (
 			},
 		},
 		{
+			Name: "Жабляк",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Жабляке нет жд станций",
+				language.English.String(): "There is no train station in Zabljak",
+			},
+		},
+		{
 			Name: "Durmitor",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "В Дурмиторе нет жд станций",
+				language.English.String(): "There is no train station in Durmitor",
+			},
+		},
+		{
+			Name: "Дурмитор",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "В Дурмиторе нет жд станций",
 				language.English.String(): "There is no train station in Durmitor",
@@ -132,7 +230,21 @@ var (
 			},
 		},
 		{
+			Name: "Албания",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Albania",
+			},
+		},
+		{
 			Name: "Tirana",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Albania",
+			},
+		},
+		{
+			Name: "Тирана",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
 				language.English.String(): "There are no routes between Montenegro and Albania",
@@ -146,6 +258,13 @@ var (
 			},
 		},
 		{
+			Name: "Шкодер",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Албанией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Albania",
+			},
+		},
+		{
 			Name: "Bosnia and Herzegovina",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории",
@@ -153,7 +272,21 @@ var (
 			},
 		},
 		{
+			Name: "Босния и Герцеговина",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Bosnia and Herzegovina",
+			},
+		},
+		{
 			Name: "Sarajevo",
+			LanguageTagToCustomErrorMessageMap: map[string]string{
+				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории",
+				language.English.String(): "There are no routes between Montenegro and Bosnia and Herzegovina",
+			},
+		},
+		{
+			Name: "Сараево",
 			LanguageTagToCustomErrorMessageMap: map[string]string{
 				language.Russian.String(): "С Боснией нет железнодорожного сообщения из Черногории",
 				language.English.String(): "There are no routes between Montenegro and Bosnia and Herzegovina",

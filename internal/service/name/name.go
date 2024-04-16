@@ -4,7 +4,7 @@ import "zpcg/internal/model"
 
 func NewStationNameResolver(
 	unifiedStationNameToStationIdMap map[string]model.StationId,
-	unifiedStationNameList []string,
+	unifiedStationNameList [][]rune,
 ) *StationNameResolver {
 	return &StationNameResolver{
 		unifiedStationNameToStationIdMap: unifiedStationNameToStationIdMap,
@@ -14,12 +14,12 @@ func NewStationNameResolver(
 
 type StationNameResolver struct {
 	unifiedStationNameToStationIdMap map[string]model.StationId
-	unifiedStationNameList           []string
+	unifiedStationNameList           [][]rune
 }
 
 func (s *StationNameResolver) FindStationIdByApproximateName(name string) (model.StationId, error) {
 	unifiedName := Unify(name)
-	match, err := findBestMatch(unifiedName, s.unifiedStationNameList)
+	match, err := findBestMatch([]rune(unifiedName), s.unifiedStationNameList)
 	if err != nil {
 		return 0, err
 	}

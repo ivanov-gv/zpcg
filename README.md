@@ -19,7 +19,7 @@ This bot is an attempt to solve those issues.
    3. ✅ Returns the requested timetable even if the user made a typo
    4. ✅ In case of an error returns message with a detailed description of how to resolve the issue
    5. ✅ Has enough logging to check if the users reach their goals
-   6. ❌ Recognizes latin and cyrillic alphabet
+   6. ✅ Recognizes latin and cyrillic alphabet
    7. ❌ Provides button interface for the most used stations
    8. ~ Provides additional information:
       1. ❌ Price and discounts

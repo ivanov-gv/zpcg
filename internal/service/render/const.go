@@ -54,6 +54,10 @@ Podgorica, Niksic`
 		"\n" +
 		">*Podgorica, Bijelo Polje*\n" +
 		"\n" +
+		"Or using cyrillic:\n" +
+		"\n" +
+		">*Подгорица, Бијело Поље*\n" +
+		"\n" +
 		"And I will send you the timetable:\n" +
 		"\n" +
 		">Podgorica \\> Bijelo Polje\n" +
@@ -72,7 +76,7 @@ Podgorica, Niksic`
 // Russian
 
 const (
-	ErrorMessageRu = `Попробуйте снова - две станции на латинице, через запятую. Вот так:
+	ErrorMessageRu = `Попробуйте снова - две станции, через запятую. Вот так:
 
 Podgorica, Niksic`
 
@@ -81,9 +85,13 @@ Podgorica, Niksic`
 		"\n" +
 		"_Сделан вместе с @Leti\\_deshevle_\n" +
 		"\n" +
-		"Пожалуйста, введите *две станции через запятую на латинице*: \n" +
+		"Пожалуйста, введите *две станции через запятую* на латинице: \n" +
 		"\n" +
 		">*Podgorica, Bijelo Polje*\n" +
+		"\n" +
+		"или кириллице: \n" +
+		"\n" +
+		">*Подгорица, Бело поле*\n" +
 		"\n" +
 		"И получите расписание:\n" +
 		"\n" +

@@ -130,14 +130,15 @@ func MapTimetableToTransferFormat(routes map[model.TrainId]parser_model.Detailed
 		StationIdToStationMap:            stationIdToStationMap,
 		TrainIdToTrainInfoMap:            trainIdToTrainInfoMap,
 		UnifiedStationNameToStationIdMap: unifiedStationNameToStationIdMap,
-		UnifiedStationNameList:           unifiedStationNameList,
+		UnifiedStationNameList:           lo.Map(unifiedStationNameList, func(item string, _ int) []rune { return []rune(item) }),
 		TransferStationId:                transferStationId,
 	}
 }
 
 func AddBlacklistedStations(timetable model.TimetableTransferFormat) (model.TimetableTransferFormat, error) {
 	// station name list - UnifiedStationNameList
-	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, blacklist.UnifiedNames...)
+	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList,
+		lo.Map(blacklist.UnifiedNames, func(item string, _ int) []rune { return []rune(item) })...)
 
 	// map: station name -> station id - UnifiedStationNameToStationIdMap
 	newMap := lo.Assign(timetable.UnifiedStationNameToStationIdMap,
@@ -153,7 +154,8 @@ func AddBlacklistedStations(timetable model.TimetableTransferFormat) (model.Time
 
 func AddAliases(timetable model.TimetableTransferFormat) (model.TimetableTransferFormat, error) {
 	// add aliases to stations list
-	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList, AliasesAsUnifiedStationNames...)
+	timetable.UnifiedStationNameList = append(timetable.UnifiedStationNameList,
+		lo.Map(AliasesAsUnifiedStationNames, func(item string, _ int) []rune { return []rune(item) })...)
 	// add mapping from aliases to station id
 	for stationName, aliases := range AliasesOriginalUnifiedStationNameToUnifiedAliasesMap {
 		stationId, ok := timetable.UnifiedStationNameToStationIdMap[stationName]
