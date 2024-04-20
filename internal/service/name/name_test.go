@@ -11,6 +11,7 @@ import (
 func TestUnify(t *testing.T) {
 	assert.Equal(t, "niksic", Unify("Nikšić"))
 	assert.Equal(t, "baresumanovica", Unify("Bare Šumanovića"))
+	assert.Equal(t, "вирпазар", Unify("В и Р п а З а Р"))
 }
 
 func TestFindBestMatch(t *testing.T) {

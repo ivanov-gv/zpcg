@@ -9,13 +9,13 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/net/html"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/timetable"
 	parser_model "zpcg/internal/service/parser/model"
 	parser_utils "zpcg/internal/service/parser/utils"
 	"zpcg/internal/utils"
 )
 
-func ParseDetailedTimetablePage(routeNumber model.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {
+func ParseDetailedTimetablePage(routeNumber timetable.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {
 	tokenizer := html.NewTokenizer(reader)
 	var timetable parser_model.DetailedTimetable
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
@@ -135,7 +135,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
 				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
 				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02
-			if !station.Arrival.After(station.Departure) {  // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
+			if !station.Arrival.After(station.Departure) { // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
 				station.Arrival = station.Arrival.Add(utils.Day)
 			}
 			station.Departure = station.Departure.Add(utils.Day)
@@ -145,7 +145,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 	return result, nil
 }
 
-func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (model.Stop, error) {
+func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (timetable.Stop, error) {
 	var (
 		cellNumber         = -1
 		stationName        string
@@ -176,7 +176,7 @@ func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (model.Stop, er
 			var err error
 			arrival, err = time.Parse("15:04", token.Data)
 			if err != nil {
-				return model.Stop{}, fmt.Errorf("can not parse arrival with time.Parse: %w", err)
+				return timetable.Stop{}, fmt.Errorf("can not parse arrival with time.Parse: %w", err)
 			}
 		}
 
@@ -188,7 +188,7 @@ func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (model.Stop, er
 			var err error
 			departure, err = time.Parse("15:04", token.Data)
 			if err != nil {
-				return model.Stop{}, fmt.Errorf("can not parse departure with time.Parse: %w", err)
+				return timetable.Stop{}, fmt.Errorf("can not parse departure with time.Parse: %w", err)
 			}
 		}
 	}
@@ -206,7 +206,7 @@ func ParseRow(tokenizer *html.Tokenizer, fallbackTime time.Time) (model.Stop, er
 	if arrival.IsZero() {
 		arrival = departure
 	}
-	return model.Stop{
+	return timetable.Stop{
 		Id:        generateStationId(stationName),
 		Arrival:   arrival,
 		Departure: departure,

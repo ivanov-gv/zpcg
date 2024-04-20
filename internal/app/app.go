@@ -7,8 +7,12 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model"
+	callback_model "zpcg/internal/model/callback"
+	"zpcg/internal/model/message"
+	"zpcg/internal/model/timetable"
+
 	"zpcg/internal/service/blacklist"
+	"zpcg/internal/service/callback"
 	"zpcg/internal/service/name"
 	"zpcg/internal/service/pathfinder"
 	"zpcg/internal/service/render"
@@ -17,13 +21,13 @@ import (
 
 func NewApp() (*App, error) {
 	// timetable
-	timetable := transfer.ImportTimetable()
+	_timetable := transfer.ImportTimetable()
 	// finder
-	finder := pathfinder.NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
+	finder := pathfinder.NewPathFinder(_timetable.StationIdToTrainIdSet, _timetable.TrainIdToStationMap, _timetable.TransferStationId)
 	// name resolver
-	stationNameResolver := name.NewStationNameResolver(timetable.UnifiedStationNameToStationIdMap, timetable.UnifiedStationNameList)
+	stationNameResolver := name.NewStationNameResolver(_timetable.UnifiedStationNameToStationIdMap, _timetable.UnifiedStationNameList)
 	// render
-	_render := render.NewRender(timetable.StationIdToStationMap, timetable.TrainIdToTrainInfoMap)
+	_render := render.NewRender(_timetable.StationIdToStationMap, _timetable.TrainIdToTrainInfoMap)
 	// blacklist
 	blackList := blacklist.NewBlackListService()
 
@@ -33,7 +37,7 @@ func NewApp() (*App, error) {
 		stationNameResolver: stationNameResolver,
 		render:              _render,
 		blackList:           blackList,
-		transferStationId:   timetable.TransferStationId,
+		transferStationId:   _timetable.TransferStationId,
 	}, nil
 }
 
@@ -44,44 +48,88 @@ type App struct {
 	stationNameResolver *name.StationNameResolver
 	render              *render.Render
 	blackList           *blacklist.BlackListService
-	transferStationId   model.StationId
+	callback            *callback.CallbackService
+	transferStationId   timetable.StationId
 }
 
-func (a *App) HandleUpdate(update model.Update) (responseWithChatIds []model.ResponseWithChatId, warning error) {
-	if !update.Message.IsFilled || !update.Message.From.IsFilled {
-		return nil, nil
+func (a *App) HandleUpdate(update message.Update) (responseWithChatIds message.ResponseWithChatId, warning error) {
+	switch update.Type {
+	case message.MessageUpdateType:
+		return a.HandleMessage(update.Message)
+	case message.CallbackUpdateType:
+		return a.HandleCallback(update.Callback)
+	default: // including model.UnsupportedUpdateType
+		return message.ResponseWithChatId{}, nil
 	}
-	// process message
-	message := update.Message
-	languageTag := render.ParseLanguageTag(update.Message.From.LanguageCode)
-	// generate output
+}
+
+func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChatIds message.ResponseWithChatId, warning error) {
+	languageTag := render.ParseLanguageTag(callbackMessage.From.LanguageCode)
+	_callback := a.callback.ParseCallback(callbackMessage.Data)
+	switch _callback.Type {
+	case callback_model.UpdateType:
+		response, err := a.GenerateRouteForStations(languageTag, _callback.Data.Origin, _callback.Data.Destination)
+		if err != nil {
+			return message.ResponseWithChatId{},
+				fmt.Errorf("GenerateRouteForStations [lang=%s, origin=%s, destination=%s] : %w",
+					languageTag, _callback.Data.Origin, _callback.Data.Destination, err)
+		}
+		update := []message.ToUpdate{ // TODO: do not update, if there is nothing to change
+			{
+				MessageId: callbackMessage.Message.Id,
+				Response:  response,
+			},
+		}
+		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Update: update}, nil
+	case callback_model.ReverseRouteType:
+		response, err := a.GenerateRouteForStations(languageTag, _callback.Data.Destination, _callback.Data.Origin)
+		if err != nil {
+			return message.ResponseWithChatId{},
+				fmt.Errorf("GenerateRouteForStations [lang=%s, origin=%s, destination=%s] : %w",
+					languageTag, _callback.Data.Destination, _callback.Data.Origin, err)
+		}
+		update := []message.ToUpdate{
+			{
+				MessageId: callbackMessage.Message.Id,
+				Response:  response, // TODO: updates only once for some reason. seems like callback data generator is buggy
+			},
+		}
+		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Update: update}, nil
+	default:
+		return message.ResponseWithChatId{},
+			fmt.Errorf("unknown callback type(%s) [data='%s']", _callback.Type, _callback.Data)
+	}
+}
+
+func (a *App) HandleMessage(_message message.Message) (responseWithChatIds message.ResponseWithChatId, warning error) {
+	languageTag := render.ParseLanguageTag(_message.From.LanguageCode)
 	var (
-		response model.Response
+		response message.Response
 		err      error
 	)
 	switch {
-	case strings.HasPrefix(message.Text, "/"):
+	case strings.HasPrefix(_message.Text, "/"):
 		// got command - send start message
 		response = a.render.StartMessage(languageTag)
-	case strings.ContainsAny(message.Text, string(lo.SpecialCharset)):
+	case strings.ContainsAny(_message.Text, string(lo.SpecialCharset)):
 		// got message with stations - send a timetable
-		response, err = a.GenerateRoute(languageTag, message.Text)
+		response, err = a.GenerateRoute(languageTag, _message.Text)
 		if err != nil {
 			err = fmt.Errorf("a.GenerateRoute: %w", err)
 		}
 	default:
 		// error otherwise
-		err = fmt.Errorf("unknown message type: %s", message.Text)
+		err = fmt.Errorf("unknown message type: %s", _message.Text)
 	}
 	// handle error
 	if err != nil {
 		response = a.render.ErrorMessage(languageTag)
 	}
-	output := model.ResponseWithChatId{
-		Response: response,
-		ChatId:   message.ChatId,
-	}
-	return []model.ResponseWithChatId{output}, err
+	send := []message.Response{response}
+	return message.ResponseWithChatId{
+		Send:   send,
+		ChatId: _message.ChatId,
+	}, err
 }
 
 const stationsDelimiter = ','
@@ -103,35 +151,44 @@ func parseInputStations(input string) (originStation, destinationStation string,
 	return stations[0], lo.Must(lo.Last(stations)), nil
 }
 
-func (a *App) GenerateRoute(languageTag language.Tag, input string) (model.Response, error) {
+func (a *App) GenerateRoute(languageTag language.Tag, input string) (message.Response, error) {
 	origin, destination, err := parseInputStations(input)
 	if err != nil {
-		return model.Response{}, fmt.Errorf("parseInputStations: %w", err)
+		return message.Response{}, fmt.Errorf("parseInputStations: %w", err)
 	}
+	return a.GenerateRouteForStations(languageTag, origin, destination)
+}
+
+func (a *App) GenerateRouteForStations(languageTag language.Tag, origin, destination string) (message.Response, error) {
 	// find station ids
 	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
 	if err != nil {
-		return model.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+		return message.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
 			"can't find station name [origin='%s']: %w", origin, err)
 	}
 	destinationStationId, err := a.stationNameResolver.FindStationIdByApproximateName(destination)
 	if err != nil {
-		return model.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+		return message.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
 			"can't find station name [destination='%s']: %w", destination, err)
 	}
 	// check blacklisted stations
 	if isBlacklisted, stations := a.blackList.CheckBlackList(originStationId, destinationStationId); isBlacklisted {
-		message := a.render.BlackListedStations(languageTag, stations...)
-		return message, nil
+		_message := a.render.BlackListedStations(languageTag, stations...)
+		return _message, nil
 	}
 	// find route
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
+	// get callbacks
+	var (
+		updateCallback  = a.callback.GenerateUpdateCallbackData(origin, destination)
+		reverseCallback = a.callback.GenerateReverseRouteCallbackData(origin, destination)
+	)
 	// render message
+	var _message message.Response
 	if isDirect {
-		message := a.render.DirectRoutes(languageTag, routes)
-		return message, nil
+		_message = a.render.DirectRoutes(languageTag, routes, updateCallback, reverseCallback)
+	} else {
+		_message = a.render.TransferRoutes(languageTag, routes, originStationId, a.transferStationId, destinationStationId, updateCallback, reverseCallback)
 	}
-	// if !isDirect - transfer route
-	message := a.render.TransferRoutes(languageTag, routes, originStationId, a.transferStationId, destinationStationId)
-	return message, nil
+	return _message, nil
 }

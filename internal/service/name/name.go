@@ -1,9 +1,11 @@
 package name
 
-import "zpcg/internal/model"
+import (
+	"zpcg/internal/model/timetable"
+)
 
 func NewStationNameResolver(
-	unifiedStationNameToStationIdMap map[string]model.StationId,
+	unifiedStationNameToStationIdMap map[string]timetable.StationId,
 	unifiedStationNameList [][]rune,
 ) *StationNameResolver {
 	return &StationNameResolver{
@@ -13,11 +15,11 @@ func NewStationNameResolver(
 }
 
 type StationNameResolver struct {
-	unifiedStationNameToStationIdMap map[string]model.StationId
+	unifiedStationNameToStationIdMap map[string]timetable.StationId
 	unifiedStationNameList           [][]rune
 }
 
-func (s *StationNameResolver) FindStationIdByApproximateName(name string) (model.StationId, error) {
+func (s *StationNameResolver) FindStationIdByApproximateName(name string) (timetable.StationId, error) {
 	unifiedName := Unify(name)
 	match, err := findBestMatch([]rune(unifiedName), s.unifiedStationNameList)
 	if err != nil {

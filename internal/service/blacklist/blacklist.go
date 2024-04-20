@@ -3,7 +3,7 @@ package blacklist
 import (
 	"github.com/samber/lo"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/timetable"
 )
 
 func NewBlackListService() *BlackListService {
@@ -12,7 +12,7 @@ func NewBlackListService() *BlackListService {
 
 type BlackListService struct{}
 
-func (s *BlackListService) CheckBlackList(stationIds ...model.StationId) (isBlacklisted bool, blackListed []model.BlackListedStation) {
+func (s *BlackListService) CheckBlackList(stationIds ...timetable.StationId) (isBlacklisted bool, blackListed []timetable.BlackListedStation) {
 	blackListedStationIds := lo.Filter(stationIds, IsBlackListedWithIndex)
 	if len(blackListedStationIds) == 0 {
 		return false, nil
@@ -20,18 +20,18 @@ func (s *BlackListService) CheckBlackList(stationIds ...model.StationId) (isBlac
 	return true, lo.Map(blackListedStationIds, GetBlackListedStationByIdWithIndex)
 }
 
-func IsBlackListedWithIndex(id model.StationId, _ int) bool {
+func IsBlackListedWithIndex(id timetable.StationId, _ int) bool {
 	return IsBlackListed(id)
 }
 
-func IsBlackListed(id model.StationId) bool {
+func IsBlackListed(id timetable.StationId) bool {
 	return id <= 0
 }
 
-func GetBlackListedStationByIdWithIndex(id model.StationId, _ int) model.BlackListedStation {
+func GetBlackListedStationByIdWithIndex(id timetable.StationId, _ int) timetable.BlackListedStation {
 	return GetBlackListedStationById(id)
 }
 
-func GetBlackListedStationById(id model.StationId) model.BlackListedStation {
+func GetBlackListedStationById(id timetable.StationId) timetable.BlackListedStation {
 	return BlackListedStations[-id]
 }

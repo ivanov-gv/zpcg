@@ -1,10 +1,10 @@
-package model
+package timetable
 
 const (
 	TransferStationName = "Podgorica"
 )
 
-type TimetableTransferFormat struct {
+type ExportFormat struct {
 	StationIdToTrainIdSet            map[StationId]TrainIdSet
 	TrainIdToStationMap              map[TrainId]StationIdToStationMap
 	StationIdToStationMap            map[StationId]Station

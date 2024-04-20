@@ -4,20 +4,20 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/timetable"
 	"zpcg/internal/service/name"
 )
 
 var (
-	UnifiedNames = lo.Map(BlackListedStations, func(s model.BlackListedStation, _ int) string {
+	UnifiedNames = lo.Map(BlackListedStations, func(s timetable.BlackListedStation, _ int) string {
 		return name.Unify(s.Name)
 	})
 
-	UnifiedStationNameToStationIdMap = func() map[string]model.StationId {
-		entries := lo.Map(BlackListedStations, func(item model.BlackListedStation, index int) lo.Entry[string, model.StationId] {
-			stationId := model.StationId(-index) // negative, with zero
+	UnifiedStationNameToStationIdMap = func() map[string]timetable.StationId {
+		entries := lo.Map(BlackListedStations, func(item timetable.BlackListedStation, index int) lo.Entry[string, timetable.StationId] {
+			stationId := timetable.StationId(-index) // negative, with zero
 			unifiedName := name.Unify(item.Name)
-			return lo.Entry[string, model.StationId]{
+			return lo.Entry[string, timetable.StationId]{
 				Key:   unifiedName,
 				Value: stationId,
 			}
@@ -25,7 +25,7 @@ var (
 		return lo.FromEntries(entries)
 	}()
 
-	BlackListedStations = []model.BlackListedStation{
+	BlackListedStations = []timetable.BlackListedStation{
 		{
 			Name: "Budva",
 			LanguageTagToCustomErrorMessageMap: map[string]string{

@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/lo"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/timetable"
 )
 
 var (
@@ -24,8 +24,8 @@ func NormalizeTime(t time.Time) time.Time {
 }
 
 // NormalizeTimeInPaths makes all the times in a range 00:00 - 23:59
-func NormalizeTimeInPaths(paths []model.Path) {
-	lo.ForEach(paths, func(item model.Path, index int) {
+func NormalizeTimeInPaths(paths []timetable.Path) {
+	lo.ForEach(paths, func(item timetable.Path, index int) {
 		item.Origin.Arrival = NormalizeTime(item.Origin.Arrival)
 		item.Origin.Departure = NormalizeTime(item.Origin.Departure)
 		item.Destination.Arrival = NormalizeTime(item.Destination.Arrival)

@@ -1,9 +1,11 @@
 package model
 
-import "zpcg/internal/model"
+import (
+	"zpcg/internal/model/timetable"
+)
 
 type DetailedTimetable struct {
-	TrainId      model.TrainId
+	TrainId      timetable.TrainId
 	TimetableUrl string
-	Stops        []model.Stop
+	Stops        []timetable.Stop
 }

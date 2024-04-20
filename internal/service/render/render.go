@@ -7,11 +7,12 @@ import (
 
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/message"
+	"zpcg/internal/model/timetable"
 )
 
-func NewRender(stationsMap map[model.StationId]model.Station,
-	trainsMap map[model.TrainId]model.TrainInfo) *Render {
+func NewRender(stationsMap map[timetable.StationId]timetable.Station,
+	trainsMap map[timetable.TrainId]timetable.TrainInfo) *Render {
 	return &Render{
 		stationsMap: stationsMap,
 		trainsMap:   trainsMap,
@@ -19,8 +20,8 @@ func NewRender(stationsMap map[model.StationId]model.Station,
 }
 
 type Render struct {
-	stationsMap map[model.StationId]model.Station
-	trainsMap   map[model.TrainId]model.TrainInfo
+	stationsMap map[timetable.StationId]timetable.Station
+	trainsMap   map[timetable.TrainId]timetable.TrainInfo
 }
 
 const (
@@ -29,7 +30,7 @@ const (
 	timeLayout          = "15:04"
 )
 
-func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, destination string) model.InlineButton {
+func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, destination string) message.InlineButton {
 	var text string
 	switch languageCode {
 	case language.Russian:
@@ -37,13 +38,34 @@ func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, des
 	default:
 		text = OfficialTimetableUrlText
 	}
-	return model.InlineButton{
+	return message.InlineButton{
+		Type: message.UrlInlineButtonType,
 		Text: text,
-		Url:  getUrlToTimetable(origin, destination, time.Time{}),
+		Url:  message.UrlButton{Url: getUrlToTimetable(origin, destination, time.Time{})},
 	}
 }
 
-func (r *Render) DirectRoutes(languageTag language.Tag, paths []model.Path) model.Response {
+func inlineButtonWithUpdateCallback(languageCode language.Tag, updateCallback string) message.InlineButton {
+	return message.InlineButton{
+		Type: message.CallbackInlineButtonType,
+		Text: "update", // TODO: localize
+		Callback: message.CallbackButton{
+			Data: updateCallback,
+		},
+	}
+}
+
+func inlineButtonWithReverseCallback(languageCode language.Tag, reverseCallback string) message.InlineButton {
+	return message.InlineButton{
+		Type: message.CallbackInlineButtonType,
+		Text: "reverse route", // TODO: localize
+		Callback: message.CallbackButton{
+			Data: reverseCallback,
+		},
+	}
+}
+
+func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, updateCallback, reverseCallback string) message.Response {
 	// render each line for the result message
 	var lines []string
 	// render header
@@ -61,16 +83,19 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []model.Path) mode
 		lines = append(lines, line)
 	}
 	// add inline keyboard with url to the official website
-	inlineKeyboard := [][]model.InlineButton{{inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, destination.Name)}}
-	return model.Response{
+	inlineKeyboard := [][]message.InlineButton{
+		{inlineButtonWithUpdateCallback(languageTag, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
+		{inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, destination.Name)},
+	}
+	return message.Response{
 		Text:           strings.Join(lines, "\n"),
-		ParseMode:      model.ModeMarkdownV2,
+		ParseMode:      message.ModeMarkdownV2,
 		InlineKeyboard: inlineKeyboard,
 	}
 }
 
-func (r *Render) TransferRoutes(languageTag language.Tag, paths []model.Path,
-	originId, transferId, destinationId model.StationId) model.Response {
+func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path,
+	originId, transferId, destinationId timetable.StationId, updateCallback, reverseCallback string) message.Response {
 	// render each line for the result message
 	var lines []string
 	// render header
@@ -101,38 +126,39 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []model.Path,
 		lines = append(lines, line)
 	}
 	// add inline keyboard with url to the official website
-	inlineKeyboard := [][]model.InlineButton{
+	inlineKeyboard := [][]message.InlineButton{
+		{inlineButtonWithUpdateCallback(languageTag, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
 		{
 			inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, transfer.Name),
 			inlineButtonWithOfficialTimetableUrl(languageTag, transfer.Name, destination.Name),
 		},
 	}
-	return model.Response{
+	return message.Response{
 		Text:           strings.Join(lines, "\n"),
-		ParseMode:      model.ModeMarkdownV2,
+		ParseMode:      message.ModeMarkdownV2,
 		InlineKeyboard: inlineKeyboard,
 	}
 }
 
-func (r *Render) ErrorMessage(languageCode language.Tag) model.Response {
+func (r *Render) ErrorMessage(languageCode language.Tag) message.Response {
 	switch languageCode {
 	case language.Russian:
-		return model.Response{Text: ErrorMessageRu}
+		return message.Response{Text: ErrorMessageRu}
 	default:
-		return model.Response{Text: ErrorMessageDefault}
+		return message.Response{Text: ErrorMessageDefault}
 	}
 }
 
-func (r *Render) StartMessage(languageCode language.Tag) model.Response {
+func (r *Render) StartMessage(languageCode language.Tag) message.Response {
 	switch languageCode {
 	case language.Russian:
-		return model.Response{Text: StartMessageRu, ParseMode: model.ModeMarkdownV2}
+		return message.Response{Text: StartMessageRu, ParseMode: message.ModeMarkdownV2}
 	default:
-		return model.Response{Text: StartMessageDefault, ParseMode: model.ModeMarkdownV2}
+		return message.Response{Text: StartMessageDefault, ParseMode: message.ModeMarkdownV2}
 	}
 }
 
-func (r *Render) BlackListedStations(languageCode language.Tag, stations ...model.BlackListedStation) model.Response {
+func (r *Render) BlackListedStations(languageCode language.Tag, stations ...timetable.BlackListedStation) message.Response {
 	var lines []string
 	for _, station := range stations {
 		var line string
@@ -146,9 +172,9 @@ func (r *Render) BlackListedStations(languageCode language.Tag, stations ...mode
 	lines = append(lines,
 		"", // empty line
 		StationDoesNotExistMessageSuffixMap[languageCode])
-	return model.Response{
+	return message.Response{
 		Text:      strings.Join(lines, "\n"),
-		ParseMode: model.ModeNone,
+		ParseMode: message.ModeNone,
 	}
 }
 

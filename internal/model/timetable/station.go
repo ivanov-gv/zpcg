@@ -1,4 +1,4 @@
-package model
+package timetable
 
 import (
 	"time"

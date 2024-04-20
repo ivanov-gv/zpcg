@@ -15,11 +15,11 @@ import (
 	"github.com/yfuruyama/crzerolog"
 
 	"zpcg/internal/config"
-	"zpcg/internal/model"
+	"zpcg/internal/model/message"
 )
 
 type App interface {
-	HandleUpdate(update model.Update) (response []model.ResponseWithChatId, warning error)
+	HandleUpdate(update message.Update) (response message.ResponseWithChatId, warning error)
 }
 
 // RunServer starts all processes needed to communicate with environment - initializes http server, logger,
@@ -53,7 +53,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App) error {
 	return nil
 }
 
-type PostTgMsgHandler func(...model.ResponseWithChatId) []model.ResponseWithChatId
+type PostTgMsgHandler func(message.ResponseWithChatId) message.ResponseWithChatId
 
 func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 	messagePostHandler ...PostTgMsgHandler) func(http.ResponseWriter, *http.Request) {
@@ -82,9 +82,9 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 			httpStatus = http.StatusBadRequest
 			return
 		}
-		var messages []model.ResponseWithChatId
+		var messages message.ResponseWithChatId
 		messages, warning = _app.HandleUpdate(UpdateFromTelegram(update))
-		if len(messages) == 0 {
+		if len(messages.Update) == 0 && len(messages.Send) == 0 && len(messages.Delete) == 0 {
 			return
 		}
 		// post update handlers
@@ -92,32 +92,35 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 			if handler == nil {
 				continue
 			}
-			messages = handler(messages...)
+			messages = handler(messages)
 		}
 		// send
-		var sendError error
-		for _, finalMessage := range messages {
-			chatId, response, opts := ResponseToTelegram(finalMessage)
+		for _, sendMessage := range messages.Send {
+			response, opts := ResponseToTelegramSend(sendMessage)
 			responses = append(responses, response)
-			_, err := bot.SendMessage(chatId, response, opts)
+			_, err = bot.SendMessage(messages.ChatId, response, opts)
 			if err != nil {
-				sendError = errors.Join(sendError, err)
+				finalError = fmt.Errorf(logfmt+"bot.SendMessage: %w", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 		}
-		if sendError != nil {
-			finalError = fmt.Errorf(logfmt+"bot.SendMessage: %w", sendError)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		// update
+		for _, updateMessage := range messages.Update {
+			response, opts := ResponseToTelegramUpdate(messages.ChatId, updateMessage)
+			_, _, err = bot.EditMessageText(response, opts)
+			if err != nil {
+				finalError = fmt.Errorf(logfmt+"bot.EditMessageText: %w", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 }
 
 func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError error) {
 	const logFmt = "handleUpdate: %s"
-	var (
-		message  = update.Message
-		logEvent *zerolog.Event
-	)
+	var logEvent *zerolog.Event
 	// set level
 	switch {
 	case finalError != nil:
@@ -137,11 +140,27 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 		}
 		responseShorts = append(responseShorts, strings.Join(responseLines, "\n"))
 	}
+	// set vars
+	var (
+		chatId       int64
+		languageCode string
+		text         string
+	)
+	switch {
+	case update.Message != nil:
+		chatId = update.Message.Chat.Id
+		languageCode = update.Message.From.LanguageCode
+		text = update.Message.Text
+	case update.CallbackQuery != nil: // TODO: log
+		chatId = update.CallbackQuery.Message.GetChat().Id
+		languageCode = update.CallbackQuery.From.LanguageCode
+		text = update.CallbackQuery.Data
+	}
 	// log
 	logEvent.
-		Int64("chatId", message.Chat.Id).
-		Str("languageCode", update.Message.From.LanguageCode).
-		Str("messageText", message.Text).
+		Int64("chatId", chatId).
+		Str("languageCode", languageCode).
+		Str("messageText", text).
 		Strs("responseShorts", responseShorts).
 		Msgf(logFmt, "new message handled")
 }

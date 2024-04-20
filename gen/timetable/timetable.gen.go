@@ -5,12 +5,12 @@ package timetable
 import (
 	"time"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/timetable"
 )
 
-var Timetable = model.TimetableTransferFormat{
-	StationIdToTrainIdSet: map[model.StationId]model.TrainIdSet{
-		1: model.TrainIdSet{
+var Timetable = timetable.ExportFormat{
+	StationIdToTrainIdSet: map[timetable.StationId]timetable.TrainIdSet{
+		1: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -32,7 +32,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		2: model.TrainIdSet{
+		2: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -54,7 +54,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		3: model.TrainIdSet{
+		3: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -76,7 +76,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		4: model.TrainIdSet{
+		4: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -108,7 +108,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		5: model.TrainIdSet{
+		5: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -118,7 +118,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		6: model.TrainIdSet{
+		6: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -128,7 +128,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		7: model.TrainIdSet{
+		7: timetable.TrainIdSet{
 			432:  struct{}{},
 			433:  struct{}{},
 			6100: struct{}{},
@@ -138,19 +138,19 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		8:  model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		9:  model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		10: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		11: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		12: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		13: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		14: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		15: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		16: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		17: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		18: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		19: model.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		20: model.TrainIdSet{
+		8:  timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		9:  timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		10: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		11: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		12: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		13: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		14: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		15: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		16: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		17: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		18: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		19: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		20: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -170,7 +170,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		21: model.TrainIdSet{
+		21: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -190,7 +190,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		22: model.TrainIdSet{
+		22: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -210,7 +210,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		23: model.TrainIdSet{
+		23: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -230,7 +230,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		24: model.TrainIdSet{
+		24: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -250,7 +250,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		25: model.TrainIdSet{
+		25: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -270,7 +270,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		26: model.TrainIdSet{
+		26: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -290,7 +290,7 @@ var Timetable = model.TimetableTransferFormat{
 			6160: struct{}{},
 			6161: struct{}{},
 		},
-		27: model.TrainIdSet{
+		27: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -298,7 +298,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		28: model.TrainIdSet{
+		28: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -306,7 +306,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		29: model.TrainIdSet{
+		29: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -314,7 +314,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		30: model.TrainIdSet{
+		30: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -322,7 +322,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		31: model.TrainIdSet{
+		31: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -330,7 +330,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		32: model.TrainIdSet{
+		32: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -338,7 +338,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		33: model.TrainIdSet{
+		33: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -346,7 +346,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		34: model.TrainIdSet{
+		34: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -354,7 +354,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		35: model.TrainIdSet{
+		35: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -362,7 +362,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		36: model.TrainIdSet{
+		36: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -370,7 +370,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		37: model.TrainIdSet{
+		37: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -378,7 +378,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		38: model.TrainIdSet{
+		38: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -386,7 +386,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		39: model.TrainIdSet{
+		39: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -394,7 +394,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		40: model.TrainIdSet{
+		40: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -402,7 +402,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		41: model.TrainIdSet{
+		41: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -410,7 +410,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		42: model.TrainIdSet{
+		42: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -418,7 +418,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		43: model.TrainIdSet{
+		43: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -426,7 +426,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		44: model.TrainIdSet{
+		44: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -434,7 +434,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		45: model.TrainIdSet{
+		45: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -442,7 +442,7 @@ var Timetable = model.TimetableTransferFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		46: model.TrainIdSet{
+		46: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -454,7 +454,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		47: model.TrainIdSet{
+		47: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -466,7 +466,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		48: model.TrainIdSet{
+		48: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -478,7 +478,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		49: model.TrainIdSet{
+		49: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -490,7 +490,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		50: model.TrainIdSet{
+		50: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -502,7 +502,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		51: model.TrainIdSet{
+		51: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -514,7 +514,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		52: model.TrainIdSet{
+		52: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -526,7 +526,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		53: model.TrainIdSet{
+		53: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -538,7 +538,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		54: model.TrainIdSet{
+		54: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -550,7 +550,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		55: model.TrainIdSet{
+		55: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -562,7 +562,7 @@ var Timetable = model.TimetableTransferFormat{
 			7108: struct{}{},
 			7109: struct{}{},
 		},
-		56: model.TrainIdSet{
+		56: timetable.TrainIdSet{
 			7100: struct{}{},
 			7101: struct{}{},
 			7102: struct{}{},
@@ -575,2599 +575,2599 @@ var Timetable = model.TimetableTransferFormat{
 			7109: struct{}{},
 		},
 	},
-	TrainIdToStationMap: map[model.TrainId]model.StationIdToStationMap{
-		432: model.StationIdToStationMap{
-			1: model.Stop{
+	TrainIdToStationMap: map[timetable.TrainId]timetable.StationIdToStationMap{
+		432: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 19, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 35, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 19, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 56, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 20, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 25, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 20, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 45, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 22, 1, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 2, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 22, 19, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 20, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 22, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 23, 23, 0, 0, time.UTC),
 			},
-			8: model.Stop{
+			8: timetable.Stop{
 				Id:        8,
 				Arrival:   time.Date(0, time.January, 2, 0, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 0, 18, 0, 0, time.UTC),
 			},
-			9: model.Stop{
+			9: timetable.Stop{
 				Id:        9,
 				Arrival:   time.Date(0, time.January, 2, 0, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 0, 24, 0, 0, time.UTC),
 			},
-			10: model.Stop{
+			10: timetable.Stop{
 				Id:        10,
 				Arrival:   time.Date(0, time.January, 2, 1, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 1, 26, 0, 0, time.UTC),
 			},
-			11: model.Stop{
+			11: timetable.Stop{
 				Id:        11,
 				Arrival:   time.Date(0, time.January, 2, 3, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 3, 18, 0, 0, time.UTC),
 			},
-			12: model.Stop{
+			12: timetable.Stop{
 				Id:        12,
 				Arrival:   time.Date(0, time.January, 2, 3, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 3, 40, 0, 0, time.UTC),
 			},
-			13: model.Stop{
+			13: timetable.Stop{
 				Id:        13,
 				Arrival:   time.Date(0, time.January, 2, 4, 8, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 4, 9, 0, 0, time.UTC),
 			},
-			14: model.Stop{
+			14: timetable.Stop{
 				Id:        14,
 				Arrival:   time.Date(0, time.January, 2, 5, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 5, 5, 0, 0, time.UTC),
 			},
-			15: model.Stop{
+			15: timetable.Stop{
 				Id:        15,
 				Arrival:   time.Date(0, time.January, 2, 5, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 5, 23, 0, 0, time.UTC),
 			},
-			16: model.Stop{
+			16: timetable.Stop{
 				Id:        16,
 				Arrival:   time.Date(0, time.January, 2, 5, 29, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 5, 30, 0, 0, time.UTC),
 			},
-			17: model.Stop{
+			17: timetable.Stop{
 				Id:        17,
 				Arrival:   time.Date(0, time.January, 2, 6, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 6, 11, 0, 0, time.UTC),
 			},
-			18: model.Stop{
+			18: timetable.Stop{
 				Id:        18,
 				Arrival:   time.Date(0, time.January, 2, 6, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 6, 31, 0, 0, time.UTC),
 			},
-			19: model.Stop{
+			19: timetable.Stop{
 				Id:        19,
 				Arrival:   time.Date(0, time.January, 2, 6, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 6, 38, 0, 0, time.UTC),
 			},
 		},
-		433: model.StationIdToStationMap{
-			1: model.Stop{
+		433: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 2, 7, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 7, 23, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 2, 7, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 7, 9, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 2, 6, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 6, 37, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 2, 6, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 6, 25, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 2, 5, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 5, 1, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 2, 4, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 4, 43, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 2, 3, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 4, 17, 0, 0, time.UTC),
 			},
-			8: model.Stop{
+			8: timetable.Stop{
 				Id:        8,
 				Arrival:   time.Date(0, time.January, 2, 2, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 2, 44, 0, 0, time.UTC),
 			},
-			9: model.Stop{
+			9: timetable.Stop{
 				Id:        9,
 				Arrival:   time.Date(0, time.January, 2, 2, 28, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 2, 29, 0, 0, time.UTC),
 			},
-			10: model.Stop{
+			10: timetable.Stop{
 				Id:        10,
 				Arrival:   time.Date(0, time.January, 2, 1, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 2, 1, 27, 0, 0, time.UTC),
 			},
-			11: model.Stop{
+			11: timetable.Stop{
 				Id:        11,
 				Arrival:   time.Date(0, time.January, 1, 23, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 23, 36, 0, 0, time.UTC),
 			},
-			12: model.Stop{
+			12: timetable.Stop{
 				Id:        12,
 				Arrival:   time.Date(0, time.January, 1, 23, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 23, 11, 0, 0, time.UTC),
 			},
-			13: model.Stop{
+			13: timetable.Stop{
 				Id:        13,
 				Arrival:   time.Date(0, time.January, 1, 22, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 42, 0, 0, time.UTC),
 			},
-			14: model.Stop{
+			14: timetable.Stop{
 				Id:        14,
 				Arrival:   time.Date(0, time.January, 1, 21, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 46, 0, 0, time.UTC),
 			},
-			15: model.Stop{
+			15: timetable.Stop{
 				Id:        15,
 				Arrival:   time.Date(0, time.January, 1, 21, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 28, 0, 0, time.UTC),
 			},
-			16: model.Stop{
+			16: timetable.Stop{
 				Id:        16,
 				Arrival:   time.Date(0, time.January, 1, 21, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 21, 0, 0, time.UTC),
 			},
-			17: model.Stop{
+			17: timetable.Stop{
 				Id:        17,
 				Arrival:   time.Date(0, time.January, 1, 20, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 39, 0, 0, time.UTC),
 			},
-			18: model.Stop{
+			18: timetable.Stop{
 				Id:        18,
 				Arrival:   time.Date(0, time.January, 1, 20, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 30, 0, 0, time.UTC),
 			},
-			19: model.Stop{
+			19: timetable.Stop{
 				Id:        19,
 				Arrival:   time.Date(0, time.January, 1, 20, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 5, 0, 0, time.UTC),
 			},
 		},
-		6100: model.StationIdToStationMap{
-			1: model.Stop{
+		6100: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 5, 11, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 11, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 5, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 26, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 6, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 3, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 6, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 19, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 7, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 47, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 8, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 7, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 8, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 39, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 5, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 15, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 5, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 34, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 5, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 43, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 5, 48, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 49, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 5, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 53, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 5, 58, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 59, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 6, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 7, 0, 0, time.UTC),
 			},
-			27: model.Stop{
+			27: timetable.Stop{
 				Id:        27,
 				Arrival:   time.Date(0, time.January, 1, 6, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 25, 0, 0, time.UTC),
 			},
-			28: model.Stop{
+			28: timetable.Stop{
 				Id:        28,
 				Arrival:   time.Date(0, time.January, 1, 6, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 38, 0, 0, time.UTC),
 			},
-			29: model.Stop{
+			29: timetable.Stop{
 				Id:        29,
 				Arrival:   time.Date(0, time.January, 1, 6, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 52, 0, 0, time.UTC),
 			},
-			30: model.Stop{
+			30: timetable.Stop{
 				Id:        30,
 				Arrival:   time.Date(0, time.January, 1, 7, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 6, 0, 0, time.UTC),
 			},
-			31: model.Stop{
+			31: timetable.Stop{
 				Id:        31,
 				Arrival:   time.Date(0, time.January, 1, 7, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 18, 0, 0, time.UTC),
 			},
-			32: model.Stop{
+			32: timetable.Stop{
 				Id:        32,
 				Arrival:   time.Date(0, time.January, 1, 7, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 26, 0, 0, time.UTC),
 			},
-			33: model.Stop{
+			33: timetable.Stop{
 				Id:        33,
 				Arrival:   time.Date(0, time.January, 1, 7, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 32, 0, 0, time.UTC),
 			},
-			34: model.Stop{
+			34: timetable.Stop{
 				Id:        34,
 				Arrival:   time.Date(0, time.January, 1, 7, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 35, 0, 0, time.UTC),
 			},
-			35: model.Stop{
+			35: timetable.Stop{
 				Id:        35,
 				Arrival:   time.Date(0, time.January, 1, 7, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 39, 0, 0, time.UTC),
 			},
-			36: model.Stop{
+			36: timetable.Stop{
 				Id:        36,
 				Arrival:   time.Date(0, time.January, 1, 7, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 43, 0, 0, time.UTC),
 			},
-			37: model.Stop{
+			37: timetable.Stop{
 				Id:        37,
 				Arrival:   time.Date(0, time.January, 1, 7, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 53, 0, 0, time.UTC),
 			},
-			38: model.Stop{
+			38: timetable.Stop{
 				Id:        38,
 				Arrival:   time.Date(0, time.January, 1, 7, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 57, 0, 0, time.UTC),
 			},
-			39: model.Stop{
+			39: timetable.Stop{
 				Id:        39,
 				Arrival:   time.Date(0, time.January, 1, 8, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 3, 0, 0, time.UTC),
 			},
-			40: model.Stop{
+			40: timetable.Stop{
 				Id:        40,
 				Arrival:   time.Date(0, time.January, 1, 8, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 13, 0, 0, time.UTC),
 			},
-			41: model.Stop{
+			41: timetable.Stop{
 				Id:        41,
 				Arrival:   time.Date(0, time.January, 1, 8, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 17, 0, 0, time.UTC),
 			},
-			42: model.Stop{
+			42: timetable.Stop{
 				Id:        42,
 				Arrival:   time.Date(0, time.January, 1, 8, 21, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 22, 0, 0, time.UTC),
 			},
-			43: model.Stop{
+			43: timetable.Stop{
 				Id:        43,
 				Arrival:   time.Date(0, time.January, 1, 8, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 25, 0, 0, time.UTC),
 			},
-			44: model.Stop{
+			44: timetable.Stop{
 				Id:        44,
 				Arrival:   time.Date(0, time.January, 1, 8, 29, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 30, 0, 0, time.UTC),
 			},
-			45: model.Stop{
+			45: timetable.Stop{
 				Id:        45,
 				Arrival:   time.Date(0, time.January, 1, 8, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 35, 0, 0, time.UTC),
 			},
 		},
-		6101: model.StationIdToStationMap{
-			1: model.Stop{
+		6101: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 10, 21, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 21, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 10, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 7, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 9, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 24, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 8, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 12, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 7, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 19, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 6, 58, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 59, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 6, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 26, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 10, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 18, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 9, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 57, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 9, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 52, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 9, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 41, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 9, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 37, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 9, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 28, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 9, 19, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 20, 0, 0, time.UTC),
 			},
-			27: model.Stop{
+			27: timetable.Stop{
 				Id:        27,
 				Arrival:   time.Date(0, time.January, 1, 8, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 46, 0, 0, time.UTC),
 			},
-			28: model.Stop{
+			28: timetable.Stop{
 				Id:        28,
 				Arrival:   time.Date(0, time.January, 1, 8, 32, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 33, 0, 0, time.UTC),
 			},
-			29: model.Stop{
+			29: timetable.Stop{
 				Id:        29,
 				Arrival:   time.Date(0, time.January, 1, 8, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 19, 0, 0, time.UTC),
 			},
-			30: model.Stop{
+			30: timetable.Stop{
 				Id:        30,
 				Arrival:   time.Date(0, time.January, 1, 8, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 5, 0, 0, time.UTC),
 			},
-			31: model.Stop{
+			31: timetable.Stop{
 				Id:        31,
 				Arrival:   time.Date(0, time.January, 1, 7, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 53, 0, 0, time.UTC),
 			},
-			32: model.Stop{
+			32: timetable.Stop{
 				Id:        32,
 				Arrival:   time.Date(0, time.January, 1, 7, 44, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 45, 0, 0, time.UTC),
 			},
-			33: model.Stop{
+			33: timetable.Stop{
 				Id:        33,
 				Arrival:   time.Date(0, time.January, 1, 7, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 39, 0, 0, time.UTC),
 			},
-			34: model.Stop{
+			34: timetable.Stop{
 				Id:        34,
 				Arrival:   time.Date(0, time.January, 1, 7, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 36, 0, 0, time.UTC),
 			},
-			35: model.Stop{
+			35: timetable.Stop{
 				Id:        35,
 				Arrival:   time.Date(0, time.January, 1, 7, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 27, 0, 0, time.UTC),
 			},
-			36: model.Stop{
+			36: timetable.Stop{
 				Id:        36,
 				Arrival:   time.Date(0, time.January, 1, 7, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 23, 0, 0, time.UTC),
 			},
-			37: model.Stop{
+			37: timetable.Stop{
 				Id:        37,
 				Arrival:   time.Date(0, time.January, 1, 7, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 13, 0, 0, time.UTC),
 			},
-			38: model.Stop{
+			38: timetable.Stop{
 				Id:        38,
 				Arrival:   time.Date(0, time.January, 1, 7, 8, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 9, 0, 0, time.UTC),
 			},
-			39: model.Stop{
+			39: timetable.Stop{
 				Id:        39,
 				Arrival:   time.Date(0, time.January, 1, 7, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 3, 0, 0, time.UTC),
 			},
-			40: model.Stop{
+			40: timetable.Stop{
 				Id:        40,
 				Arrival:   time.Date(0, time.January, 1, 6, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 53, 0, 0, time.UTC),
 			},
-			41: model.Stop{
+			41: timetable.Stop{
 				Id:        41,
 				Arrival:   time.Date(0, time.January, 1, 6, 48, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 49, 0, 0, time.UTC),
 			},
-			42: model.Stop{
+			42: timetable.Stop{
 				Id:        42,
 				Arrival:   time.Date(0, time.January, 1, 6, 43, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 44, 0, 0, time.UTC),
 			},
-			43: model.Stop{
+			43: timetable.Stop{
 				Id:        43,
 				Arrival:   time.Date(0, time.January, 1, 6, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 41, 0, 0, time.UTC),
 			},
-			44: model.Stop{
+			44: timetable.Stop{
 				Id:        44,
 				Arrival:   time.Date(0, time.January, 1, 6, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 36, 0, 0, time.UTC),
 			},
-			45: model.Stop{
+			45: timetable.Stop{
 				Id:        45,
 				Arrival:   time.Date(0, time.January, 1, 6, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 31, 0, 0, time.UTC),
 			},
 		},
-		6102: model.StationIdToStationMap{
-			1: model.Stop{
+		6102: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 15, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 30, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 15, 44, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 45, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 16, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 23, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 16, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 6, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 18, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 32, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 18, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 50, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 19, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 22, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 15, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 34, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 15, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 53, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 15, 57, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 3, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 16, 8, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 9, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 16, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 13, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 16, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 19, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 16, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 27, 0, 0, time.UTC),
 			},
-			27: model.Stop{
+			27: timetable.Stop{
 				Id:        27,
 				Arrival:   time.Date(0, time.January, 1, 17, 11, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 12, 0, 0, time.UTC),
 			},
-			28: model.Stop{
+			28: timetable.Stop{
 				Id:        28,
 				Arrival:   time.Date(0, time.January, 1, 17, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 25, 0, 0, time.UTC),
 			},
-			29: model.Stop{
+			29: timetable.Stop{
 				Id:        29,
 				Arrival:   time.Date(0, time.January, 1, 17, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 38, 0, 0, time.UTC),
 			},
-			30: model.Stop{
+			30: timetable.Stop{
 				Id:        30,
 				Arrival:   time.Date(0, time.January, 1, 17, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 52, 0, 0, time.UTC),
 			},
-			31: model.Stop{
+			31: timetable.Stop{
 				Id:        31,
 				Arrival:   time.Date(0, time.January, 1, 18, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 4, 0, 0, time.UTC),
 			},
-			32: model.Stop{
+			32: timetable.Stop{
 				Id:        32,
 				Arrival:   time.Date(0, time.January, 1, 18, 11, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 12, 0, 0, time.UTC),
 			},
-			33: model.Stop{
+			33: timetable.Stop{
 				Id:        33,
 				Arrival:   time.Date(0, time.January, 1, 18, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 18, 0, 0, time.UTC),
 			},
-			34: model.Stop{
+			34: timetable.Stop{
 				Id:        34,
 				Arrival:   time.Date(0, time.January, 1, 18, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 21, 0, 0, time.UTC),
 			},
-			35: model.Stop{
+			35: timetable.Stop{
 				Id:        35,
 				Arrival:   time.Date(0, time.January, 1, 18, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 25, 0, 0, time.UTC),
 			},
-			36: model.Stop{
+			36: timetable.Stop{
 				Id:        36,
 				Arrival:   time.Date(0, time.January, 1, 18, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 25, 0, 0, time.UTC),
 			},
-			37: model.Stop{
+			37: timetable.Stop{
 				Id:        37,
 				Arrival:   time.Date(0, time.January, 1, 18, 32, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 32, 0, 0, time.UTC),
 			},
-			38: model.Stop{
+			38: timetable.Stop{
 				Id:        38,
 				Arrival:   time.Date(0, time.January, 1, 18, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 41, 0, 0, time.UTC),
 			},
-			39: model.Stop{
+			39: timetable.Stop{
 				Id:        39,
 				Arrival:   time.Date(0, time.January, 1, 18, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 41, 0, 0, time.UTC),
 			},
-			40: model.Stop{
+			40: timetable.Stop{
 				Id:        40,
 				Arrival:   time.Date(0, time.January, 1, 18, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 56, 0, 0, time.UTC),
 			},
-			41: model.Stop{
+			41: timetable.Stop{
 				Id:        41,
 				Arrival:   time.Date(0, time.January, 1, 18, 59, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 0, 0, 0, time.UTC),
 			},
-			42: model.Stop{
+			42: timetable.Stop{
 				Id:        42,
 				Arrival:   time.Date(0, time.January, 1, 19, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 5, 0, 0, time.UTC),
 			},
-			43: model.Stop{
+			43: timetable.Stop{
 				Id:        43,
 				Arrival:   time.Date(0, time.January, 1, 19, 7, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 8, 0, 0, time.UTC),
 			},
-			44: model.Stop{
+			44: timetable.Stop{
 				Id:        44,
 				Arrival:   time.Date(0, time.January, 1, 19, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 13, 0, 0, time.UTC),
 			},
-			45: model.Stop{
+			45: timetable.Stop{
 				Id:        45,
 				Arrival:   time.Date(0, time.January, 1, 19, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 18, 0, 0, time.UTC),
 			},
 		},
-		6103: model.StationIdToStationMap{
-			1: model.Stop{
+		6103: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 12, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 35, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 12, 19, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 21, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 11, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 47, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 11, 28, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 35, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 9, 59, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 0, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 9, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 42, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 9, 9, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 9, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 12, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 32, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 12, 11, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 12, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 12, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 7, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 12, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 1, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 11, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 57, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 11, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 51, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 11, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 43, 0, 0, time.UTC),
 			},
-			27: model.Stop{
+			27: timetable.Stop{
 				Id:        27,
 				Arrival:   time.Date(0, time.January, 1, 11, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 23, 0, 0, time.UTC),
 			},
-			28: model.Stop{
+			28: timetable.Stop{
 				Id:        28,
 				Arrival:   time.Date(0, time.January, 1, 11, 9, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 10, 0, 0, time.UTC),
 			},
-			29: model.Stop{
+			29: timetable.Stop{
 				Id:        29,
 				Arrival:   time.Date(0, time.January, 1, 10, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 57, 0, 0, time.UTC),
 			},
-			30: model.Stop{
+			30: timetable.Stop{
 				Id:        30,
 				Arrival:   time.Date(0, time.January, 1, 10, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 43, 0, 0, time.UTC),
 			},
-			31: model.Stop{
+			31: timetable.Stop{
 				Id:        31,
 				Arrival:   time.Date(0, time.January, 1, 10, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 28, 0, 0, time.UTC),
 			},
-			32: model.Stop{
+			32: timetable.Stop{
 				Id:        32,
 				Arrival:   time.Date(0, time.January, 1, 10, 19, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 20, 0, 0, time.UTC),
 			},
-			33: model.Stop{
+			33: timetable.Stop{
 				Id:        33,
 				Arrival:   time.Date(0, time.January, 1, 10, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 14, 0, 0, time.UTC),
 			},
-			34: model.Stop{
+			34: timetable.Stop{
 				Id:        34,
 				Arrival:   time.Date(0, time.January, 1, 10, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 11, 0, 0, time.UTC),
 			},
-			35: model.Stop{
+			35: timetable.Stop{
 				Id:        35,
 				Arrival:   time.Date(0, time.January, 1, 10, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 7, 0, 0, time.UTC),
 			},
-			36: model.Stop{
+			36: timetable.Stop{
 				Id:        36,
 				Arrival:   time.Date(0, time.January, 1, 10, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 0, 0, 0, time.UTC),
 			},
-			37: model.Stop{
+			37: timetable.Stop{
 				Id:        37,
 				Arrival:   time.Date(0, time.January, 1, 9, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 51, 0, 0, time.UTC),
 			},
-			38: model.Stop{
+			38: timetable.Stop{
 				Id:        38,
 				Arrival:   time.Date(0, time.January, 1, 9, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 51, 0, 0, time.UTC),
 			},
-			39: model.Stop{
+			39: timetable.Stop{
 				Id:        39,
 				Arrival:   time.Date(0, time.January, 1, 9, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 42, 0, 0, time.UTC),
 			},
-			40: model.Stop{
+			40: timetable.Stop{
 				Id:        40,
 				Arrival:   time.Date(0, time.January, 1, 9, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 36, 0, 0, time.UTC),
 			},
-			41: model.Stop{
+			41: timetable.Stop{
 				Id:        41,
 				Arrival:   time.Date(0, time.January, 1, 9, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 32, 0, 0, time.UTC),
 			},
-			42: model.Stop{
+			42: timetable.Stop{
 				Id:        42,
 				Arrival:   time.Date(0, time.January, 1, 9, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 27, 0, 0, time.UTC),
 			},
-			43: model.Stop{
+			43: timetable.Stop{
 				Id:        43,
 				Arrival:   time.Date(0, time.January, 1, 9, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 24, 0, 0, time.UTC),
 			},
-			44: model.Stop{
+			44: timetable.Stop{
 				Id:        44,
 				Arrival:   time.Date(0, time.January, 1, 9, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 19, 0, 0, time.UTC),
 			},
-			45: model.Stop{
+			45: timetable.Stop{
 				Id:        45,
 				Arrival:   time.Date(0, time.January, 1, 9, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 14, 0, 0, time.UTC),
 			},
 		},
-		6104: model.StationIdToStationMap{
-			1: model.Stop{
+		6104: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 17, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 56, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 18, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 12, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 18, 44, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 45, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 18, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 15, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 20, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 43, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 21, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 3, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 21, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 35, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 17, 59, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 0, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 18, 19, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 20, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 18, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 25, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 18, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 31, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 18, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 35, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 18, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 41, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 18, 48, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 49, 0, 0, time.UTC),
 			},
-			27: model.Stop{
+			27: timetable.Stop{
 				Id:        27,
 				Arrival:   time.Date(0, time.January, 1, 19, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 21, 0, 0, time.UTC),
 			},
-			28: model.Stop{
+			28: timetable.Stop{
 				Id:        28,
 				Arrival:   time.Date(0, time.January, 1, 19, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 34, 0, 0, time.UTC),
 			},
-			29: model.Stop{
+			29: timetable.Stop{
 				Id:        29,
 				Arrival:   time.Date(0, time.January, 1, 19, 47, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 48, 0, 0, time.UTC),
 			},
-			30: model.Stop{
+			30: timetable.Stop{
 				Id:        30,
 				Arrival:   time.Date(0, time.January, 1, 20, 1, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 2, 0, 0, time.UTC),
 			},
-			31: model.Stop{
+			31: timetable.Stop{
 				Id:        31,
 				Arrival:   time.Date(0, time.January, 1, 20, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 14, 0, 0, time.UTC),
 			},
-			32: model.Stop{
+			32: timetable.Stop{
 				Id:        32,
 				Arrival:   time.Date(0, time.January, 1, 20, 21, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 22, 0, 0, time.UTC),
 			},
-			33: model.Stop{
+			33: timetable.Stop{
 				Id:        33,
 				Arrival:   time.Date(0, time.January, 1, 20, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 28, 0, 0, time.UTC),
 			},
-			34: model.Stop{
+			34: timetable.Stop{
 				Id:        34,
 				Arrival:   time.Date(0, time.January, 1, 20, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 31, 0, 0, time.UTC),
 			},
-			35: model.Stop{
+			35: timetable.Stop{
 				Id:        35,
 				Arrival:   time.Date(0, time.January, 1, 20, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 35, 0, 0, time.UTC),
 			},
-			36: model.Stop{
+			36: timetable.Stop{
 				Id:        36,
 				Arrival:   time.Date(0, time.January, 1, 20, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 39, 0, 0, time.UTC),
 			},
-			37: model.Stop{
+			37: timetable.Stop{
 				Id:        37,
 				Arrival:   time.Date(0, time.January, 1, 20, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 49, 0, 0, time.UTC),
 			},
-			38: model.Stop{
+			38: timetable.Stop{
 				Id:        38,
 				Arrival:   time.Date(0, time.January, 1, 20, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 53, 0, 0, time.UTC),
 			},
-			39: model.Stop{
+			39: timetable.Stop{
 				Id:        39,
 				Arrival:   time.Date(0, time.January, 1, 20, 58, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 59, 0, 0, time.UTC),
 			},
-			40: model.Stop{
+			40: timetable.Stop{
 				Id:        40,
 				Arrival:   time.Date(0, time.January, 1, 21, 8, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 9, 0, 0, time.UTC),
 			},
-			41: model.Stop{
+			41: timetable.Stop{
 				Id:        41,
 				Arrival:   time.Date(0, time.January, 1, 21, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 13, 0, 0, time.UTC),
 			},
-			42: model.Stop{
+			42: timetable.Stop{
 				Id:        42,
 				Arrival:   time.Date(0, time.January, 1, 21, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 18, 0, 0, time.UTC),
 			},
-			43: model.Stop{
+			43: timetable.Stop{
 				Id:        43,
 				Arrival:   time.Date(0, time.January, 1, 21, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 21, 0, 0, time.UTC),
 			},
-			44: model.Stop{
+			44: timetable.Stop{
 				Id:        44,
 				Arrival:   time.Date(0, time.January, 1, 21, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 26, 0, 0, time.UTC),
 			},
-			45: model.Stop{
+			45: timetable.Stop{
 				Id:        45,
 				Arrival:   time.Date(0, time.January, 1, 21, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 31, 0, 0, time.UTC),
 			},
 		},
-		6105: model.StationIdToStationMap{
-			1: model.Stop{
+		6105: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 23, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 23, 20, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 23, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 23, 6, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 22, 32, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 33, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 22, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 21, 0, 0, time.UTC),
 			},
-			5: model.Stop{
+			5: timetable.Stop{
 				Id:        5,
 				Arrival:   time.Date(0, time.January, 1, 20, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 44, 0, 0, time.UTC),
 			},
-			6: model.Stop{
+			6: timetable.Stop{
 				Id:        6,
 				Arrival:   time.Date(0, time.January, 1, 20, 19, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 20, 0, 0, time.UTC),
 			},
-			7: model.Stop{
+			7: timetable.Stop{
 				Id:        7,
 				Arrival:   time.Date(0, time.January, 1, 19, 47, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 47, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 23, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 23, 17, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 22, 57, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 58, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 22, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 53, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 22, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 47, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 22, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 43, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 22, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 37, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 22, 28, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 29, 0, 0, time.UTC),
 			},
-			27: model.Stop{
+			27: timetable.Stop{
 				Id:        27,
 				Arrival:   time.Date(0, time.January, 1, 22, 8, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 9, 0, 0, time.UTC),
 			},
-			28: model.Stop{
+			28: timetable.Stop{
 				Id:        28,
 				Arrival:   time.Date(0, time.January, 1, 21, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 56, 0, 0, time.UTC),
 			},
-			29: model.Stop{
+			29: timetable.Stop{
 				Id:        29,
 				Arrival:   time.Date(0, time.January, 1, 21, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 42, 0, 0, time.UTC),
 			},
-			30: model.Stop{
+			30: timetable.Stop{
 				Id:        30,
 				Arrival:   time.Date(0, time.January, 1, 21, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 28, 0, 0, time.UTC),
 			},
-			31: model.Stop{
+			31: timetable.Stop{
 				Id:        31,
 				Arrival:   time.Date(0, time.January, 1, 21, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 13, 0, 0, time.UTC),
 			},
-			32: model.Stop{
+			32: timetable.Stop{
 				Id:        32,
 				Arrival:   time.Date(0, time.January, 1, 21, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 5, 0, 0, time.UTC),
 			},
-			33: model.Stop{
+			33: timetable.Stop{
 				Id:        33,
 				Arrival:   time.Date(0, time.January, 1, 20, 58, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 59, 0, 0, time.UTC),
 			},
-			34: model.Stop{
+			34: timetable.Stop{
 				Id:        34,
 				Arrival:   time.Date(0, time.January, 1, 20, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 56, 0, 0, time.UTC),
 			},
-			35: model.Stop{
+			35: timetable.Stop{
 				Id:        35,
 				Arrival:   time.Date(0, time.January, 1, 20, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 52, 0, 0, time.UTC),
 			},
-			36: model.Stop{
+			36: timetable.Stop{
 				Id:        36,
 				Arrival:   time.Date(0, time.January, 1, 20, 47, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 48, 0, 0, time.UTC),
 			},
-			37: model.Stop{
+			37: timetable.Stop{
 				Id:        37,
 				Arrival:   time.Date(0, time.January, 1, 20, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 34, 0, 0, time.UTC),
 			},
-			38: model.Stop{
+			38: timetable.Stop{
 				Id:        38,
 				Arrival:   time.Date(0, time.January, 1, 20, 29, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 30, 0, 0, time.UTC),
 			},
-			39: model.Stop{
+			39: timetable.Stop{
 				Id:        39,
 				Arrival:   time.Date(0, time.January, 1, 20, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 24, 0, 0, time.UTC),
 			},
-			40: model.Stop{
+			40: timetable.Stop{
 				Id:        40,
 				Arrival:   time.Date(0, time.January, 1, 20, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 14, 0, 0, time.UTC),
 			},
-			41: model.Stop{
+			41: timetable.Stop{
 				Id:        41,
 				Arrival:   time.Date(0, time.January, 1, 20, 9, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 10, 0, 0, time.UTC),
 			},
-			42: model.Stop{
+			42: timetable.Stop{
 				Id:        42,
 				Arrival:   time.Date(0, time.January, 1, 20, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 5, 0, 0, time.UTC),
 			},
-			43: model.Stop{
+			43: timetable.Stop{
 				Id:        43,
 				Arrival:   time.Date(0, time.January, 1, 20, 1, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 2, 0, 0, time.UTC),
 			},
-			44: model.Stop{
+			44: timetable.Stop{
 				Id:        44,
 				Arrival:   time.Date(0, time.January, 1, 19, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 57, 0, 0, time.UTC),
 			},
-			45: model.Stop{
+			45: timetable.Stop{
 				Id:        45,
 				Arrival:   time.Date(0, time.January, 1, 19, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 52, 0, 0, time.UTC),
 			},
 		},
-		6150: model.StationIdToStationMap{
-			1: model.Stop{
+		6150: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 6, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 24, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 6, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 39, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 7, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 15, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 7, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 26, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 6, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 28, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 6, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 47, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 6, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 55, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 7, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 1, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 7, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 5, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 7, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 11, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 7, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 19, 0, 0, time.UTC),
 			},
 		},
-		6151: model.StationIdToStationMap{
-			1: model.Stop{
+		6151: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 6, 9, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 9, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 5, 54, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 55, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 5, 21, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 22, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 5, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 10, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 6, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 6, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 5, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 47, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 5, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 42, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 5, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 36, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 5, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 32, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 5, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 26, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 5, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 5, 18, 0, 0, time.UTC),
 			},
 		},
-		6152: model.StationIdToStationMap{
-			1: model.Stop{
+		6152: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 9, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 23, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 9, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 38, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 10, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 11, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 10, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 22, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 9, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 27, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 9, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 46, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 9, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 51, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 9, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 57, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 10, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 1, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 10, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 7, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 10, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 15, 0, 0, time.UTC),
 			},
 		},
-		6153: model.StationIdToStationMap{
-			1: model.Stop{
+		6153: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 8, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 55, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 8, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 41, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 8, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 7, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 7, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 55, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 8, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 52, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 8, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 32, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 8, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 27, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 8, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 21, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 8, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 17, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 8, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 11, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 8, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 3, 0, 0, time.UTC),
 			},
 		},
-		6154: model.StationIdToStationMap{
-			1: model.Stop{
+		6154: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 11, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 36, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 11, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 51, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 12, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 28, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 12, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 39, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 11, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 40, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 11, 58, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 59, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 12, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 8, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 12, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 14, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 12, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 18, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 12, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 24, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 12, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 32, 0, 0, time.UTC),
 			},
 		},
-		6155: model.StationIdToStationMap{
-			1: model.Stop{
+		6155: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 13, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 55, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 13, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 41, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 13, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 7, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 12, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 55, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 13, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 52, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 13, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 32, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 13, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 27, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 13, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 21, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 13, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 17, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 13, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 11, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 13, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 3, 0, 0, time.UTC),
 			},
 		},
-		6156: model.StationIdToStationMap{
-			1: model.Stop{
+		6156: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 14, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 13, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 14, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 28, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 15, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 1, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 15, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 12, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 14, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 17, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 14, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 36, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 14, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 41, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 14, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 47, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 14, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 51, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 14, 56, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 57, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 15, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 5, 0, 0, time.UTC),
 			},
 		},
-		6157: model.StationIdToStationMap{
-			1: model.Stop{
+		6157: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 16, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 30, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 16, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 16, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 15, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 42, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 15, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 30, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 16, 26, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 27, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 16, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 7, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 16, 1, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 2, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 15, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 56, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 15, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 52, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 15, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 46, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 15, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 38, 0, 0, time.UTC),
 			},
 		},
-		6158: model.StationIdToStationMap{
-			1: model.Stop{
+		6158: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 17, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 3, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 17, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 22, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 17, 54, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 55, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 18, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 6, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 17, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 7, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 17, 29, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 30, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 17, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 35, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 17, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 41, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 17, 44, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 45, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 17, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 51, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 17, 58, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 59, 0, 0, time.UTC),
 			},
 		},
-		6159: model.StationIdToStationMap{
-			1: model.Stop{
+		6159: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 17, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 35, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 17, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 21, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 16, 47, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 48, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 16, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 36, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 17, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 32, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 17, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 13, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 17, 7, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 8, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 17, 1, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 2, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 16, 57, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 58, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 16, 51, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 52, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 16, 43, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 44, 0, 0, time.UTC),
 			},
 		},
-		6160: model.StationIdToStationMap{
-			1: model.Stop{
+		6160: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 21, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 0, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 21, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 16, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 21, 48, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 49, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 22, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 0, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 21, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 4, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 21, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 24, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 21, 28, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 29, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 21, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 35, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 21, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 39, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 21, 44, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 45, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 21, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 53, 0, 0, time.UTC),
 			},
 		},
-		6161: model.StationIdToStationMap{
-			1: model.Stop{
+		6161: timetable.StationIdToStationMap{
+			1: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, time.January, 1, 20, 9, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 9, 0, 0, time.UTC),
 			},
-			2: model.Stop{
+			2: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, time.January, 1, 19, 54, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 55, 0, 0, time.UTC),
 			},
-			3: model.Stop{
+			3: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, time.January, 1, 19, 21, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 22, 0, 0, time.UTC),
 			},
-			4: model.Stop{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 19, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 10, 0, 0, time.UTC),
 			},
-			20: model.Stop{
+			20: timetable.Stop{
 				Id:        20,
 				Arrival:   time.Date(0, time.January, 1, 20, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 6, 0, 0, time.UTC),
 			},
-			21: model.Stop{
+			21: timetable.Stop{
 				Id:        21,
 				Arrival:   time.Date(0, time.January, 1, 19, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 47, 0, 0, time.UTC),
 			},
-			22: model.Stop{
+			22: timetable.Stop{
 				Id:        22,
 				Arrival:   time.Date(0, time.January, 1, 19, 41, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 42, 0, 0, time.UTC),
 			},
-			23: model.Stop{
+			23: timetable.Stop{
 				Id:        23,
 				Arrival:   time.Date(0, time.January, 1, 19, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 36, 0, 0, time.UTC),
 			},
-			24: model.Stop{
+			24: timetable.Stop{
 				Id:        24,
 				Arrival:   time.Date(0, time.January, 1, 19, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 32, 0, 0, time.UTC),
 			},
-			25: model.Stop{
+			25: timetable.Stop{
 				Id:        25,
 				Arrival:   time.Date(0, time.January, 1, 19, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 26, 0, 0, time.UTC),
 			},
-			26: model.Stop{
+			26: timetable.Stop{
 				Id:        26,
 				Arrival:   time.Date(0, time.January, 1, 19, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 18, 0, 0, time.UTC),
 			},
 		},
-		7100: model.StationIdToStationMap{
-			4: model.Stop{
+		7100: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 8, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 0, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 8, 10, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 11, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 8, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 16, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 8, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 23, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 8, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 29, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 8, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 37, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 8, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 40, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 8, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 43, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 8, 46, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 47, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 8, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 50, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 8, 54, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 8, 55, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 9, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 9, 3, 0, 0, time.UTC),
 			},
 		},
-		7101: model.StationIdToStationMap{
-			4: model.Stop{
+		7101: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 7, 23, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 23, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 7, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 13, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 7, 7, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 9, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 7, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 7, 1, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 6, 54, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 56, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 6, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 46, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 6, 42, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 43, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 6, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 40, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 6, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 37, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 6, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 33, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 6, 28, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 28, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 6, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 6, 20, 0, 0, time.UTC),
 			},
 		},
-		7102: model.StationIdToStationMap{
-			4: model.Stop{
+		7102: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 12, 50, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 12, 50, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 13, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 1, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 13, 4, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 6, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 13, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 13, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 13, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 19, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 13, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 27, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 13, 29, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 30, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 13, 32, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 33, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 13, 36, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 37, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 13, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 40, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 13, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 40, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 13, 53, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 13, 53, 0, 0, time.UTC),
 			},
 		},
-		7103: model.StationIdToStationMap{
-			4: model.Stop{
+		7103: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 11, 18, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 18, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 11, 7, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 8, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 11, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 11, 4, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 10, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 56, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 10, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 50, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 10, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 41, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 10, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 38, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 10, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 35, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 10, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 32, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 10, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 28, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 10, 15, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 15, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 10, 15, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 10, 15, 0, 0, time.UTC),
 			},
 		},
-		7104: model.StationIdToStationMap{
-			4: model.Stop{
+		7104: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 15, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 35, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 15, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 46, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 15, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 51, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 15, 57, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 58, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 16, 2, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 4, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 16, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 12, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 16, 14, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 15, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 16, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 18, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 16, 21, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 22, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 16, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 25, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 16, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 25, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 16, 38, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 16, 38, 0, 0, time.UTC),
 			},
 		},
-		7105: model.StationIdToStationMap{
-			4: model.Stop{
+		7105: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 15, 17, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 17, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 15, 6, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 7, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 15, 1, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 15, 3, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 14, 54, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 55, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 14, 49, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 50, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 14, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 41, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 14, 37, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 38, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 14, 35, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 35, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 14, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 32, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 14, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 28, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 14, 15, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 15, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 14, 15, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 14, 15, 0, 0, time.UTC),
 			},
 		},
-		7106: model.StationIdToStationMap{
-			4: model.Stop{
+		7106: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 18, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 30, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 18, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 41, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 18, 44, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 46, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 18, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 53, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 18, 57, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 59, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 19, 7, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 7, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 19, 9, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 10, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 19, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 13, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 19, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 17, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 19, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 20, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 19, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 20, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 19, 33, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 19, 33, 0, 0, time.UTC),
 			},
 		},
-		7107: model.StationIdToStationMap{
-			4: model.Stop{
+		7107: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 18, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 18, 3, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 17, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 53, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 17, 47, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 49, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 17, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 41, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 17, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 36, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 17, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 26, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 17, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 23, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 17, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 20, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 17, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 17, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 17, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 13, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 17, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 0, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 17, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 17, 0, 0, 0, time.UTC),
 			},
 		},
-		7108: model.StationIdToStationMap{
-			4: model.Stop{
+		7108: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 21, 45, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 45, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 21, 55, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 56, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 21, 59, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 1, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 22, 7, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 8, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 22, 12, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 14, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 22, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 22, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 22, 24, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 25, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 22, 27, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 28, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 22, 31, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 32, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 22, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 35, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 22, 39, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 40, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 22, 48, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 22, 48, 0, 0, time.UTC),
 			},
 		},
-		7109: model.StationIdToStationMap{
-			4: model.Stop{
+		7109: timetable.StationIdToStationMap{
+			4: timetable.Stop{
 				Id:        4,
 				Arrival:   time.Date(0, time.January, 1, 21, 3, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 21, 3, 0, 0, time.UTC),
 			},
-			46: model.Stop{
+			46: timetable.Stop{
 				Id:        46,
 				Arrival:   time.Date(0, time.January, 1, 20, 52, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 53, 0, 0, time.UTC),
 			},
-			47: model.Stop{
+			47: timetable.Stop{
 				Id:        47,
 				Arrival:   time.Date(0, time.January, 1, 20, 47, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 49, 0, 0, time.UTC),
 			},
-			48: model.Stop{
+			48: timetable.Stop{
 				Id:        48,
 				Arrival:   time.Date(0, time.January, 1, 20, 40, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 41, 0, 0, time.UTC),
 			},
-			49: model.Stop{
+			49: timetable.Stop{
 				Id:        49,
 				Arrival:   time.Date(0, time.January, 1, 20, 34, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 36, 0, 0, time.UTC),
 			},
-			50: model.Stop{
+			50: timetable.Stop{
 				Id:        50,
 				Arrival:   time.Date(0, time.January, 1, 20, 25, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 26, 0, 0, time.UTC),
 			},
-			51: model.Stop{
+			51: timetable.Stop{
 				Id:        51,
 				Arrival:   time.Date(0, time.January, 1, 20, 22, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 23, 0, 0, time.UTC),
 			},
-			52: model.Stop{
+			52: timetable.Stop{
 				Id:        52,
 				Arrival:   time.Date(0, time.January, 1, 20, 20, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 20, 0, 0, time.UTC),
 			},
-			53: model.Stop{
+			53: timetable.Stop{
 				Id:        53,
 				Arrival:   time.Date(0, time.January, 1, 20, 16, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 17, 0, 0, time.UTC),
 			},
-			54: model.Stop{
+			54: timetable.Stop{
 				Id:        54,
 				Arrival:   time.Date(0, time.January, 1, 20, 13, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 13, 0, 0, time.UTC),
 			},
-			55: model.Stop{
+			55: timetable.Stop{
 				Id:        55,
 				Arrival:   time.Date(0, time.January, 1, 20, 8, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 8, 0, 0, time.UTC),
 			},
-			56: model.Stop{
+			56: timetable.Stop{
 				Id:        56,
 				Arrival:   time.Date(0, time.January, 1, 20, 0, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 0, 0, 0, time.UTC),
 			},
 		},
 	},
-	StationIdToStationMap: map[model.StationId]model.Station{
-		1:  model.Station{Id: 1, Name: "Bar"},
-		2:  model.Station{Id: 2, Name: "Sutomore"},
-		3:  model.Station{Id: 3, Name: "Golubovci"},
-		4:  model.Station{Id: 4, Name: "Podgorica"},
-		5:  model.Station{Id: 5, Name: "Kolašin"},
-		6:  model.Station{Id: 6, Name: "Mojkovac"},
-		7:  model.Station{Id: 7, Name: "Bijelo Polje"},
-		8:  model.Station{Id: 8, Name: "Prijepolje teretna"},
-		9:  model.Station{Id: 9, Name: "Prijepolje"},
-		10: model.Station{Id: 10, Name: "Priboj"},
-		11: model.Station{Id: 11, Name: "Užice"},
-		12: model.Station{Id: 12, Name: "Požega"},
-		13: model.Station{Id: 13, Name: "Kosjerić"},
-		14: model.Station{Id: 14, Name: "Valjevo"},
-		15: model.Station{Id: 15, Name: "Lajkovac"},
-		16: model.Station{Id: 16, Name: "Lazarevac"},
-		17: model.Station{Id: 17, Name: "Rakovica"},
-		18: model.Station{Id: 18, Name: "Beograd Centar"},
-		19: model.Station{Id: 19, Name: "Zemun"},
-		20: model.Station{Id: 20, Name: "Šušanj"},
-		21: model.Station{Id: 21, Name: "Crmnica"},
-		22: model.Station{Id: 22, Name: "Virpazar"},
-		23: model.Station{Id: 23, Name: "Vranjina"},
-		24: model.Station{Id: 24, Name: "Zeta"},
-		25: model.Station{Id: 25, Name: "Morača"},
-		26: model.Station{Id: 26, Name: "Aerodrom"},
-		27: model.Station{Id: 27, Name: "Zlatica"},
-		28: model.Station{Id: 28, Name: "Bioče"},
-		29: model.Station{Id: 29, Name: "Bratonožići"},
-		30: model.Station{Id: 30, Name: "Lutovo"},
-		31: model.Station{Id: 31, Name: "Kruševački Potok"},
-		32: model.Station{Id: 32, Name: "Trebešica"},
-		33: model.Station{Id: 33, Name: "Selište"},
-		34: model.Station{Id: 34, Name: "Kos"},
-		35: model.Station{Id: 35, Name: "Mateševo"},
-		36: model.Station{Id: 36, Name: "Padež"},
-		37: model.Station{Id: 37, Name: "Oblutak"},
-		38: model.Station{Id: 38, Name: "Trebaljevo"},
-		39: model.Station{Id: 39, Name: "Štitarička Rijeka"},
-		40: model.Station{Id: 40, Name: "Žari"},
-		41: model.Station{Id: 41, Name: "Mijatovo Kolo"},
-		42: model.Station{Id: 42, Name: "Slijepač Most"},
-		43: model.Station{Id: 43, Name: "Ravna Rijeka"},
-		44: model.Station{Id: 44, Name: "Kruševo"},
-		45: model.Station{Id: 45, Name: "Lješnica"},
-		46: model.Station{Id: 46, Name: "Pričelje"},
-		47: model.Station{Id: 47, Name: "Spuž"},
-		48: model.Station{Id: 48, Name: "Ljutotuk"},
-		49: model.Station{Id: 49, Name: "Danilovgrad"},
-		50: model.Station{Id: 50, Name: "Slap"},
-		51: model.Station{Id: 51, Name: "Bare Šumanovića"},
-		52: model.Station{Id: 52, Name: "Šobajići"},
-		53: model.Station{Id: 53, Name: "Ostrog"},
-		54: model.Station{Id: 54, Name: "Dabovići"},
-		55: model.Station{Id: 55, Name: "Stubica"},
-		56: model.Station{Id: 56, Name: "Nikšić"},
+	StationIdToStationMap: map[timetable.StationId]timetable.Station{
+		1:  timetable.Station{Id: 1, Name: "Bar"},
+		2:  timetable.Station{Id: 2, Name: "Sutomore"},
+		3:  timetable.Station{Id: 3, Name: "Golubovci"},
+		4:  timetable.Station{Id: 4, Name: "Podgorica"},
+		5:  timetable.Station{Id: 5, Name: "Kolašin"},
+		6:  timetable.Station{Id: 6, Name: "Mojkovac"},
+		7:  timetable.Station{Id: 7, Name: "Bijelo Polje"},
+		8:  timetable.Station{Id: 8, Name: "Prijepolje teretna"},
+		9:  timetable.Station{Id: 9, Name: "Prijepolje"},
+		10: timetable.Station{Id: 10, Name: "Priboj"},
+		11: timetable.Station{Id: 11, Name: "Užice"},
+		12: timetable.Station{Id: 12, Name: "Požega"},
+		13: timetable.Station{Id: 13, Name: "Kosjerić"},
+		14: timetable.Station{Id: 14, Name: "Valjevo"},
+		15: timetable.Station{Id: 15, Name: "Lajkovac"},
+		16: timetable.Station{Id: 16, Name: "Lazarevac"},
+		17: timetable.Station{Id: 17, Name: "Rakovica"},
+		18: timetable.Station{Id: 18, Name: "Beograd Centar"},
+		19: timetable.Station{Id: 19, Name: "Zemun"},
+		20: timetable.Station{Id: 20, Name: "Šušanj"},
+		21: timetable.Station{Id: 21, Name: "Crmnica"},
+		22: timetable.Station{Id: 22, Name: "Virpazar"},
+		23: timetable.Station{Id: 23, Name: "Vranjina"},
+		24: timetable.Station{Id: 24, Name: "Zeta"},
+		25: timetable.Station{Id: 25, Name: "Morača"},
+		26: timetable.Station{Id: 26, Name: "Aerodrom"},
+		27: timetable.Station{Id: 27, Name: "Zlatica"},
+		28: timetable.Station{Id: 28, Name: "Bioče"},
+		29: timetable.Station{Id: 29, Name: "Bratonožići"},
+		30: timetable.Station{Id: 30, Name: "Lutovo"},
+		31: timetable.Station{Id: 31, Name: "Kruševački Potok"},
+		32: timetable.Station{Id: 32, Name: "Trebešica"},
+		33: timetable.Station{Id: 33, Name: "Selište"},
+		34: timetable.Station{Id: 34, Name: "Kos"},
+		35: timetable.Station{Id: 35, Name: "Mateševo"},
+		36: timetable.Station{Id: 36, Name: "Padež"},
+		37: timetable.Station{Id: 37, Name: "Oblutak"},
+		38: timetable.Station{Id: 38, Name: "Trebaljevo"},
+		39: timetable.Station{Id: 39, Name: "Štitarička Rijeka"},
+		40: timetable.Station{Id: 40, Name: "Žari"},
+		41: timetable.Station{Id: 41, Name: "Mijatovo Kolo"},
+		42: timetable.Station{Id: 42, Name: "Slijepač Most"},
+		43: timetable.Station{Id: 43, Name: "Ravna Rijeka"},
+		44: timetable.Station{Id: 44, Name: "Kruševo"},
+		45: timetable.Station{Id: 45, Name: "Lješnica"},
+		46: timetable.Station{Id: 46, Name: "Pričelje"},
+		47: timetable.Station{Id: 47, Name: "Spuž"},
+		48: timetable.Station{Id: 48, Name: "Ljutotuk"},
+		49: timetable.Station{Id: 49, Name: "Danilovgrad"},
+		50: timetable.Station{Id: 50, Name: "Slap"},
+		51: timetable.Station{Id: 51, Name: "Bare Šumanovića"},
+		52: timetable.Station{Id: 52, Name: "Šobajići"},
+		53: timetable.Station{Id: 53, Name: "Ostrog"},
+		54: timetable.Station{Id: 54, Name: "Dabovići"},
+		55: timetable.Station{Id: 55, Name: "Stubica"},
+		56: timetable.Station{Id: 56, Name: "Nikšić"},
 	},
-	TrainIdToTrainInfoMap: map[model.TrainId]model.TrainInfo{
-		432:  model.TrainInfo{TrainId: 432, TimetableUrl: "https://zpcg.me/details?timetable=236"},
-		433:  model.TrainInfo{TrainId: 433, TimetableUrl: "https://zpcg.me/details?timetable=235"},
-		6100: model.TrainInfo{TrainId: 6100, TimetableUrl: "https://zpcg.me/details?timetable=102"},
-		6101: model.TrainInfo{TrainId: 6101, TimetableUrl: "https://zpcg.me/details?timetable=210"},
-		6102: model.TrainInfo{TrainId: 6102, TimetableUrl: "https://zpcg.me/details?timetable=103"},
-		6103: model.TrainInfo{TrainId: 6103, TimetableUrl: "https://zpcg.me/details?timetable=121"},
-		6104: model.TrainInfo{TrainId: 6104, TimetableUrl: "https://zpcg.me/details?timetable=205"},
-		6105: model.TrainInfo{TrainId: 6105, TimetableUrl: "https://zpcg.me/details?timetable=122"},
-		6150: model.TrainInfo{TrainId: 6150, TimetableUrl: "https://zpcg.me/details?timetable=217"},
-		6151: model.TrainInfo{TrainId: 6151, TimetableUrl: "https://zpcg.me/details?timetable=46"},
-		6152: model.TrainInfo{TrainId: 6152, TimetableUrl: "https://zpcg.me/details?timetable=221"},
-		6153: model.TrainInfo{TrainId: 6153, TimetableUrl: "https://zpcg.me/details?timetable=228"},
-		6154: model.TrainInfo{TrainId: 6154, TimetableUrl: "https://zpcg.me/details?timetable=222"},
-		6155: model.TrainInfo{TrainId: 6155, TimetableUrl: "https://zpcg.me/details?timetable=229"},
-		6156: model.TrainInfo{TrainId: 6156, TimetableUrl: "https://zpcg.me/details?timetable=223"},
-		6157: model.TrainInfo{TrainId: 6157, TimetableUrl: "https://zpcg.me/details?timetable=230"},
-		6158: model.TrainInfo{TrainId: 6158, TimetableUrl: "https://zpcg.me/details?timetable=224"},
-		6159: model.TrainInfo{TrainId: 6159, TimetableUrl: "https://zpcg.me/details?timetable=231"},
-		6160: model.TrainInfo{TrainId: 6160, TimetableUrl: "https://zpcg.me/details?timetable=225"},
-		6161: model.TrainInfo{TrainId: 6161, TimetableUrl: "https://zpcg.me/details?timetable=150"},
-		7100: model.TrainInfo{TrainId: 7100, TimetableUrl: "https://zpcg.me/details?timetable=201"},
-		7101: model.TrainInfo{TrainId: 7101, TimetableUrl: "https://zpcg.me/details?timetable=153"},
-		7102: model.TrainInfo{TrainId: 7102, TimetableUrl: "https://zpcg.me/details?timetable=202"},
-		7103: model.TrainInfo{TrainId: 7103, TimetableUrl: "https://zpcg.me/details?timetable=218"},
-		7104: model.TrainInfo{TrainId: 7104, TimetableUrl: "https://zpcg.me/details?timetable=160"},
-		7105: model.TrainInfo{TrainId: 7105, TimetableUrl: "https://zpcg.me/details?timetable=219"},
-		7106: model.TrainInfo{TrainId: 7106, TimetableUrl: "https://zpcg.me/details?timetable=204"},
-		7107: model.TrainInfo{TrainId: 7107, TimetableUrl: "https://zpcg.me/details?timetable=213"},
-		7108: model.TrainInfo{TrainId: 7108, TimetableUrl: "https://zpcg.me/details?timetable=203"},
-		7109: model.TrainInfo{TrainId: 7109, TimetableUrl: "https://zpcg.me/details?timetable=214"},
+	TrainIdToTrainInfoMap: map[timetable.TrainId]timetable.TrainInfo{
+		432:  timetable.TrainInfo{TrainId: 432, TimetableUrl: "https://zpcg.me/details?timetable=236"},
+		433:  timetable.TrainInfo{TrainId: 433, TimetableUrl: "https://zpcg.me/details?timetable=235"},
+		6100: timetable.TrainInfo{TrainId: 6100, TimetableUrl: "https://zpcg.me/details?timetable=102"},
+		6101: timetable.TrainInfo{TrainId: 6101, TimetableUrl: "https://zpcg.me/details?timetable=210"},
+		6102: timetable.TrainInfo{TrainId: 6102, TimetableUrl: "https://zpcg.me/details?timetable=103"},
+		6103: timetable.TrainInfo{TrainId: 6103, TimetableUrl: "https://zpcg.me/details?timetable=121"},
+		6104: timetable.TrainInfo{TrainId: 6104, TimetableUrl: "https://zpcg.me/details?timetable=205"},
+		6105: timetable.TrainInfo{TrainId: 6105, TimetableUrl: "https://zpcg.me/details?timetable=122"},
+		6150: timetable.TrainInfo{TrainId: 6150, TimetableUrl: "https://zpcg.me/details?timetable=217"},
+		6151: timetable.TrainInfo{TrainId: 6151, TimetableUrl: "https://zpcg.me/details?timetable=46"},
+		6152: timetable.TrainInfo{TrainId: 6152, TimetableUrl: "https://zpcg.me/details?timetable=221"},
+		6153: timetable.TrainInfo{TrainId: 6153, TimetableUrl: "https://zpcg.me/details?timetable=228"},
+		6154: timetable.TrainInfo{TrainId: 6154, TimetableUrl: "https://zpcg.me/details?timetable=222"},
+		6155: timetable.TrainInfo{TrainId: 6155, TimetableUrl: "https://zpcg.me/details?timetable=229"},
+		6156: timetable.TrainInfo{TrainId: 6156, TimetableUrl: "https://zpcg.me/details?timetable=223"},
+		6157: timetable.TrainInfo{TrainId: 6157, TimetableUrl: "https://zpcg.me/details?timetable=230"},
+		6158: timetable.TrainInfo{TrainId: 6158, TimetableUrl: "https://zpcg.me/details?timetable=224"},
+		6159: timetable.TrainInfo{TrainId: 6159, TimetableUrl: "https://zpcg.me/details?timetable=231"},
+		6160: timetable.TrainInfo{TrainId: 6160, TimetableUrl: "https://zpcg.me/details?timetable=225"},
+		6161: timetable.TrainInfo{TrainId: 6161, TimetableUrl: "https://zpcg.me/details?timetable=150"},
+		7100: timetable.TrainInfo{TrainId: 7100, TimetableUrl: "https://zpcg.me/details?timetable=201"},
+		7101: timetable.TrainInfo{TrainId: 7101, TimetableUrl: "https://zpcg.me/details?timetable=153"},
+		7102: timetable.TrainInfo{TrainId: 7102, TimetableUrl: "https://zpcg.me/details?timetable=202"},
+		7103: timetable.TrainInfo{TrainId: 7103, TimetableUrl: "https://zpcg.me/details?timetable=218"},
+		7104: timetable.TrainInfo{TrainId: 7104, TimetableUrl: "https://zpcg.me/details?timetable=160"},
+		7105: timetable.TrainInfo{TrainId: 7105, TimetableUrl: "https://zpcg.me/details?timetable=219"},
+		7106: timetable.TrainInfo{TrainId: 7106, TimetableUrl: "https://zpcg.me/details?timetable=204"},
+		7107: timetable.TrainInfo{TrainId: 7107, TimetableUrl: "https://zpcg.me/details?timetable=213"},
+		7108: timetable.TrainInfo{TrainId: 7108, TimetableUrl: "https://zpcg.me/details?timetable=203"},
+		7109: timetable.TrainInfo{TrainId: 7109, TimetableUrl: "https://zpcg.me/details?timetable=214"},
 	},
-	UnifiedStationNameToStationIdMap: map[string]model.StationId{
+	UnifiedStationNameToStationIdMap: map[string]timetable.StationId{
 		"aerodrom":             26,
 		"albania":              -28,
 		"bar":                  1,

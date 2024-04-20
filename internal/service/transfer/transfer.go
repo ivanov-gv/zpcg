@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"zpcg/gen/timetable"
-	"zpcg/internal/model"
+	timetable2 "zpcg/internal/model/timetable"
 )
 
 const timetableGoFileFormat = `
@@ -22,7 +22,7 @@ import (
 var Timetable = %#v
 `
 
-func ExportTimetable(filename string, timetable model.TimetableTransferFormat) error {
+func ExportTimetable(filename string, timetable timetable2.ExportFormat) error {
 	fileContent := fmt.Sprintf(timetableGoFileFormat, timetable)
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer file.Close()
@@ -36,6 +36,6 @@ func ExportTimetable(filename string, timetable model.TimetableTransferFormat) e
 	return nil
 }
 
-func ImportTimetable() model.TimetableTransferFormat {
+func ImportTimetable() timetable2.ExportFormat {
 	return timetable.Timetable
 }

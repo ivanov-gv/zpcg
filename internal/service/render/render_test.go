@@ -10,19 +10,19 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model"
+	"zpcg/internal/model/timetable"
 )
 
 func TestDirectRoutes(t *testing.T) {
-	paths := []model.Path{
+	paths := []timetable.Path{
 		{
 			TrainId: 1111,
-			Origin: model.Stop{
+			Origin: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.UTC),
 			},
-			Destination: model.Stop{
+			Destination: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.UTC),
@@ -30,19 +30,19 @@ func TestDirectRoutes(t *testing.T) {
 		},
 		{
 			TrainId: 222,
-			Origin: model.Stop{
+			Origin: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.UTC),
 			},
-			Destination: model.Stop{
+			Destination: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.UTC),
 			},
 		},
 	}
-	stationsMap := map[model.StationId]model.Station{
+	stationsMap := map[timetable.StationId]timetable.Station{
 		1: {
 			Id:   1,
 			Name: "Station1",
@@ -52,7 +52,7 @@ func TestDirectRoutes(t *testing.T) {
 			Name: "Station2",
 		},
 	}
-	trainMap := map[model.TrainId]model.TrainInfo{
+	trainMap := map[timetable.TrainId]timetable.TrainInfo{
 		1111: {
 			TrainId:      1111,
 			TimetableUrl: "https:/somesite.com/timetable/1111",
@@ -62,8 +62,9 @@ func TestDirectRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).DirectRoutes(DefaultLanguageTag, paths)
-	t.Logf("\n%s\n", message)
+	message := NewRender(stationsMap, trainMap).DirectRoutes(DefaultLanguageTag, paths,
+		"updateCallback", "reverseCallback")
+	t.Logf("\n%v\n", message)
 	assert.Contains(t, message.Text, "1111](https:/somesite.com/timetable/1111")
 	assert.Contains(t, message.Text, "222](https:/somesite.com/timetable/222")
 	assert.Contains(t, message.Text, "12:10") // origin departure
@@ -73,15 +74,15 @@ func TestDirectRoutes(t *testing.T) {
 }
 
 func TestTransferRoutes(t *testing.T) {
-	paths := []model.Path{
+	paths := []timetable.Path{
 		{
 			TrainId: 1111,
-			Origin: model.Stop{
+			Origin: timetable.Stop{
 				Id:        1,
 				Arrival:   time.Date(0, 0, 0, 12, 00, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 12, 10, 0, 0, time.UTC),
 			},
-			Destination: model.Stop{
+			Destination: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, 0, 0, 12, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 12, 40, 0, 0, time.UTC),
@@ -89,19 +90,19 @@ func TestTransferRoutes(t *testing.T) {
 		},
 		{
 			TrainId: 222,
-			Origin: model.Stop{
+			Origin: timetable.Stop{
 				Id:        2,
 				Arrival:   time.Date(0, 0, 0, 8, 00, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 8, 10, 0, 0, time.UTC),
 			},
-			Destination: model.Stop{
+			Destination: timetable.Stop{
 				Id:        3,
 				Arrival:   time.Date(0, 0, 0, 8, 30, 0, 0, time.UTC),
 				Departure: time.Date(0, 0, 0, 8, 40, 0, 0, time.UTC),
 			},
 		},
 	}
-	stationsMap := map[model.StationId]model.Station{
+	stationsMap := map[timetable.StationId]timetable.Station{
 		1: {
 			Id:   1,
 			Name: "Station1",
@@ -115,7 +116,7 @@ func TestTransferRoutes(t *testing.T) {
 			Name: "Station3",
 		},
 	}
-	trainMap := map[model.TrainId]model.TrainInfo{
+	trainMap := map[timetable.TrainId]timetable.TrainInfo{
 		1111: {
 			TrainId:      1111,
 			TimetableUrl: "https:/somesite.com/timetable/1111",
@@ -125,8 +126,9 @@ func TestTransferRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).TransferRoutes(DefaultLanguageTag, paths, 1, 2, 3)
-	t.Logf("\n%s\n", message)
+	message := NewRender(stationsMap, trainMap).TransferRoutes(DefaultLanguageTag, paths, 1, 2, 3,
+		"updateCallback", "reverseCallback")
+	t.Logf("\n%v\n", message)
 	assert.Contains(t, message.Text, "1111](https:/somesite.com/timetable/1111")
 	assert.Contains(t, message.Text, "222](https:/somesite.com/timetable/222")
 	assert.Contains(t, message.Text, "12:10")
