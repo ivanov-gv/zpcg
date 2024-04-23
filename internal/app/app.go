@@ -68,6 +68,7 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 	_callback := a.callback.ParseCallback(callbackMessage.Data)
 	switch _callback.Type {
 	case callback_model.UpdateType:
+		// TODO: add date to callback data and update only if date differs from the current one
 		response, err := a.GenerateRouteForStations(languageTag, _callback.Data.Origin, _callback.Data.Destination)
 		if err != nil {
 			return message.ResponseWithChatId{},
@@ -91,7 +92,7 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 		update := []message.ToUpdate{
 			{
 				MessageId: callbackMessage.Message.Id,
-				Response:  response, // TODO: updates only once for some reason. seems like callback data generator is buggy
+				Response:  response,
 			},
 		}
 		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Update: update}, nil
@@ -159,17 +160,17 @@ func (a *App) GenerateRoute(languageTag language.Tag, input string) (message.Res
 	return a.GenerateRouteForStations(languageTag, origin, destination)
 }
 
-func (a *App) GenerateRouteForStations(languageTag language.Tag, origin, destination string) (message.Response, error) {
+func (a *App) GenerateRouteForStations(languageTag language.Tag, originInput, destinationInput string) (message.Response, error) {
 	// find station ids
-	originStationId, err := a.stationNameResolver.FindStationIdByApproximateName(origin)
+	originStationId, originName, err := a.stationNameResolver.FindStationIdByApproximateName(originInput)
 	if err != nil {
 		return message.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
-			"can't find station name [origin='%s']: %w", origin, err)
+			"can't find station name [origin='%s']: %w", originInput, err)
 	}
-	destinationStationId, err := a.stationNameResolver.FindStationIdByApproximateName(destination)
+	destinationStationId, destinationName, err := a.stationNameResolver.FindStationIdByApproximateName(destinationInput)
 	if err != nil {
 		return message.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
-			"can't find station name [destination='%s']: %w", destination, err)
+			"can't find station name [destination='%s']: %w", destinationInput, err)
 	}
 	// check blacklisted stations
 	if isBlacklisted, stations := a.blackList.CheckBlackList(originStationId, destinationStationId); isBlacklisted {
@@ -180,15 +181,17 @@ func (a *App) GenerateRouteForStations(languageTag language.Tag, origin, destina
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// get callbacks
 	var (
-		updateCallback  = a.callback.GenerateUpdateCallbackData(origin, destination)
-		reverseCallback = a.callback.GenerateReverseRouteCallbackData(origin, destination)
+		updateCallback  = a.callback.GenerateUpdateCallbackData(originName, destinationName)
+		reverseCallback = a.callback.GenerateReverseRouteCallbackData(originName, destinationName)
 	)
 	// render message
 	var _message message.Response
 	if isDirect {
 		_message = a.render.DirectRoutes(languageTag, routes, updateCallback, reverseCallback)
 	} else {
-		_message = a.render.TransferRoutes(languageTag, routes, originStationId, a.transferStationId, destinationStationId, updateCallback, reverseCallback)
+		_message = a.render.TransferRoutes(languageTag, routes,
+			originStationId, a.transferStationId, destinationStationId,
+			updateCallback, reverseCallback)
 	}
 	return _message, nil
 }

@@ -19,11 +19,11 @@ type StationNameResolver struct {
 	unifiedStationNameList           [][]rune
 }
 
-func (s *StationNameResolver) FindStationIdByApproximateName(name string) (timetable.StationId, error) {
+func (s *StationNameResolver) FindStationIdByApproximateName(name string) (timetable.StationId, string, error) {
 	unifiedName := Unify(name)
 	match, err := findBestMatch([]rune(unifiedName), s.unifiedStationNameList)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
-	return s.unifiedStationNameToStationIdMap[match], nil
+	return s.unifiedStationNameToStationIdMap[match], match, nil
 }

@@ -49,12 +49,12 @@ func (s *CallbackService) GenerateUpdateCallbackData(origin, destination string)
 	return fmt.Sprintf("%s%s%s%s%s%s",
 		callback.UpdateType, delimiter,
 		origin, delimiter,
-		destination, delimiter)
+		destination, delimiter) // TODO: add current date
 }
 
 func (s *CallbackService) GenerateReverseRouteCallbackData(origin, destination string) string {
 	return fmt.Sprintf("%s%s%s%s%s%s",
 		callback.ReverseRouteType, delimiter,
-		destination, delimiter,
-		origin, delimiter)
+		origin, delimiter,
+		destination, delimiter)
 }
