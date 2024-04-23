@@ -22,7 +22,7 @@ import (
 
 const (
 	TelegramApiToken  = "TelegramApiToken"
-	Port              = "8080" // TODO: take random open
+	Port              = "8080" // TODO: take random open port
 	Url               = "localhost:" + Port
 	HttpServerAddress = "http://" + Url
 	Environment       = "TestEnvironment"
@@ -61,13 +61,21 @@ func TestTelegramRouteResponse(t *testing.T) {
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 	})
 	t.Run("message update", func(t *testing.T) {
-		request := gotgbot.Update{Message: &gotgbot.Message{Text: "nikshich, bar"}}
+		request := gotgbot.Update{
+			Message: &gotgbot.Message{
+				Text: "nikshich, bar",
+				From: &gotgbot.User{
+					LanguageCode: "en",
+				},
+			},
+		}
 		requestRaw := lo.Must(json.Marshal(request))
 		mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
-		mockTgClient.EXPECT().RequestWithContext(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
 		assert.Equal(t, response.StatusCode, http.StatusOK)
+		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
 }
