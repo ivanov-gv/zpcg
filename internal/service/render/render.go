@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model/message"
-	"zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/model/message"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 func NewRender(stationsMap map[timetable.StationId]timetable.Station,

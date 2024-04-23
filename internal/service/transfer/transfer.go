@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"zpcg/gen/timetable"
-	timetable2 "zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/gen/timetable"
+	timetable2 "github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 const timetableGoFileFormat = `
@@ -16,7 +16,7 @@ package timetable
 import (
 	"time"
 
-	"zpcg/internal/model"
+	"github.com/ivanov-gv/zpcg/internal/model"
 )
 
 var Timetable = %#v

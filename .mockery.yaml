@@ -1,0 +1,8 @@
+with-expecter: true
+dir: "gen/mocks/{{.PackageName}}"
+packages:
+  github.com/ivanov-gv/zpcg/internal/server:
+    config:
+    interfaces:
+      CustomTgClient:
+        config:

@@ -3,8 +3,8 @@ package pathfinder
 import (
 	"slices"
 
-	"zpcg/internal/model/timetable"
-	"zpcg/internal/utils"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/utils"
 )
 
 func NewPathFinder(

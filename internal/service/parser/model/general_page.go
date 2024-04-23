@@ -1,7 +1,7 @@
 package model
 
 import (
-	"zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 type GeneralTimetableRow struct {

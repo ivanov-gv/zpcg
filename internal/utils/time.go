@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/lo"
 
-	"zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 var (

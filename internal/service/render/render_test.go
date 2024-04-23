@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 func TestDirectRoutes(t *testing.T) {

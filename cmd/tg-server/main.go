@@ -6,9 +6,9 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"zpcg/internal/app"
-	"zpcg/internal/config"
-	"zpcg/internal/server"
+	"github.com/ivanov-gv/zpcg/internal/app"
+	"github.com/ivanov-gv/zpcg/internal/config"
+	"github.com/ivanov-gv/zpcg/internal/server"
 )
 
 func main() {

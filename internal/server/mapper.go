@@ -6,7 +6,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/samber/lo"
 
-	"zpcg/internal/model/message"
+	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
 func UpdateFromTelegram(update gotgbot.Update) message.Update {

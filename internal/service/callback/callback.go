@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"zpcg/internal/model/callback"
+	"github.com/ivanov-gv/zpcg/internal/model/callback"
 )
 
 func NewCallbackService() *CallbackService {

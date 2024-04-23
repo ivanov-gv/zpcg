@@ -7,16 +7,16 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	callback_model "zpcg/internal/model/callback"
-	"zpcg/internal/model/message"
-	"zpcg/internal/model/timetable"
+	callback_model "github.com/ivanov-gv/zpcg/internal/model/callback"
+	"github.com/ivanov-gv/zpcg/internal/model/message"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 
-	"zpcg/internal/service/blacklist"
-	"zpcg/internal/service/callback"
-	"zpcg/internal/service/name"
-	"zpcg/internal/service/pathfinder"
-	"zpcg/internal/service/render"
-	"zpcg/internal/service/transfer"
+	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
+	"github.com/ivanov-gv/zpcg/internal/service/callback"
+	"github.com/ivanov-gv/zpcg/internal/service/name"
+	"github.com/ivanov-gv/zpcg/internal/service/pathfinder"
+	"github.com/ivanov-gv/zpcg/internal/service/render"
+	"github.com/ivanov-gv/zpcg/internal/service/transfer"
 )
 
 func NewApp() (*App, error) {

@@ -4,8 +4,8 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"zpcg/internal/model/timetable"
-	"zpcg/internal/service/name"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/service/name"
 )
 
 var (

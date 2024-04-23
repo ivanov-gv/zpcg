@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/test/resources"
+	"github.com/ivanov-gv/zpcg/test/resources"
 )
 
 func TestGeneralTimetablePageParser(t *testing.T) {

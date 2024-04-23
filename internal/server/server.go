@@ -14,8 +14,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/yfuruyama/crzerolog"
 
-	"zpcg/internal/config"
-	"zpcg/internal/model/message"
+	"github.com/ivanov-gv/zpcg/internal/config"
+	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
 type App interface {
@@ -24,14 +24,19 @@ type App interface {
 
 // RunServer starts all processes needed to communicate with environment - initializes http server, logger,
 // middlewares, k8s probes, etc. It knows nothing about business logic, only handles communication
-func RunServer(ctx context.Context, _config config.Config, _app App) error {
+func RunServer(ctx context.Context, _config config.Config, _app App, opts ...ApplyOption) error {
+	// settings options
+	var settings = options{
+		botOpts: &gotgbot.BotOpts{
+			DisableTokenCheck: true,
+		},
+	}
+	settings = applyOptions(settings, opts...)
 	// logger
 	rootLogger := zerolog.New(os.Stdout)
 	middleware := crzerolog.InjectLogger(&rootLogger)
 	// tg bot
-	bot, err := gotgbot.NewBot(_config.TelegramApiToken, &gotgbot.BotOpts{
-		DisableTokenCheck: true,
-	})
+	bot, err := gotgbot.NewBot(_config.TelegramApiToken, settings.botOpts)
 	if err != nil {
 		return fmt.Errorf("tgbotapi.NewBotAPI: %w", err)
 	}

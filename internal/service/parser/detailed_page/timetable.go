@@ -9,10 +9,10 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/net/html"
 
-	"zpcg/internal/model/timetable"
-	parser_model "zpcg/internal/service/parser/model"
-	parser_utils "zpcg/internal/service/parser/utils"
-	"zpcg/internal/utils"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	parser_model "github.com/ivanov-gv/zpcg/internal/service/parser/model"
+	parser_utils "github.com/ivanov-gv/zpcg/internal/service/parser/utils"
+	"github.com/ivanov-gv/zpcg/internal/utils"
 )
 
 func ParseDetailedTimetablePage(routeNumber timetable.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {

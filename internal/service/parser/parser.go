@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/samber/lo"
 
-	"zpcg/internal/model/timetable"
-	"zpcg/internal/service/blacklist"
-	"zpcg/internal/service/name"
-	"zpcg/internal/service/parser/detailed_page"
-	"zpcg/internal/service/parser/general_page"
-	parser_model "zpcg/internal/service/parser/model"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
+	"github.com/ivanov-gv/zpcg/internal/service/name"
+	"github.com/ivanov-gv/zpcg/internal/service/parser/detailed_page"
+	"github.com/ivanov-gv/zpcg/internal/service/parser/general_page"
+	parser_model "github.com/ivanov-gv/zpcg/internal/service/parser/model"
 )
 
 const (

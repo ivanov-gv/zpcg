@@ -5,7 +5,7 @@ package timetable
 import (
 	"time"
 
-	"zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 var Timetable = timetable.ExportFormat{

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/gen/timetable"
+	"github.com/ivanov-gv/zpcg/gen/timetable"
 )
 
 func TestUnify(t *testing.T) {

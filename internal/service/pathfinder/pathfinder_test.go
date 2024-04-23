@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/internal/service/name"
-	"zpcg/internal/service/transfer"
+	"github.com/ivanov-gv/zpcg/internal/service/name"
+	"github.com/ivanov-gv/zpcg/internal/service/transfer"
 )
 
 const (

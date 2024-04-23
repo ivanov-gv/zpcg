@@ -1,7 +1,7 @@
 package server
 
 import (
-	"zpcg/internal/model/message"
+	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
 func AddTestEnvWarning(messages message.ResponseWithChatId) message.ResponseWithChatId {
