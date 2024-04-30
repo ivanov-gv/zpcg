@@ -1,12 +1,10 @@
 package server
 
 import (
-	"github.com/samber/lo"
-
-	"zpcg/internal/model"
+	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
-func AddTestEnvWarning(messages ...model.ResponseWithChatId) []model.ResponseWithChatId {
+func AddTestEnvWarning(messages message.ResponseWithChatId) message.ResponseWithChatId {
 	const warningText = "" +
 		"THIS IS A TEST VERSION. DO NOT USE IT \n" +
 		"THE RELEASE VERSION IS HERE: \n" +
@@ -15,17 +13,14 @@ func AddTestEnvWarning(messages ...model.ResponseWithChatId) []model.ResponseWit
 		"@Monterails_bot \n" +
 		"@Monterails_bot \n"
 
-	chatIdSet := lo.SliceToMap(messages, func(item model.ResponseWithChatId) (int64, struct{}) {
-		return item.ChatId, struct{}{}
-	})
-
-	for chatId := range chatIdSet {
-		messages = append(messages, model.ResponseWithChatId{
-			Response: model.Response{
-				Text: warningText,
-			},
-			ChatId: chatId,
-		})
+	if len(messages.Send) == 0 {
+		return messages
 	}
+
+	messages.Send = append(messages.Send, message.ToSend{
+		Response: message.Response{
+			Text: warningText,
+		},
+	})
 	return messages
 }

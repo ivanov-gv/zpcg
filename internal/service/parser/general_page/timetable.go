@@ -8,15 +8,15 @@ import (
 
 	"golang.org/x/net/html"
 
-	"zpcg/internal/model"
-	parser_model "zpcg/internal/service/parser/model"
-	parser_utils "zpcg/internal/service/parser/utils"
-	"zpcg/internal/utils"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	parser_model "github.com/ivanov-gv/zpcg/internal/service/parser/model"
+	parser_utils "github.com/ivanov-gv/zpcg/internal/service/parser/utils"
+	"github.com/ivanov-gv/zpcg/internal/utils"
 )
 
-func ParseGeneralTimetablePage(reader io.Reader) (map[model.TrainId]parser_model.GeneralTimetableRow, error) {
+func ParseGeneralTimetablePage(reader io.Reader) (map[timetable.TrainId]parser_model.GeneralTimetableRow, error) {
 	tokenizer := html.NewTokenizer(reader)
-	generalTimetableRows := map[model.TrainId]parser_model.GeneralTimetableRow{}
+	generalTimetableRows := map[timetable.TrainId]parser_model.GeneralTimetableRow{}
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
 		if tokenType != html.StartTagToken {
 			continue
@@ -35,8 +35,8 @@ func ParseGeneralTimetablePage(reader io.Reader) (map[model.TrainId]parser_model
 	return generalTimetableRows, nil
 }
 
-func ParseTable(tokenizer *html.Tokenizer) (map[model.TrainId]parser_model.GeneralTimetableRow, error) {
-	result := map[model.TrainId]parser_model.GeneralTimetableRow{}
+func ParseTable(tokenizer *html.Tokenizer) (map[timetable.TrainId]parser_model.GeneralTimetableRow, error) {
+	result := map[timetable.TrainId]parser_model.GeneralTimetableRow{}
 	for token := tokenizer.Token(); !parser_utils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if !parser_utils.IsRowBeginningReached(token) {
 			continue
@@ -80,7 +80,7 @@ func ParseRow(tokenizer *html.Tokenizer) (parser_model.GeneralTimetableRow, erro
 			if err != nil {
 				return parser_model.GeneralTimetableRow{}, fmt.Errorf("can not parse route id with strconv.Atoi: %w", err)
 			}
-			result.TrainId = model.TrainId(trainId)
+			result.TrainId = timetable.TrainId(trainId)
 			continue
 		}
 
@@ -108,12 +108,12 @@ const (
 	TokenForFastTrainType  = "brzi"
 )
 
-func ParseTrainType(tokenData string) (model.TrainType, error) {
+func ParseTrainType(tokenData string) (timetable.TrainType, error) {
 	switch tokenData {
 	case TokenForLocalTrainType:
-		return model.LocalTrain, nil
+		return timetable.LocalTrain, nil
 	case TokenForFastTrainType:
-		return model.FastTrain, nil
+		return timetable.FastTrain, nil
 	default:
 		return 0, fmt.Errorf("can't parse train type from token: %s", tokenData)
 	}

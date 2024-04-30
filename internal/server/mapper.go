@@ -1,37 +1,56 @@
 package server
 
 import (
-	"github.com/PaulSonOfLars/gotgbot/v2"
+	"fmt"
 
-	"zpcg/internal/model"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/samber/lo"
+
+	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
-func UpdateFromTelegram(update gotgbot.Update) model.Update {
-	var (
-		message model.Message
-		from    model.From
-	)
-	if update.Message != nil && update.Message.From != nil {
-		from = model.From{
-			IsFilled:     true,
-			LanguageCode: update.Message.From.LanguageCode,
-		}
-	}
-	if update.Message != nil {
-		message = model.Message{
+func UpdateFromTelegram(update gotgbot.Update) message.Update {
+	switch {
+	case update.Message != nil:
+		var _message = message.Message{
 			IsFilled: true,
-			From:     from,
 			Text:     update.Message.Text,
 			ChatId:   update.Message.Chat.Id,
 		}
-	}
-	return model.Update{
-		Message: message,
+		if update.Message.From != nil {
+			_message.From = message.From{
+				IsFilled:     true,
+				LanguageCode: update.Message.From.LanguageCode,
+			}
+		}
+		return message.Update{
+			Type:    message.MessageUpdateType,
+			Message: _message,
+		}
+	case update.CallbackQuery != nil:
+		callback := update.CallbackQuery
+		return message.Update{
+			Type: message.CallbackUpdateType,
+			Callback: message.Callback{
+				Id:     callback.Id,
+				ChatId: callback.Message.GetChat().Id,
+				From: message.From{
+					IsFilled:     true,
+					LanguageCode: callback.From.LanguageCode,
+				},
+				Message: message.MaybeInaccessibleMessage{
+					Id: callback.Message.GetMessageId(),
+				},
+				InlineMessageId: callback.InlineMessageId,
+				Data:            callback.Data,
+			},
+		}
+	default:
+		return message.Update{Type: message.UnsupportedUpdateType}
 	}
 }
 
-func ResponseToTelegram(response model.ResponseWithChatId) (chatId int64, text string, opts *gotgbot.SendMessageOpts) {
-	chatId = response.ChatId
+func ResponseToTelegramSend(response message.ToSend) (text string, opts *gotgbot.SendMessageOpts) {
 	text = response.Text
 	opts = &gotgbot.SendMessageOpts{
 		ParseMode:   string(response.ParseMode),
@@ -46,26 +65,61 @@ func ResponseToTelegram(response model.ResponseWithChatId) (chatId int64, text s
 			Selective:      false,
 		}
 	}
-	return chatId, text, opts
+	return text, opts
 }
 
-func inlineKeyboardToTelegram(inlineKeyboard [][]model.InlineButton) gotgbot.ReplyMarkup {
-	if inlineKeyboard == nil {
-		return nil
+func ResponseToTelegramUpdate(chatId int64, response message.ToUpdate) (text string, opts *gotgbot.EditMessageTextOpts) {
+	var (
+		_chatId          int64
+		_messageId       int64
+		_inlineMessageId string
+	)
+	if len(response.InlineMessageId) == 0 {
+		_chatId = chatId
+		_messageId = response.MessageId
+	} else {
+		_inlineMessageId = response.InlineMessageId
 	}
+
+	text = response.Text
+	opts = &gotgbot.EditMessageTextOpts{
+		ChatId:          _chatId,
+		MessageId:       _messageId,
+		InlineMessageId: _inlineMessageId,
+		ParseMode:       string(response.ParseMode),
+		ReplyMarkup:     inlineKeyboardToTelegram(response.InlineKeyboard),
+	}
+
+	return text, opts
+}
+
+func inlineKeyboardToTelegram(inlineKeyboard [][]message.InlineButton) gotgbot.InlineKeyboardMarkup {
 	var inlineKeyboardOutput [][]gotgbot.InlineKeyboardButton
 	for _, row := range inlineKeyboard {
 		var inlineRow []gotgbot.InlineKeyboardButton
 		for _, button := range row {
-			inlineRow = append(inlineRow,
-				gotgbot.InlineKeyboardButton{
-					Text: button.Text,
-					Url:  button.Url,
-				})
+			inlineRow = append(inlineRow, lo.Must(inlineButtonToTelegram(button)))
 		}
 		inlineKeyboardOutput = append(inlineKeyboardOutput, inlineRow)
 	}
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: inlineKeyboardOutput,
+	}
+}
+
+func inlineButtonToTelegram(button message.InlineButton) (gotgbot.InlineKeyboardButton, error) {
+	switch button.Type {
+	case message.UrlInlineButtonType:
+		return gotgbot.InlineKeyboardButton{
+			Text: button.Text,
+			Url:  button.Url.Url,
+		}, nil
+	case message.CallbackInlineButtonType:
+		return gotgbot.InlineKeyboardButton{
+			Text:         button.Text,
+			CallbackData: button.Callback.Data,
+		}, nil
+	default:
+		return gotgbot.InlineKeyboardButton{}, fmt.Errorf("unsupported button type: %v", button.Type)
 	}
 }

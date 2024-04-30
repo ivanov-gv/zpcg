@@ -3,18 +3,18 @@ package detailed_page
 import (
 	"github.com/samber/lo"
 
-	"zpcg/internal/model"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 var (
-	lastId      model.StationId = 0
-	nameToIdMap                 = map[string]model.StationId{}
+	lastId      timetable.StationId = 0
+	nameToIdMap                     = map[string]timetable.StationId{}
 )
 
 // generateStationId generates a unique StationId for the given stationName.
 // If the station is already present in the nameToIdMap,
 // it returns the existing id. Otherwise, it generates a new id, which is more or equal to 1.
-func generateStationId(stationName string) model.StationId {
+func generateStationId(stationName string) timetable.StationId {
 	if id, found := nameToIdMap[stationName]; found {
 		return id
 	}
@@ -23,6 +23,6 @@ func generateStationId(stationName string) model.StationId {
 	return lastId
 }
 
-func GetStationIdToNameMap() map[model.StationId]string {
+func GetStationIdToNameMap() map[timetable.StationId]string {
 	return lo.Invert(nameToIdMap)
 }

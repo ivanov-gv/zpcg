@@ -1,6 +1,8 @@
 package render
 
 import (
+	"time"
+
 	"golang.org/x/text/language"
 )
 
@@ -25,6 +27,40 @@ var (
 	StationDoesNotExistMessageSuffixMap = map[language.Tag]string{
 		language.Russian: StationDoesNotExistMessageSuffixRu,
 		language.English: StationDoesNotExistMessageSuffixEn,
+	}
+	MonthNameMap = map[language.Tag]map[time.Month]string{
+		language.Russian: {
+			time.January:   "Января",
+			time.February:  "Февраля",
+			time.March:     "Марта",
+			time.April:     "Апреля",
+			time.May:       "Мая",
+			time.June:      "Июня",
+			time.July:      "Июля",
+			time.August:    "Августа",
+			time.September: "Сентября",
+			time.October:   "Октября",
+			time.November:  "Ноября",
+			time.December:  "Декабря",
+		},
+		language.English: {
+			time.January:   "January",
+			time.February:  "February",
+			time.March:     "March",
+			time.April:     "April",
+			time.May:       "May",
+			time.June:      "June",
+			time.July:      "July",
+			time.August:    "August",
+			time.September: "September",
+			time.October:   "October",
+			time.November:  "November",
+			time.December:  "December",
+		},
+	}
+	ReverseRouteInlineButtonText = map[language.Tag]string{
+		language.Russian: ReverseRouteInlineButtonTextRu,
+		language.English: ReverseRouteInlineButtonTextEn,
 	}
 )
 
@@ -71,6 +107,7 @@ Podgorica, Niksic`
 	StationDoesNotExistMessageEn       = "This station does not exist"
 	StationDoesNotExistMessageSuffixEn = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
 	OfficialTimetableUrlTextEn         = "More info"
+	ReverseRouteInlineButtonTextEn     = "Reverse"
 )
 
 // Russian
@@ -106,4 +143,5 @@ Podgorica, Niksic`
 	StationDoesNotExistMessageRu       = "Такой станции не существует"
 	StationDoesNotExistMessageSuffixRu = "  " // TODO: add /info "Хотите узнать где в Черногории есть жд сообщение? Используйте команду /info"
 	OfficialTimetableUrlTextRu         = "Подробнее"
+	ReverseRouteInlineButtonTextRu     = "Обратно"
 )

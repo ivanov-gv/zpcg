@@ -5,16 +5,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/gen/timetable"
+	"github.com/ivanov-gv/zpcg/gen/timetable"
 )
 
 func TestUnify(t *testing.T) {
 	assert.Equal(t, "niksic", Unify("Nikšić"))
 	assert.Equal(t, "baresumanovica", Unify("Bare Šumanovića"))
+	assert.Equal(t, "вирпазар", Unify("В и Р п а З а Р"))
 }
 
 func TestFindBestMatch(t *testing.T) {
-	NewStationNameResolver(nil, timetable.Timetable.UnifiedStationNameList)
+	NewStationNameResolver(timetable.Timetable.UnifiedStationNameToStationIdMap, timetable.Timetable.UnifiedStationNameList, timetable.Timetable.StationIdToStationMap)
 	// niksic
 	match, err := findBestMatch([]rune(Unify("Nikschichsss   ")), timetable.Timetable.UnifiedStationNameList)
 	assert.NoError(t, err)

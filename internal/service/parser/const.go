@@ -3,8 +3,8 @@ package parser
 import (
 	"github.com/samber/lo"
 
-	"zpcg/internal/service/name"
-	"zpcg/internal/service/parser/model"
+	"github.com/ivanov-gv/zpcg/internal/service/name"
+	"github.com/ivanov-gv/zpcg/internal/service/parser/model"
 )
 
 var (

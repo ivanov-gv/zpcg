@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
-	"zpcg/internal/service/blacklist"
-	"zpcg/internal/service/render"
+	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
+	"github.com/ivanov-gv/zpcg/internal/service/render"
 )
 
 func TestNewApp(t *testing.T) {
@@ -41,6 +41,7 @@ func TestGenerateRoute(t *testing.T) {
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message.Text, NiksicStationName)
 	assert.Contains(t, message.Text, BarStationName)
+	assert.NotEmpty(t, message.InlineKeyboard)
 }
 
 func TestGenerateRouteWithCustomDelimiter(t *testing.T) {

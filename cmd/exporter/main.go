@@ -6,8 +6,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"zpcg/internal/service/parser"
-	"zpcg/internal/service/transfer"
+	"github.com/ivanov-gv/zpcg/internal/service/parser"
+	"github.com/ivanov-gv/zpcg/internal/service/transfer"
 )
 
 const timetableDefaultFilepath = "timetable.gob"
