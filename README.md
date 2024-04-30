@@ -26,7 +26,7 @@ This bot is an attempt to solve those issues.
       2. ❌ Marks trains as local/fast
       3. ❌ Stations location, ticket office availability
       4. ✅ Official website links
-      5. ❌ Last update time
+      5. ✅ Last update time
 2. Has a full, updated timetable
    1. ✅ Parses original website automatically
    2. ✅ Knows every single station
