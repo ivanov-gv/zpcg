@@ -62,7 +62,7 @@ func TestDirectRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).DirectRoutes(DefaultLanguageTag, paths,
+	message := NewRender(stationsMap, trainMap).DirectRoutes(DefaultLanguageTag, paths, time.Time{},
 		"updateCallback", "reverseCallback")
 	t.Logf("\n%v\n", message)
 	assert.Contains(t, message.Text, "1111](https:/somesite.com/timetable/1111")
@@ -126,7 +126,7 @@ func TestTransferRoutes(t *testing.T) {
 			TimetableUrl: "https:/somesite.com/timetable/222",
 		},
 	}
-	message := NewRender(stationsMap, trainMap).TransferRoutes(DefaultLanguageTag, paths, 1, 2, 3,
+	message := NewRender(stationsMap, trainMap).TransferRoutes(DefaultLanguageTag, paths, time.Time{}, 1, 2, 3,
 		"updateCallback", "reverseCallback")
 	t.Logf("\n%v\n", message)
 	assert.Contains(t, message.Text, "1111](https:/somesite.com/timetable/1111")

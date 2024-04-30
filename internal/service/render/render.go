@@ -45,27 +45,34 @@ func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, des
 	}
 }
 
-func inlineButtonWithUpdateCallback(languageCode language.Tag, updateCallback string) message.InlineButton {
+func inlineButtonWithUpdateCallback(languageCode language.Tag, currentDate time.Time, updateCallback string) message.InlineButton {
 	return message.InlineButton{
 		Type: message.CallbackInlineButtonType,
-		Text: "update", // TODO: localize
+		Text: fmt.Sprintf("🔄 %s", Date(languageCode, currentDate)),
 		Callback: message.CallbackButton{
 			Data: updateCallback,
 		},
 	}
 }
 
-func inlineButtonWithReverseCallback(languageCode language.Tag, reverseCallback string) message.InlineButton {
+func inlineButtonWithReverseCallback(languageTag language.Tag, reverseCallback string) message.InlineButton {
+	var text string
+	if _text, found := ReverseRouteInlineButtonText[languageTag]; found {
+		text = _text
+	} else {
+		text = ReverseRouteInlineButtonText[DefaultLanguageTag]
+	}
 	return message.InlineButton{
 		Type: message.CallbackInlineButtonType,
-		Text: "reverse route", // TODO: localize
+		Text: fmt.Sprintf("↪️ %s", text),
 		Callback: message.CallbackButton{
 			Data: reverseCallback,
 		},
 	}
 }
 
-func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, updateCallback, reverseCallback string) message.Response {
+func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, currentDate time.Time,
+	updateCallback, reverseCallback string) message.Response {
 	// render each line for the result message
 	var lines []string
 	// render header
@@ -84,7 +91,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	}
 	// add inline keyboard with url to the official website
 	inlineKeyboard := [][]message.InlineButton{
-		{inlineButtonWithUpdateCallback(languageTag, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
+		{inlineButtonWithUpdateCallback(languageTag, currentDate, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
 		{inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, destination.Name)},
 	}
 	return message.Response{
@@ -94,7 +101,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	}
 }
 
-func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path,
+func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path, currentDate time.Time,
 	originId, transferId, destinationId timetable.StationId, updateCallback, reverseCallback string) message.Response {
 	// render each line for the result message
 	var lines []string
@@ -127,7 +134,7 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 	}
 	// add inline keyboard with url to the official website
 	inlineKeyboard := [][]message.InlineButton{
-		{inlineButtonWithUpdateCallback(languageTag, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
+		{inlineButtonWithUpdateCallback(languageTag, currentDate, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
 		{
 			inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, transfer.Name),
 			inlineButtonWithOfficialTimetableUrl(languageTag, transfer.Name, destination.Name),

@@ -89,7 +89,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 		}
 		var messages message.ResponseWithChatId
 		messages, warning = _app.HandleUpdate(UpdateFromTelegram(update))
-		if len(messages.Update) == 0 && len(messages.Send) == 0 && len(messages.Delete) == 0 {
+		if len(messages.Update) == 0 && len(messages.Send) == 0 && len(messages.Delete) == 0 && len(messages.AnswerCallbackQueryId) == 0 {
 			return
 		}
 		// post update handlers
@@ -113,9 +113,19 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 		// update
 		for _, updateMessage := range messages.Update {
 			response, opts := ResponseToTelegramUpdate(messages.ChatId, updateMessage)
+			responses = append(responses, response)
 			_, _, err = bot.EditMessageText(response, opts)
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.EditMessageText: %w", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
+		// answer callback
+		if messages.AnswerCallbackQueryId != "" {
+			_, err = bot.AnswerCallbackQuery(messages.AnswerCallbackQueryId, nil)
+			if err != nil {
+				finalError = fmt.Errorf(logfmt+"bot.AnswerCallbackQuery: %w", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -145,27 +155,35 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 		}
 		responseShorts = append(responseShorts, strings.Join(responseLines, "\n"))
 	}
-	// set vars
-	var (
-		chatId       int64
-		languageCode string
-		text         string
-	)
 	switch {
 	case update.Message != nil:
-		chatId = update.Message.Chat.Id
-		languageCode = update.Message.From.LanguageCode
-		text = update.Message.Text
-	case update.CallbackQuery != nil: // TODO: log
-		chatId = update.CallbackQuery.Message.GetChat().Id
-		languageCode = update.CallbackQuery.From.LanguageCode
-		text = update.CallbackQuery.Data
+		chatId := update.Message.Chat.Id
+		languageCode := update.Message.From.LanguageCode
+		text := update.Message.Text
+		// log
+		logEvent.
+			Int64("chatId", chatId).
+			Str("languageCode", languageCode).
+			Str("messageText", text).
+			Strs("responseShorts", responseShorts).
+			Msgf(logFmt, "new message handled")
+	case update.CallbackQuery != nil:
+		chatId := update.CallbackQuery.Message.GetChat().Id
+		languageCode := update.CallbackQuery.From.LanguageCode
+		callbackData := update.CallbackQuery.Data
+
+		var text string
+		if _message, ok := update.CallbackQuery.Message.(gotgbot.Message); ok {
+			text = _message.Text
+		}
+
+		// log
+		logEvent.
+			Int64("chatId", chatId).
+			Str("languageCode", languageCode).
+			Str("messageText", text).
+			Str("callbackData", callbackData).
+			Strs("responseShorts", responseShorts).
+			Msgf(logFmt, "new message handled")
 	}
-	// log
-	logEvent.
-		Int64("chatId", chatId).
-		Str("languageCode", languageCode).
-		Str("messageText", text).
-		Strs("responseShorts", responseShorts).
-		Msgf(logFmt, "new message handled")
 }

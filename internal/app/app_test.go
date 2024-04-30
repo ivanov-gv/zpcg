@@ -41,6 +41,7 @@ func TestGenerateRoute(t *testing.T) {
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message.Text, NiksicStationName)
 	assert.Contains(t, message.Text, BarStationName)
+	assert.NotEmpty(t, message.InlineKeyboard)
 }
 
 func TestGenerateRouteWithCustomDelimiter(t *testing.T) {

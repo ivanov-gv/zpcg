@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	callback_model "github.com/ivanov-gv/zpcg/internal/model/callback"
 	"github.com/ivanov-gv/zpcg/internal/model/message"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/service/date"
 
 	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
 	"github.com/ivanov-gv/zpcg/internal/service/callback"
@@ -25,11 +27,13 @@ func NewApp() (*App, error) {
 	// finder
 	finder := pathfinder.NewPathFinder(_timetable.StationIdToTrainIdSet, _timetable.TrainIdToStationMap, _timetable.TransferStationId)
 	// name resolver
-	stationNameResolver := name.NewStationNameResolver(_timetable.UnifiedStationNameToStationIdMap, _timetable.UnifiedStationNameList)
+	stationNameResolver := name.NewStationNameResolver(_timetable.UnifiedStationNameToStationIdMap, _timetable.UnifiedStationNameList, _timetable.StationIdToStationMap)
 	// render
 	_render := render.NewRender(_timetable.StationIdToStationMap, _timetable.TrainIdToTrainInfoMap)
 	// blacklist
 	blackList := blacklist.NewBlackListService()
+	// date
+	dateService := date.NewDateService(context.TODO())
 
 	// complete app
 	return &App{
@@ -37,6 +41,7 @@ func NewApp() (*App, error) {
 		stationNameResolver: stationNameResolver,
 		render:              _render,
 		blackList:           blackList,
+		dateService:         dateService,
 		transferStationId:   _timetable.TransferStationId,
 	}, nil
 }
@@ -49,6 +54,7 @@ type App struct {
 	render              *render.Render
 	blackList           *blacklist.BlackListService
 	callback            *callback.CallbackService
+	dateService         *date.DateService
 	transferStationId   timetable.StationId
 }
 
@@ -64,41 +70,53 @@ func (a *App) HandleUpdate(update message.Update) (responseWithChatIds message.R
 }
 
 func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChatIds message.ResponseWithChatId, warning error) {
-	languageTag := render.ParseLanguageTag(callbackMessage.From.LanguageCode)
-	_callback := a.callback.ParseCallback(callbackMessage.Data)
+	var languageTag = render.ParseLanguageTag(callbackMessage.From.LanguageCode)
+	defer func() { // we have to answer the callback anyway
+		responseWithChatIds.AnswerCallbackQueryId = callbackMessage.Id
+	}()
+	_callback, err := a.callback.ParseCallback(callbackMessage.Data)
+	if err != nil {
+		return message.ResponseWithChatId{}, fmt.Errorf("failed to parse callback [data='%s']: %w", callbackMessage.Data, err)
+	}
 	switch _callback.Type {
 	case callback_model.UpdateType:
-		// TODO: add date to callback data and update only if date differs from the current one
-		response, err := a.GenerateRouteForStations(languageTag, _callback.Data.Origin, _callback.Data.Destination)
+		var data = _callback.UpdateData
+		// check date
+		if data.Date.Equal(a.dateService.CurrentDateAsTime()) {
+			return message.ResponseWithChatId{}, nil
+		}
+		// update outdated
+		response, err := a.GenerateRouteForStations(languageTag, data.Origin, data.Destination)
 		if err != nil {
 			return message.ResponseWithChatId{},
 				fmt.Errorf("GenerateRouteForStations [lang=%s, origin=%s, destination=%s] : %w",
-					languageTag, _callback.Data.Origin, _callback.Data.Destination, err)
+					languageTag, data.Origin, data.Destination, err)
 		}
-		update := []message.ToUpdate{ // TODO: do not update, if there is nothing to change
+		update := []message.ToUpdate{
 			{
-				MessageId: callbackMessage.Message.Id,
-				Response:  response,
+				MessageId:       callbackMessage.Message.Id,
+				InlineMessageId: callbackMessage.InlineMessageId,
+				Response:        response,
 			},
 		}
 		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Update: update}, nil
 	case callback_model.ReverseRouteType:
-		response, err := a.GenerateRouteForStations(languageTag, _callback.Data.Destination, _callback.Data.Origin)
+		var data = _callback.ReverseRouteData
+		response, err := a.GenerateRouteForStations(languageTag, data.Destination, data.Origin)
 		if err != nil {
 			return message.ResponseWithChatId{},
 				fmt.Errorf("GenerateRouteForStations [lang=%s, origin=%s, destination=%s] : %w",
-					languageTag, _callback.Data.Destination, _callback.Data.Origin, err)
+					languageTag, data.Destination, data.Origin, err)
 		}
-		update := []message.ToUpdate{
+		send := []message.ToSend{
 			{
-				MessageId: callbackMessage.Message.Id,
-				Response:  response,
+				Response: response,
 			},
 		}
-		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Update: update}, nil
+		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Send: send}, nil
 	default:
 		return message.ResponseWithChatId{},
-			fmt.Errorf("unknown callback type(%s) [data='%s']", _callback.Type, _callback.Data)
+			fmt.Errorf("unknown callback type(%s) [data='%s']", _callback.Type, callbackMessage.Data)
 	}
 }
 
@@ -126,7 +144,11 @@ func (a *App) HandleMessage(_message message.Message) (responseWithChatIds messa
 	if err != nil {
 		response = a.render.ErrorMessage(languageTag)
 	}
-	send := []message.Response{response}
+	send := []message.ToSend{
+		{
+			Response: response,
+		},
+	}
 	return message.ResponseWithChatId{
 		Send:   send,
 		ChatId: _message.ChatId,
@@ -181,15 +203,15 @@ func (a *App) GenerateRouteForStations(languageTag language.Tag, originInput, de
 	routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId)
 	// get callbacks
 	var (
-		updateCallback  = a.callback.GenerateUpdateCallbackData(originName, destinationName)
+		updateCallback  = a.callback.GenerateUpdateCallbackData(originName, destinationName, a.dateService.CurrentDateAsShortString())
 		reverseCallback = a.callback.GenerateReverseRouteCallbackData(originName, destinationName)
 	)
 	// render message
 	var _message message.Response
 	if isDirect {
-		_message = a.render.DirectRoutes(languageTag, routes, updateCallback, reverseCallback)
+		_message = a.render.DirectRoutes(languageTag, routes, a.dateService.CurrentDateAsTime(), updateCallback, reverseCallback)
 	} else {
-		_message = a.render.TransferRoutes(languageTag, routes,
+		_message = a.render.TransferRoutes(languageTag, routes, a.dateService.CurrentDateAsTime(),
 			originStationId, a.transferStationId, destinationStationId,
 			updateCallback, reverseCallback)
 	}

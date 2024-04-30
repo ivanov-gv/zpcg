@@ -15,7 +15,7 @@ func TestUnify(t *testing.T) {
 }
 
 func TestFindBestMatch(t *testing.T) {
-	NewStationNameResolver(nil, timetable.Timetable.UnifiedStationNameList)
+	NewStationNameResolver(timetable.Timetable.UnifiedStationNameToStationIdMap, timetable.Timetable.UnifiedStationNameList, timetable.Timetable.StationIdToStationMap)
 	// niksic
 	match, err := findBestMatch([]rune(Unify("Nikschichsss   ")), timetable.Timetable.UnifiedStationNameList)
 	assert.NoError(t, err)

@@ -1,5 +1,9 @@
 package callback
 
+import (
+	"time"
+)
+
 type Type string
 
 const (
@@ -9,10 +13,16 @@ const (
 )
 
 type Callback struct {
-	Type Type
-	Data Data
+	Type             Type
+	UpdateData       UpdateData
+	ReverseRouteData ReverseRouteData
 }
 
-type Data struct {
+type UpdateData struct {
+	Origin, Destination string
+	Date                time.Time
+}
+
+type ReverseRouteData struct {
 	Origin, Destination string
 }

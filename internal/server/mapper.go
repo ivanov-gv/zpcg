@@ -12,17 +12,16 @@ import (
 func UpdateFromTelegram(update gotgbot.Update) message.Update {
 	switch {
 	case update.Message != nil:
-		var _message message.Message
+		var _message = message.Message{
+			IsFilled: true,
+			Text:     update.Message.Text,
+			ChatId:   update.Message.Chat.Id,
+		}
 		if update.Message.From != nil {
 			_message.From = message.From{
 				IsFilled:     true,
 				LanguageCode: update.Message.From.LanguageCode,
 			}
-		}
-		_message = message.Message{
-			IsFilled: true,
-			Text:     update.Message.Text,
-			ChatId:   update.Message.Chat.Id,
 		}
 		return message.Update{
 			Type:    message.MessageUpdateType,
@@ -51,7 +50,7 @@ func UpdateFromTelegram(update gotgbot.Update) message.Update {
 	}
 }
 
-func ResponseToTelegramSend(response message.Response) (text string, opts *gotgbot.SendMessageOpts) {
+func ResponseToTelegramSend(response message.ToSend) (text string, opts *gotgbot.SendMessageOpts) {
 	text = response.Text
 	opts = &gotgbot.SendMessageOpts{
 		ParseMode:   string(response.ParseMode),
@@ -70,13 +69,25 @@ func ResponseToTelegramSend(response message.Response) (text string, opts *gotgb
 }
 
 func ResponseToTelegramUpdate(chatId int64, response message.ToUpdate) (text string, opts *gotgbot.EditMessageTextOpts) {
+	var (
+		_chatId          int64
+		_messageId       int64
+		_inlineMessageId string
+	)
+	if len(response.InlineMessageId) == 0 {
+		_chatId = chatId
+		_messageId = response.MessageId
+	} else {
+		_inlineMessageId = response.InlineMessageId
+	}
+
 	text = response.Text
 	opts = &gotgbot.EditMessageTextOpts{
-		ChatId:    chatId,
-		MessageId: response.MessageId,
-		// TODO: inline message id might also be used. is it a better approach?
-		ParseMode:   string(response.ParseMode),
-		ReplyMarkup: inlineKeyboardToTelegram(response.InlineKeyboard),
+		ChatId:          _chatId,
+		MessageId:       _messageId,
+		InlineMessageId: _inlineMessageId,
+		ParseMode:       string(response.ParseMode),
+		ReplyMarkup:     inlineKeyboardToTelegram(response.InlineKeyboard),
 	}
 
 	return text, opts

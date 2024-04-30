@@ -13,7 +13,8 @@ type Message struct {
 }
 
 type MaybeInaccessibleMessage struct {
-	Id int64
+	Id   int64
+	Text string
 }
 
 type Callback struct {
@@ -75,18 +76,24 @@ type Response struct {
 	InlineKeyboard [][]InlineButton
 }
 
+type ToSend struct {
+	Response
+}
+
 type ToDelete struct {
 	MessageId int64
 }
 
 type ToUpdate struct {
-	MessageId int64
+	MessageId       int64
+	InlineMessageId string
 	Response
 }
 
 type ResponseWithChatId struct {
-	Send   []Response
-	Delete []ToDelete
-	Update []ToUpdate
-	ChatId int64
+	Send                  []ToSend
+	Delete                []ToDelete
+	Update                []ToUpdate
+	AnswerCallbackQueryId string
+	ChatId                int64
 }

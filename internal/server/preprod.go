@@ -17,8 +17,10 @@ func AddTestEnvWarning(messages message.ResponseWithChatId) message.ResponseWith
 		return messages
 	}
 
-	messages.Send = append(messages.Send, message.Response{
-		Text: warningText,
+	messages.Send = append(messages.Send, message.ToSend{
+		Response: message.Response{
+			Text: warningText,
+		},
 	})
 	return messages
 }
