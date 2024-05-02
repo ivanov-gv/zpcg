@@ -123,3 +123,17 @@ func inlineButtonToTelegram(button message.InlineButton) (gotgbot.InlineKeyboard
 		return gotgbot.InlineKeyboardButton{}, fmt.Errorf("unsupported button type: %v", button.Type)
 	}
 }
+
+func ResponseToTelegramAnswerCallbackQuery(query message.ToAnswerCallbackQuery) (string, *gotgbot.AnswerCallbackQueryOpts) {
+	var (
+		callbackQueryId = query.CallbackQueryId
+		opts            *gotgbot.AnswerCallbackQueryOpts
+	)
+	if len(query.Text) != 0 {
+		opts = &gotgbot.AnswerCallbackQueryOpts{
+			Text:      query.Text,
+			ShowAlert: query.ShowAlert,
+		}
+	}
+	return callbackQueryId, opts
+}

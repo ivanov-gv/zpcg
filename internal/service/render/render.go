@@ -57,10 +57,10 @@ func inlineButtonWithUpdateCallback(languageCode language.Tag, currentDate time.
 
 func inlineButtonWithReverseCallback(languageTag language.Tag, reverseCallback string) message.InlineButton {
 	var text string
-	if _text, found := ReverseRouteInlineButtonText[languageTag]; found {
+	if _text, found := ReverseRouteInlineButtonTextMap[languageTag]; found {
 		text = _text
 	} else {
-		text = ReverseRouteInlineButtonText[DefaultLanguageTag]
+		text = ReverseRouteInlineButtonTextMap[DefaultLanguageTag]
 	}
 	return message.InlineButton{
 		Type: message.CallbackInlineButtonType,
@@ -182,6 +182,22 @@ func (r *Render) BlackListedStations(languageCode language.Tag, stations ...time
 	return message.Response{
 		Text:      strings.Join(lines, "\n"),
 		ParseMode: message.ModeNone,
+	}
+}
+
+func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
+	if text, found := AlertUpdateNotificationTextMap[languageTag]; found {
+		return text
+	} else {
+		return AlertUpdateNotificationTextMap[DefaultLanguageTag]
+	}
+}
+
+func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
+	if text, found := SimpleUpdateNotificationTextMap[languageTag]; found {
+		return text
+	} else {
+		return SimpleUpdateNotificationTextMap[DefaultLanguageTag]
 	}
 }
 

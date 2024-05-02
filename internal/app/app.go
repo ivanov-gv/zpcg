@@ -72,7 +72,7 @@ func (a *App) HandleUpdate(update message.Update) (responseWithChatIds message.R
 func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChatIds message.ResponseWithChatId, warning error) {
 	var languageTag = render.ParseLanguageTag(callbackMessage.From.LanguageCode)
 	defer func() { // we have to answer the callback anyway
-		responseWithChatIds.AnswerCallbackQueryId = callbackMessage.Id
+		responseWithChatIds.AnswerCallback.CallbackQueryId = callbackMessage.Id
 	}()
 	_callback, err := a.callback.ParseCallback(callbackMessage.Data)
 	if err != nil {
@@ -83,7 +83,12 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 		var data = _callback.UpdateData
 		// check date
 		if data.Date.Equal(a.dateService.CurrentDateAsTime()) {
-			return message.ResponseWithChatId{}, nil
+			return message.ResponseWithChatId{
+				AnswerCallback: message.ToAnswerCallbackQuery{
+					Text:      a.render.AlertUpdateNotificationText(languageTag),
+					ShowAlert: true,
+				},
+			}, nil
 		}
 		// update outdated
 		response, err := a.GenerateRouteForStations(languageTag, data.Origin, data.Destination)
@@ -99,7 +104,11 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 				Response:        response,
 			},
 		}
-		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Update: update}, nil
+		return message.ResponseWithChatId{
+			ChatId:         callbackMessage.ChatId,
+			Update:         update,
+			AnswerCallback: message.ToAnswerCallbackQuery{Text: a.render.SimpleUpdateNotificationText(languageTag)},
+		}, nil
 	case callback_model.ReverseRouteType:
 		var data = _callback.ReverseRouteData
 		response, err := a.GenerateRouteForStations(languageTag, data.Destination, data.Origin)

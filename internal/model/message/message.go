@@ -90,10 +90,16 @@ type ToUpdate struct {
 	Response
 }
 
+type ToAnswerCallbackQuery struct {
+	CallbackQueryId string
+	Text            string
+	ShowAlert       bool
+}
+
 type ResponseWithChatId struct {
-	Send                  []ToSend
-	Delete                []ToDelete
-	Update                []ToUpdate
-	AnswerCallbackQueryId string
-	ChatId                int64
+	Send           []ToSend
+	Delete         []ToDelete
+	Update         []ToUpdate
+	AnswerCallback ToAnswerCallbackQuery
+	ChatId         int64
 }
