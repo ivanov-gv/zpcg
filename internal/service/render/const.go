@@ -58,9 +58,17 @@ var (
 			time.December:  "December",
 		},
 	}
-	ReverseRouteInlineButtonText = map[language.Tag]string{
+	ReverseRouteInlineButtonTextMap = map[language.Tag]string{
 		language.Russian: ReverseRouteInlineButtonTextRu,
 		language.English: ReverseRouteInlineButtonTextEn,
+	}
+	AlertUpdateNotificationTextMap = map[language.Tag]string{
+		language.Russian: AlertUpdateNotificationTextRu,
+		language.English: AlertUpdateNotificationTextEn,
+	}
+	SimpleUpdateNotificationTextMap = map[language.Tag]string{
+		language.Russian: SimpleUpdateNotificationTextRu,
+		language.English: SimpleUpdateNotificationTextEn,
 	}
 )
 
@@ -108,6 +116,8 @@ Podgorica, Niksic`
 	StationDoesNotExistMessageSuffixEn = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
 	OfficialTimetableUrlTextEn         = "More info"
 	ReverseRouteInlineButtonTextEn     = "Reverse"
+	AlertUpdateNotificationTextEn      = "Today's timetable is already shown. Use '" + OfficialTimetableUrlTextEn + "' button to see timetable for other dates"
+	SimpleUpdateNotificationTextEn     = "Today's timetable is shown"
 )
 
 // Russian
@@ -144,4 +154,6 @@ Podgorica, Niksic`
 	StationDoesNotExistMessageSuffixRu = "  " // TODO: add /info "Хотите узнать где в Черногории есть жд сообщение? Используйте команду /info"
 	OfficialTimetableUrlTextRu         = "Подробнее"
 	ReverseRouteInlineButtonTextRu     = "Обратно"
+	AlertUpdateNotificationTextRu      = "Расписание на сегодня обновлено. Нажмите '" + OfficialTimetableUrlTextRu + "', чтобы увидеть расписание на другие дни"
+	SimpleUpdateNotificationTextRu     = "Расписание на сегодня показано"
 )

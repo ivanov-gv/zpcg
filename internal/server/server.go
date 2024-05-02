@@ -89,7 +89,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 		}
 		var messages message.ResponseWithChatId
 		messages, warning = _app.HandleUpdate(UpdateFromTelegram(update))
-		if len(messages.Update) == 0 && len(messages.Send) == 0 && len(messages.Delete) == 0 && len(messages.AnswerCallbackQueryId) == 0 {
+		if len(messages.Update) == 0 && len(messages.Send) == 0 && len(messages.Delete) == 0 && len(messages.AnswerCallback.CallbackQueryId) == 0 {
 			return
 		}
 		// post update handlers
@@ -122,8 +122,8 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 			}
 		}
 		// answer callback
-		if messages.AnswerCallbackQueryId != "" {
-			_, err = bot.AnswerCallbackQuery(messages.AnswerCallbackQueryId, nil)
+		if len(messages.AnswerCallback.CallbackQueryId) != 0 {
+			_, err = bot.AnswerCallbackQuery(ResponseToTelegramAnswerCallbackQuery(messages.AnswerCallback))
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.AnswerCallbackQuery: %w", err)
 				w.WriteHeader(http.StatusInternalServerError)
