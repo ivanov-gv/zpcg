@@ -72,6 +72,11 @@ var (
 	}
 )
 
+// bot general
+const (
+	BotCommandStart = "/start"
+)
+
 // Default
 
 var DefaultLanguageTag = language.English
@@ -118,6 +123,16 @@ Podgorica, Niksic`
 	ReverseRouteInlineButtonTextEn     = "Reverse"
 	AlertUpdateNotificationTextEn      = "Today's timetable is already shown. Use '" + OfficialTimetableUrlTextEn + "' button to see timetable for other dates"
 	SimpleUpdateNotificationTextEn     = "Today's timetable is shown"
+
+	// bot description
+
+	BotNameEn             = "🚂 Montenegro: train timetable bot"
+	BotDescriptionEn      = ""
+	BotShortDescriptionEn = ""
+
+	// bot commands
+
+	BotCommandNameStartEn = "Start the bot"
 )
 
 // Russian
@@ -156,4 +171,158 @@ Podgorica, Niksic`
 	ReverseRouteInlineButtonTextRu     = "Обратно"
 	AlertUpdateNotificationTextRu      = "Расписание на сегодня обновлено. Нажмите '" + OfficialTimetableUrlTextRu + "', чтобы увидеть расписание на другие дни"
 	SimpleUpdateNotificationTextRu     = "Расписание на сегодня показано"
+
+	// bot description
+
+	BotNameRu             = "🚂 Montenegro: train timetable bot"
+	BotDescriptionRu      = ""
+	BotShortDescriptionRu = ""
+
+	// bot commands
+
+	BotCommandNameStartRu = "Start the bot"
+)
+
+// Montenegrin
+
+const (
+	ErrorMessageMn = `Try again - two stations, separated by a comma. Just like that:
+
+Podgorica, Niksic`
+
+	StartMessageMn = "" +
+		"*Montenegro Railways Timetable*\n" +
+		"\n" +
+		"_Made together with @Leti\\_deshevle_\n" +
+		"\n" +
+		"Please enter *two stations* separated by *a comma*: \n" +
+		"\n" +
+		">*Podgorica, Bijelo Polje*\n" +
+		"\n" +
+		"Or using cyrillic:\n" +
+		"\n" +
+		">*Подгорица, Бијело Поље*\n" +
+		"\n" +
+		"And I will send you the timetable:\n" +
+		"\n" +
+		">Podgorica \\> Bijelo Polje\n" +
+		">[6100](https://zpcg.me/details?timetable=41)  `06:20 \\> 08:38` \n" +
+		">\\.\\.\\.\n" +
+		"\n" +
+		"Not sure about the correct spelling of the stations? No problem, just type them, and I will take care of the rest\\.\n" +
+		"\n" +
+		"Now it's your turn\\!"
+
+	StationDoesNotExistMessageMn       = "This station does not exist"
+	StationDoesNotExistMessageSuffixMn = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
+	OfficialTimetableUrlTextMn         = "More info"
+	ReverseRouteInlineButtonTextMn     = "Reverse"
+	AlertUpdateNotificationTextMn      = "Today's timetable is already shown. Use '" + OfficialTimetableUrlTextEn + "' button to see timetable for other dates"
+	SimpleUpdateNotificationTextMn     = "Today's timetable is shown"
+
+	// bot description
+
+	BotNameMn             = "🚂 Montenegro: train timetable bot"
+	BotDescriptionMn      = ""
+	BotShortDescriptionMn = ""
+
+	// bot commands
+
+	BotCommandNameStartMn = "Start the bot"
+)
+
+// Serbian
+
+const (
+	ErrorMessageSr = `Try again - two stations, separated by a comma. Just like that:
+
+Podgorica, Niksic`
+
+	StartMessageSr = "" +
+		"*Montenegro Railways Timetable*\n" +
+		"\n" +
+		"_Made together with @Leti\\_deshevle_\n" +
+		"\n" +
+		"Please enter *two stations* separated by *a comma*: \n" +
+		"\n" +
+		">*Podgorica, Bijelo Polje*\n" +
+		"\n" +
+		"Or using cyrillic:\n" +
+		"\n" +
+		">*Подгорица, Бијело Поље*\n" +
+		"\n" +
+		"And I will send you the timetable:\n" +
+		"\n" +
+		">Podgorica \\> Bijelo Polje\n" +
+		">[6100](https://zpcg.me/details?timetable=41)  `06:20 \\> 08:38` \n" +
+		">\\.\\.\\.\n" +
+		"\n" +
+		"Not sure about the correct spelling of the stations? No problem, just type them, and I will take care of the rest\\.\n" +
+		"\n" +
+		"Now it's your turn\\!"
+
+	StationDoesNotExistMessageSr       = "This station does not exist"
+	StationDoesNotExistMessageSuffixSr = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
+	OfficialTimetableUrlTextSr         = "More info"
+	ReverseRouteInlineButtonTextSr     = "Reverse"
+	AlertUpdateNotificationTextSr      = "Today's timetable is already shown. Use '" + OfficialTimetableUrlTextEn + "' button to see timetable for other dates"
+	SimpleUpdateNotificationTextSr     = "Today's timetable is shown"
+
+	// bot description
+
+	BotNameSr             = "🚂 Montenegro: train timetable bot"
+	BotDescriptionSr      = ""
+	BotShortDescriptionSr = ""
+
+	// bot commands
+
+	BotCommandNameStartSr = "Start the bot"
+)
+
+// Turkish
+
+const (
+	ErrorMessageTr = `Try again - two stations, separated by a comma. Just like that:
+
+Podgorica, Niksic`
+
+	StartMessageTr = "" +
+		"*Montenegro Railways Timetable*\n" +
+		"\n" +
+		"_Made together with @Leti\\_deshevle_\n" +
+		"\n" +
+		"Please enter *two stations* separated by *a comma*: \n" +
+		"\n" +
+		">*Podgorica, Bijelo Polje*\n" +
+		"\n" +
+		"Or using cyrillic:\n" +
+		"\n" +
+		">*Подгорица, Бијело Поље*\n" +
+		"\n" +
+		"And I will send you the timetable:\n" +
+		"\n" +
+		">Podgorica \\> Bijelo Polje\n" +
+		">[6100](https://zpcg.me/details?timetable=41)  `06:20 \\> 08:38` \n" +
+		">\\.\\.\\.\n" +
+		"\n" +
+		"Not sure about the correct spelling of the stations? No problem, just type them, and I will take care of the rest\\.\n" +
+		"\n" +
+		"Now it's your turn\\!"
+
+	StationDoesNotExistMessageTr       = "This station does not exist"
+	StationDoesNotExistMessageSuffixTr = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
+	OfficialTimetableUrlTextTr         = "More info"
+	ReverseRouteInlineButtonTextTr     = "Reverse"
+	AlertUpdateNotificationTextTr      = "Today's timetable is already shown. Use '" + OfficialTimetableUrlTextEn + "' button to see timetable for other dates"
+	SimpleUpdateNotificationTextTr     = "Today's timetable is shown"
+
+	// bot description
+
+	BotNameTr             = "🚂 Montenegro: train timetable bot"
+	BotDescriptionTr      = ""
+	BotShortDescriptionTr = ""
+
+	// bot commands
+
+	BotCommandNameStartTr = "Start the bot"
 )
