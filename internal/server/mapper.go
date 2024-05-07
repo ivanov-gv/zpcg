@@ -51,21 +51,22 @@ func UpdateFromTelegram(update gotgbot.Update) message.Update {
 }
 
 func ResponseToTelegramSend(response message.ToSend) (text string, opts *gotgbot.SendMessageOpts) {
-	text = response.Text
-	opts = &gotgbot.SendMessageOpts{
-		ParseMode:   string(response.ParseMode),
-		ReplyMarkup: inlineKeyboardToTelegram(response.InlineKeyboard),
-	}
-
-	// FIXME: removes keyboard for the users who has it from the older versions of the @monterails_bot
-	//   we need to send RemoveKeyboard message silently to everyone with an update text after the brand new version will be implemented
-	if opts.ReplyMarkup == nil {
-		opts.ReplyMarkup = gotgbot.ReplyKeyboardRemove{
+	var replyMarkup gotgbot.ReplyMarkup
+	if len(response.InlineKeyboard) != 0 {
+		replyMarkup = inlineKeyboardToTelegram(response.InlineKeyboard)
+	} else {
+		// FIXME: removes keyboard for the users who has it from the older versions of the @monterails_bot
+		//   we need to send RemoveKeyboard message silently to everyone with an update text after the brand new version will be implemented
+		replyMarkup = gotgbot.ReplyKeyboardRemove{
 			RemoveKeyboard: true,
 			Selective:      false,
 		}
 	}
-	return text, opts
+
+	return response.Text, &gotgbot.SendMessageOpts{
+		ParseMode:   string(response.ParseMode),
+		ReplyMarkup: replyMarkup,
+	}
 }
 
 func ResponseToTelegramUpdate(chatId int64, response message.ToUpdate) (text string, opts *gotgbot.EditMessageTextOpts) {
