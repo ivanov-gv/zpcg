@@ -32,11 +32,10 @@ const (
 
 func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, destination string) message.InlineButton {
 	var text string
-	switch languageCode {
-	case language.Russian:
-		text = OfficialTimetableUrlTextRu
-	default:
-		text = OfficialTimetableUrlText
+	if _text, found := OfficialTimetableUrlTextMap[languageCode]; found {
+		text = _text
+	} else {
+		text = OfficialTimetableUrlTextMap[DefaultLanguageTag]
 	}
 	return message.InlineButton{
 		Type: message.UrlInlineButtonType,
@@ -148,21 +147,23 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 }
 
 func (r *Render) ErrorMessage(languageCode language.Tag) message.Response {
-	switch languageCode {
-	case language.Russian:
-		return message.Response{Text: ErrorMessageRu}
-	default:
-		return message.Response{Text: ErrorMessageDefault}
+	var text string
+	if _text, found := ErrorMessageMap[languageCode]; found {
+		text = _text
+	} else {
+		text = ErrorMessageMap[DefaultLanguageTag]
 	}
+	return message.Response{Text: text, ParseMode: message.ModeMarkdownV2}
 }
 
 func (r *Render) StartMessage(languageCode language.Tag) message.Response {
-	switch languageCode {
-	case language.Russian:
-		return message.Response{Text: StartMessageRu, ParseMode: message.ModeMarkdownV2}
-	default:
-		return message.Response{Text: StartMessageDefault, ParseMode: message.ModeMarkdownV2}
+	var text string
+	if _text, found := StartMessageMap[languageCode]; found {
+		text = _text
+	} else {
+		text = StartMessageMap[DefaultLanguageTag]
 	}
+	return message.Response{Text: text, ParseMode: message.ModeMarkdownV2}
 }
 
 func (r *Render) BlackListedStations(languageCode language.Tag, stations ...timetable.BlackListedStation) message.Response {
