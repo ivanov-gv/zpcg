@@ -160,3 +160,13 @@ func TestConstants(t *testing.T) {
 		})
 	}
 }
+
+func TestAlertMessage(t *testing.T) {
+	const MaxTextLen = 200
+	for _, text := range lo.Values(AlertUpdateNotificationTextMap) {
+		assert.Less(t, len(text), MaxTextLen)
+	}
+	for _, text := range lo.Values(SimpleUpdateNotificationTextMap) {
+		assert.Less(t, len(text), MaxTextLen)
+	}
+}

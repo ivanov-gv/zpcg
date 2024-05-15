@@ -147,8 +147,12 @@ Podgorica, Niksic`
 	StationDoesNotExistMessageSuffixEn = " " // TODO: add /info "Would you like to know more about available train stations in Montenegro? Check the /info command"
 	OfficialTimetableUrlTextEn         = "More info"
 	ReverseRouteInlineButtonTextEn     = "Reverse"
-	AlertUpdateNotificationTextEn      = "Today's timetable is already shown. Use '" + OfficialTimetableUrlTextEn + "' button to see timetable for other dates"
-	SimpleUpdateNotificationTextEn     = "Today's timetable is shown"
+	AlertUpdateNotificationTextEn      = `The timetable is already updated
+
+From June 15th to September 16th a new train Novi Sad - Belgrade - Bar will be added
+
+The rest of the timetable will remain exactly the same`
+	SimpleUpdateNotificationTextEn = "Today's timetable is updated"
 
 	// bot description
 
@@ -201,8 +205,12 @@ Podgorica, Niksic`
 	StationDoesNotExistMessageSuffixRu = "  " // TODO: add /info "Хотите узнать где в Черногории есть жд сообщение? Используйте команду /info"
 	OfficialTimetableUrlTextRu         = "Подробнее"
 	ReverseRouteInlineButtonTextRu     = "Обратно"
-	AlertUpdateNotificationTextRu      = "Расписание на сегодня обновлено. Нажмите '" + OfficialTimetableUrlTextRu + "', чтобы увидеть расписание на другие дни"
-	SimpleUpdateNotificationTextRu     = "Расписание на сегодня показано"
+	AlertUpdateNotificationTextRu      = `Расписание уже обновлено
+
+С 15.06 по 16.09 добавится поезд Нови сад - Бар
+
+В остальном расписание не изменится`
+	SimpleUpdateNotificationTextRu = "Расписание на сегодня обновлено"
 
 	// bot description
 
