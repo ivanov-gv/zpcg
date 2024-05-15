@@ -152,9 +152,15 @@ Podgorica, Niksic`
 
 	// bot description
 
-	BotNameEn             = "🚂 Montenegro: train timetable | Черногория расписание поезд"
-	BotDescriptionEn      = ""
-	BotShortDescriptionEn = ""
+	BotNameEn        = "🚂 Montenegro: train timetable | Черногория расписание поезд"
+	BotDescriptionEn = `> Up-to-date timetable
+> Knows every station, including Belgrade
+> Can show routes between any two station, including transfer
+
+Just type two stations with a comma:
+
+Podgorica, Bar`
+	BotShortDescriptionEn = "Up-to-date timetable with all stations and routes, including transfer routes and international ones, like Belgrade - Bar train"
 
 	// bot commands
 
@@ -200,11 +206,17 @@ Podgorica, Niksic`
 
 	// bot description
 
-	BotNameRu             = "🚂 Черногория: расписание поездов и электричек"
-	BotDescriptionRu      = ""
-	BotShortDescriptionRu = ""
+	BotNameRu        = "🚂 Черногория: расписание поездов и электричек"
+	BotDescriptionRu = `> Актуальное расписание
+> Знает все станции, включая Белград
+> Умеет строить маршруты с пересадкой
+
+Просто введите две станции через запятую:
+
+Подгорица, Бар`
+	BotShortDescriptionRu = "Актуальное расписание со всеми станциями и маршрутами, включая маршруты с пересадкой и поездом Белград - Бар"
 
 	// bot commands
 
-	BotCommandNameStartRu = "Start the bot"
+	BotCommandNameStartRu = "Старт бота"
 )
