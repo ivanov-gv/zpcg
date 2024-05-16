@@ -1,6 +1,7 @@
 package render
 
 import (
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -143,6 +144,10 @@ func TestConstants(t *testing.T) {
 		"StartMessageMap":                     StartMessageMap,
 		"StationDoesNotExistMessageMap":       StationDoesNotExistMessageMap,
 		"StationDoesNotExistMessageSuffixMap": StationDoesNotExistMessageSuffixMap,
+		"ReverseRouteInlineButtonTextMap":     ReverseRouteInlineButtonTextMap,
+		"AlertUpdateNotificationTextMap":      AlertUpdateNotificationTextMap,
+		"SimpleUpdateNotificationTextMap":     SimpleUpdateNotificationTextMap,
+		"OfficialTimetableUrlTextMap":         OfficialTimetableUrlTextMap,
 	}
 
 	for name, _map := range constantsToTest {
@@ -168,5 +173,25 @@ func TestAlertMessage(t *testing.T) {
 	}
 	for _, text := range lo.Values(SimpleUpdateNotificationTextMap) {
 		assert.Less(t, len(text), MaxTextLen)
+	}
+}
+
+func TestBelarusianLanguage(t *testing.T) {
+	parsed := ParseLanguageTag("be")
+	assert.Equal(t, parsed, Belarusian)
+}
+
+func TestMarkdownMessages(t *testing.T) {
+	var constantsToTest = map[string]map[language.Tag]string{
+		"StartMessageMap": StartMessageMap,
+	}
+
+	for name, _map := range constantsToTest {
+		for languageTag, message := range _map {
+			t.Run(name+" "+languageTag.String(), func(t *testing.T) {
+				assert.Regexp(t, regexp.MustCompile(`^[_*\[\]()~`+"`"+`]+(?:.*?[_*\[\]()~`+"`"+`]*)*$`), message)
+			})
+		}
+
 	}
 }
