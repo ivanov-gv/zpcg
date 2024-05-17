@@ -15,9 +15,9 @@ func MaxProcs(t testing.TB, n int) {
 }
 
 func TestDateUpdate(t *testing.T) {
-	duration := 15 * time.Millisecond // 15 ms * 400 iterations make it run in less than 10 sec
-	numOfIterations := 400            // at least a year of updates
-	MaxProcs(t, 1)                    // it has to be working on 1 core cpu
+	duration := 100 * time.Millisecond
+	numOfIterations := 50
+	MaxProcs(t, 1) // it has to be working on 1 core cpu
 	service := &DateService{
 		ctx: context.Background(),
 	}

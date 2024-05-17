@@ -26,7 +26,7 @@ var SupportedLanguages = []language.Tag{
 }
 
 var (
-	CommandMap = map[language.Tag]Bot{
+	BotInfoMap = map[language.Tag]Bot{
 		language.English: {
 			Name:             BotNameEn,
 			Description:      BotDescriptionEn,
@@ -362,14 +362,14 @@ And I will send you the timetable:
 
 >Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Not sure about the correct spelling of the stations? No problem, just type them, and I will take care of the rest.
+Not sure about the correct spelling of the stations? No problem, just type them, and I will take care of the rest\.
 
-Now it's your turn!
+Now it's your turn\!
 `
 	StationDoesNotExistMessageEn       = "This station does not exist"
-	StationDoesNotExistMessageSuffixEn = "Google Map with all stations: "
+	StationDoesNotExistMessageSuffixEn = "Montenegro Railway Map"
 	OfficialTimetableUrlTextEn         = "More info"
 	ReverseRouteInlineButtonTextEn     = "Reverse"
 	AlertUpdateNotificationTextEn      = "" +
@@ -391,7 +391,7 @@ The rest of the timetable will remain exactly the same`
 Just type two stations with a comma:
 
 Podgorica, Bar`
-	BotShortDescriptionEn = "Up-to-date timetable with all stations and routes, including transfer routes and international ones, like Belgrade - Bar train"
+	BotShortDescriptionEn = "Up-to-date timetable with all stations and routes, including transfer and international ones, like Belgrade - Bar train"
 
 	// bot commands
 
@@ -423,15 +423,15 @@ _Сделан вместе с @Leti\_deshevle_
 
 >Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Не уверены как правильно пишется название станции? Напишите как знаете - мы догадаемся что вы имели ввиду.
+Не уверены как правильно пишется название станции? Напишите как знаете \- мы догадаемся что вы имели ввиду\.
 
-Теперь ваша очередь!
+Теперь ваша очередь\!
 `
 
 	StationDoesNotExistMessageRu       = "Такой станции не существует"
-	StationDoesNotExistMessageSuffixRu = "Карта ЖД Черногории: " // TODO: add link
+	StationDoesNotExistMessageSuffixRu = "Карта ЖД Черногории"
 	OfficialTimetableUrlTextRu         = "Подробнее"
 	ReverseRouteInlineButtonTextRu     = "Обратно"
 	AlertUpdateNotificationTextRu      = "" +
@@ -464,7 +464,7 @@ _Сделан вместе с @Leti\_deshevle_
 
 const (
 	ErrorMessageSr = "" +
-		`Покушајте поново - две станице, раздвојене зарезом.Као овако:
+		`Покушајте поново - две станице, раздвојене зарезом. Као овако:
 
 Подгорица, Бар`
 
@@ -483,17 +483,17 @@ Iли користећи ћирилицу:
 
 И ја ћу вам послати распоред:
 
->Podgorica \\> Bijelo Polje
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Нисте сигурни у исправном писању станица? Нема проблема, само их унесите, а ја ћу се побринути за остало.
+Нисте сигурни у исправном писању станица? Нема проблема, само их унесите, а ја ћу се побринути за остало\.
 
-Сад је ваш ред!
+Сад је ваш ред\!
 `
 
 	StationDoesNotExistMessageSr       = "Ова станица не постоји"
-	StationDoesNotExistMessageSuffixSr = "   " // TODO: add /info "Желите ли да сазнате више о доступним железничким станицама у Црној Гори? Проверите команду /info"
+	StationDoesNotExistMessageSuffixSr = "Karta železnica Crne Gore"
 	OfficialTimetableUrlTextSr         = "Више информација"
 	ReverseRouteInlineButtonTextSr     = "Обрнуто"
 	AlertUpdateNotificationTextSr      = "Данашњи распоред већ приказан. Користите дугме '" + OfficialTimetableUrlTextSr + "' да бисте видели распоред за друге датуме"
@@ -510,7 +510,7 @@ Iли користећи ћирилицу:
 Просто унесите две станице раздвојене зарезом:
 
 Подгорица, Бар`
-	BotShortDescriptionSr = "Ажуран распоред са свим станицама и рутама, укључујући руте са трансфером и међународне руте, као што је воз Београд - Бар"
+	BotShortDescriptionSr = "Ажуран распоред са свим станицама и рутама, укључујући руте са трансфером и међународне, као што је воз Београд - Бар"
 
 	// bot commands
 
@@ -536,17 +536,17 @@ Lütfen *bir virgülle ayrılmış iki istasyon* girin:
 
 Ve size tarifeyi göndereceğim:
 
->Podgorica \\> Bijelo Polje
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-İstasyonların doğru yazımı konusunda emin değil misiniz? Sorun değil, sadece yazın, gerisini ben halledeceğim.
+İstasyonların doğru yazımı konusunda emin değil misiniz? Sorun değil, sadece yazın, gerisini ben halledeceğim\.
 
-Sıra sende!
+Sıra sende\!
 `
 
 	StationDoesNotExistMessageTr       = "Bu istasyon mevcut değil"
-	StationDoesNotExistMessageSuffixTr = "    " // TODO: add /info "Karadağ'da mevcut tren istasyonları hakkında daha fazla bilgi almak ister misiniz? /info komutunu kontrol edin"
+	StationDoesNotExistMessageSuffixTr = "Karadağ Demiryolu Haritası"
 	OfficialTimetableUrlTextTr         = "Daha fazla bilgi"
 	ReverseRouteInlineButtonTextTr     = "Tersine"
 	AlertUpdateNotificationTextTr      = "" +
@@ -594,23 +594,23 @@ _Зроблена разам з @Leti\_deshevle_
 
 ці кірыліцы: 
 
->*Подгорица, Бијело Поље*
+>*Подгорица, Бело Поле*
 
 І атрымаеце расклад:
 
->Podgorica \\> Bijelo Polje
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Ня ўпэўненыя як правільна пішацца назва вакзала? Напішыце як ведаеце - мы дагадаемся што вы мелі на ўвазе.
+Ня ўпэўненыя як правільна пішацца назва вакзала? Напішыце як ведаеце \- мы дагадаемся што вы мелі на ўвазе\.
 
-Цяпер ваш чарга!
+Цяпер ваш чарга\!
 `
 
 	StationDoesNotExistMessageBe       = "Такога вакзала не існуе"
-	StationDoesNotExistMessageSuffixBe = "  " // TODO: дадайце /info "Хочаце ведаць дзе ў Чарнагорыі ёсць жд паведамленне? Выкарыстоўвайце каманду /info"
+	StationDoesNotExistMessageSuffixBe = "Карта ЧД Чарнагорыі"
 	OfficialTimetableUrlTextBe         = "Падрабязней"
-	ReverseRouteInlineButtonTextBe     = "Назад"
+	ReverseRouteInlineButtonTextBe     = "Назад "
 	AlertUpdateNotificationTextBe      = "" +
 		`Расклад ужо абноўлены
 
@@ -643,7 +643,7 @@ const (
 	ErrorMessageUa = "" +
 		`Спробуйте ще раз - дві станції через кому. Ось так:
 
-Подгориця, Нікшіч`
+Podgorica, Niksic`
 
 	StartMessageUa = "" +
 		`*Розклад електричок Чорногорії*
@@ -652,25 +652,25 @@ _Зроблено разом з @Leti\_deshevle_
 
 Будь ласка, введіть *дві станції через кому* латиницею: 
 
->*Подгориця, Бієло Полє*
+>*Podgorica, Bijelo Polje*
 
 або кирилицею: 
 
->*Подгориця, Біло поле*
+>*Подгорица, Бело Поле*
 
 І отримайте розклад:
 
->Подгориця \\> Бієло Полє
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Не впевнені як правильно пишеться назва станції? Напишіть як знаєте - ми здогадаємося, що ви мали на увазі.
+Не впевнені як правильно пишеться назва станції? Напишіть як знаєте \- ми здогадаємося, що ви мали на увазі\.
 
-Тепер ваша черга!
+Тепер ваша черга\!
 `
 
 	StationDoesNotExistMessageUa       = "Такої станції не існує"
-	StationDoesNotExistMessageSuffixUa = "  " // TODO: додайте /info "Хочете дізнатися де в Чорногорії є зд повідомлення? Використовуйте команду /info"
+	StationDoesNotExistMessageSuffixUa = "Карта Залізниці Чорногорії"
 	OfficialTimetableUrlTextUa         = "Детальніше"
 	ReverseRouteInlineButtonTextUa     = "Назад"
 	AlertUpdateNotificationTextUa      = "" +
@@ -716,23 +716,19 @@ Bitte geben Sie *zwei Bahnhöfe durch Komma getrennt* ein, auf Lateinisch:
 
 >*Podgorica, Bijelo Polje*
 
-oder auf Kyrillisch: 
-
->*Подгорица, Бело поле*
-
 und erhalten Sie den Fahrplan:
 
->Podgorica \\> Bijelo Polje
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Sind Sie sich unsicher, wie der Bahnhof richtig geschrieben wird? Schreiben Sie, wie Sie es wissen - wir werden verstehen, was Sie gemeint haben.
+Sind Sie sich unsicher, wie der Bahnhof richtig geschrieben wird? Schreiben Sie, wie Sie es wissen \- wir werden verstehen, was Sie gemeint haben\.
 
-Jetzt sind Sie dran!
+Jetzt sind Sie dran\!
 `
 
 	StationDoesNotExistMessageDe       = "Dieser Bahnhof existiert nicht"
-	StationDoesNotExistMessageSuffixDe = "  " // TODO: Fügen Sie /info hinzu "Möchten Sie wissen, wo es in Montenegro Bahnhofsmeldungen gibt? Verwenden Sie den Befehl /info"
+	StationDoesNotExistMessageSuffixDe = "Montenegro Bahnkarte"
 	OfficialTimetableUrlTextDe         = "Mehr erfahren"
 	ReverseRouteInlineButtonTextDe     = "Zurück"
 	AlertUpdateNotificationTextDe      = "" +
@@ -784,17 +780,17 @@ ili na ćirilici:
 
 i dobit ćete raspored:
 
->Podgorica \\> Bijelo Polje
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Niste sigurni kako se pravilno piše naziv kolodvora? Napišite kako znate - razumjet ćemo što ste mislili.
+Niste sigurni kako se pravilno piše naziv kolodvora? Napišite kako znate \- razumjet ćemo što ste mislili\.
 
-Sada je vaš red!
+Sada je vaš red\!
 `
 
 	StationDoesNotExistMessageHr       = "Taj kolodvor ne postoji"
-	StationDoesNotExistMessageSuffixHr = "  " // TODO: dodajte /info "Želite li znati gdje u Crnoj Gori postoje željezničke poruke? Koristite naredbu /info"
+	StationDoesNotExistMessageSuffixHr = "Karta željeznica Crne Gore"
 	OfficialTimetableUrlTextHr         = "Više informacija"
 	ReverseRouteInlineButtonTextHr     = "Natrag"
 	AlertUpdateNotificationTextHr      = "" +
@@ -846,17 +842,17 @@ alebo v cyrilike:
 
 a dostanete cestovný poriadok:
 
->Podgorica \\> Bijelo Polje
+>Podgorica \> Bijelo Polje
 >[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->...
+>\.\.\.
 
-Nie ste si istí, ako sa správne píše názov stanice? Napíšte to, ako viete - pochopíme, čo ste mali na mysli.
+Nie ste si istí, ako sa správne píše názov stanice? Napíšte to, ako viete \- pochopíme, čo ste mali na mysli\.
 
-Teraz je na vás!
+Teraz je na vás\!
 `
 
 	StationDoesNotExistMessageSk       = "Taká stanica neexistuje"
-	StationDoesNotExistMessageSuffixSk = "  " // TODO: pridajte /info "Chcete vedieť, kde v Čiernej Hore existujú železničné správy? Použite príkaz /info"
+	StationDoesNotExistMessageSuffixSk = "Mapa železníc Čiernej Hory"
 	OfficialTimetableUrlTextSk         = "Viac informácií"
 	ReverseRouteInlineButtonTextSk     = "Späť"
 	AlertUpdateNotificationTextSk      = "" +

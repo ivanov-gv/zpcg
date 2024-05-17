@@ -169,6 +169,7 @@ func TestConstants(t *testing.T) {
 			assert.EqualValuesf(t, expectedLanguages, actualLanguages, "all the supported languages are present")
 			// there is no repeating values (i.e. set of keys ~ set of values)
 			valuesSet := lo.SliceToMap(lo.Values(_map), func(item string) (string, struct{}) { return item, struct{}{} })
+			assert.NotContainsf(t, lo.Keys(valuesSet), "", "no empty values")
 			assert.Equal(t, len(lo.Keys(_map)), len(valuesSet), "there are no equal messages accidentally mapped for different languages")
 		})
 	}
@@ -238,4 +239,17 @@ func TestMarkdownMessages(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestBotInfo(t *testing.T) {
+	for languageTag, bot := range BotInfoMap {
+		t.Run(languageTag.String(), func(t *testing.T) {
+			assert.Less(t, len([]rune(bot.Name)), 64)
+			assert.Less(t, len([]rune(bot.Description)), 512)
+			assert.Less(t, len([]rune(bot.ShortDescription)), 120)
+			for _, command := range allCommands {
+				assert.Contains(t, bot.CommandNames, command)
+			}
+		})
+	}
 }

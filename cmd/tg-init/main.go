@@ -19,9 +19,10 @@ func main() {
 		log.Fatal("gotgbot.NewBot: ", err)
 	}
 
-	bot.SetMyName()
-	bot.SetMyDescription()
-	bot.SetMyShortDescription()
-	bot.SetMyCommands()
+	_ = bot
+	//bot.SetMyName()
+	//bot.SetMyDescription()
+	//bot.SetMyShortDescription()
+	//bot.SetMyCommands()
 
 }

@@ -72,7 +72,7 @@ func TestBlackList(t *testing.T) {
 				t.Run(language.String(), func(t *testing.T) {
 					message, err := app.GenerateRoute(language, fmt.Sprintf("%s, %s", BarStationName, station.Name))
 					assert.NoError(t, err)
-					assert.Contains(t, message.Text, station.LanguageTagToCustomErrorMessageMap[language.String()])
+					assert.Contains(t, message.Text, station.LanguageTagToCustomErrorMessageMap[language])
 				})
 			}
 		})
