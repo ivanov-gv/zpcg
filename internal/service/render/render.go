@@ -184,9 +184,6 @@ func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
 }
 
 func ParseLanguageTag(languageCode string) language.Tag {
-	if languageCode == BelarusianLanguageCode {
-		return Belarusian
-	}
 	tag, err := language.Parse(languageCode)
 	if err != nil {
 		return DefaultLanguageTag

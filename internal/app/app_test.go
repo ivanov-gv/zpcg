@@ -67,13 +67,15 @@ func TestBlackList(t *testing.T) {
 	assert.NotNil(t, app)
 
 	for _, station := range blacklist.BlackListedStations {
-		for _, language := range render.SupportedLanguages {
-			t.Run(station.Name+"/"+language.String(), func(t *testing.T) {
-				message, err := app.GenerateRoute(language, fmt.Sprintf("%s, %s", BarStationName, station.Name))
-				assert.NoError(t, err)
-				assert.Contains(t, message.Text, station.LanguageTagToCustomErrorMessageMap[language.String()])
-			})
-		}
+		t.Run(station.Name, func(t *testing.T) {
+			for _, language := range render.SupportedLanguages {
+				t.Run(language.String(), func(t *testing.T) {
+					message, err := app.GenerateRoute(language, fmt.Sprintf("%s, %s", BarStationName, station.Name))
+					assert.NoError(t, err)
+					assert.Contains(t, message.Text, station.LanguageTagToCustomErrorMessageMap[language.String()])
+				})
+			}
+		})
 	}
 
 }

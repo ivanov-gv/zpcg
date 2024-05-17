@@ -3,6 +3,7 @@ module github.com/ivanov-gv/zpcg
 go 1.22
 
 require (
+	github.com/Arman92/go-tdlib v1.0.0
 	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.25
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
@@ -10,6 +11,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/stretchr/testify v1.8.4
 	github.com/yfuruyama/crzerolog v0.3.1
+	github.com/zelenin/go-tdlib v0.7.2
 	golang.org/x/net v0.21.0
 	golang.org/x/text v0.14.0
 )

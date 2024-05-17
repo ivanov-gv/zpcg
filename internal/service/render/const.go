@@ -11,7 +11,7 @@ var DefaultLanguageTag = language.English
 
 const BelarusianLanguageCode = "be"
 
-var Belarusian = lo.Must(language.Tag{}.SetTypeForKey("be", "Belarus")) // there is no var language.Belarusian, so we have to improvise
+var Belarusian = lo.Must(language.Parse(BelarusianLanguageCode)) // there is no var language.Belarusian, so we have to improvise
 
 var SupportedLanguages = []language.Tag{
 	language.Russian,
