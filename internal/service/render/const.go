@@ -621,7 +621,7 @@ _Зроблена разам з @Leti\_deshevle_
 
 	// апісанне бота
 
-	BotNameBe        = "🚂 Чарнагорыя: расклад паездаў і электрычак"
+	BotNameBe        = "🚂 Чарнагорыя: расклад паездаў і электрычак | Черногория поезд"
 	BotDescriptionBe = "" +
 		`> Актуальны расклад
 > Ведае ўсе вакзалы, уключаючы Белград
@@ -683,7 +683,7 @@ _Зроблено разом з @Leti\_deshevle_
 
 	// опис бота
 
-	BotNameUa        = "🚂 Чорногорія: розклад поїздів і електричок"
+	BotNameUa        = "🚂 Чорногорія: розклад поїздів і електричок | Черногория поезд"
 	BotDescriptionUa = "" +
 		`> Актуальний розклад
 > Знає всі станції, включаючи Белград
@@ -741,7 +741,7 @@ Ansonsten ändert sich der Fahrplan nicht`
 
 	// Bot-Beschreibung
 
-	BotNameDe        = "🚂 Montenegro: Zug- und Zugfahrplan"
+	BotNameDe        = "🚂 Montenegro: Zug- und Zugfahrplan | train timetable"
 	BotDescriptionDe = "" +
 		`> Aktueller Fahrplan
 > Kennt alle Bahnhöfe, einschließlich Belgrad
@@ -803,7 +803,7 @@ Inače, raspored se ne mijenja`
 
 	// Opis bota
 
-	BotNameHr        = "🚂 Crna Gora: raspored vlakova i vlakova"
+	BotNameHr        = "🚂 Crna Gora: raspored vlakova | ZPCG RED VOŽNJE"
 	BotDescriptionHr = "" +
 		`> Trenutni raspored
 > Zna sve kolodvore, uključujući Beograd
@@ -865,7 +865,7 @@ Inak sa poradie nezmení`
 
 	// Popis bota
 
-	BotNameSk        = "🚂 Čierna Hora: cestovný poriadok vlakov a električiek"
+	BotNameSk        = "🚂 Čierna Hora: cestovný poriadok vlakov | Montenegro train"
 	BotDescriptionSk = "" +
 		`> Aktuálny cestovný poriadok
 > Pozná všetky stanice, vrátane Belehradu
