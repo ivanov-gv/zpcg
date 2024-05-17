@@ -247,7 +247,7 @@ func TestBotInfo(t *testing.T) {
 			assert.Less(t, len([]rune(bot.Name)), 64)
 			assert.Less(t, len([]rune(bot.Description)), 512)
 			assert.Less(t, len([]rune(bot.ShortDescription)), 120)
-			for _, command := range allCommands {
+			for _, command := range AllCommands {
 				assert.Contains(t, bot.CommandNames, command)
 			}
 		})
