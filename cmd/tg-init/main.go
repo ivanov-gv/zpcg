@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/samber/lo"
@@ -17,7 +19,21 @@ func main() {
 	} else {
 		log.Fatal("TELEGRAM_APITOKEN environment variable not set")
 	}
-	bot, err := gotgbot.NewBot(token, nil)
+	bot, err := gotgbot.NewBot(token, &gotgbot.BotOpts{
+		BotClient: gotgbot.BotClient(&gotgbot.BaseBotClient{
+			Client:             http.Client{},
+			UseTestEnvironment: false,
+			DefaultRequestOpts: &gotgbot.RequestOpts{
+				Timeout: time.Second * 30,
+				APIURL:  "",
+			},
+		}),
+		DisableTokenCheck: false,
+		RequestOpts: &gotgbot.RequestOpts{
+			Timeout: time.Second * 30,
+			APIURL:  "",
+		},
+	})
 	if err != nil {
 		log.Fatal("gotgbot.NewBot: ", err)
 	}
