@@ -253,5 +253,73 @@ var (
 				language.Turkish:   "Karadağ ile Bosna-Hersek arasında rota yok",
 			},
 		},
+		{
+			Names: []string{"Novi sad", "Нови сад", "Indjija", "Индия", "Stara Pazova", "Стара пазова", "Nova pazova", "Нова пазова", "Novi Beograd"}, // Новый белград - was not added to not interfere with Белград (beograd centar)
+			LanguageTagToCustomErrorMessageMap: map[language.Tag]string{
+				language.Russian: `
+Поезда 1130 и 1131 с 15.06 по 16.09 будут ходить по продленному маршруту Бар - Белград - Нови Сад. 
+В остальные дни поезда из черногории до Нови Сада не ходят.
+
+Ссылки на эти маршруты в расписании:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.Ukrainian: `
+Поїзди 1130 і 1131 з 15.06 по 16.09 будуть курсувати за продовженим маршрутом Бар - Белград - Нови Сад. 
+У інші дні поїзди з Чорногорії до Нови Сада не курсують.
+
+Посилання на ці маршрути в розкладі:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				render.Belarusian: `
+Паезды 1130 і 1131 з 15.06 па 16.09 будуць курсаваць па прадоўжаным маршруце Бар - Белград - Новы Сад. 
+У іншыя дні паезды з Чарнагорыі да Новага Сада не курсуюць.
+
+Спасылкі на гэтыя маршруты ў раскладзе:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.English: `
+Trains 1130 and 1131 from 15.06 to 16.09 will operate on an extended route Bar - Belgrade - Novi Sad. 
+On other days, trains from Montenegro to Novi Sad do not operate.
+
+Links to these routes in the schedule:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.German: `
+Die Züge 1130 und 1131 verkehren vom 15.06. bis 16.09. auf einer verlängerten Route Bar - Belgrad - Novi Sad. 
+An anderen Tagen verkehren die Züge von Montenegro nach Novi Sad nicht.
+
+Links zu diesen Routen im Fahrplan:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.Serbian: `
+Возови 1130 и 1131 од 15.06. до 16.09. саобраћаће на продуженом правцу Бар – Београд – Нови Сад.
+Осталим данима возови из Црне Горе за Нови Сад не саобраћају.
+
+Линкови до ових рута у распореду:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.Croatian: `
+Vlakovi 1130 i 1131 od 15.06. do 16.09. će voziti na produženoj ruti Bar - Beograd - Novi Sad. 
+U ostalim danima, vlakovi iz Crne Gore za Novi Sad ne voze.
+
+Poveznice na ove rute u rasporedu:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.Slovak: `
+Vlaky 1130 a 1131 od 15.06. do 16.09. budú jazdiť na predĺženej trase Bar - Beograd - Novi Sad. 
+V ostatné dni vlaky z Čiernogorska do Nového Sadu nejazdia.
+
+Odkazy na tieto trasy v rozvrhu:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+				language.Turkish: `
+15.06 - 16.09 tarihleri arasında trenler 1130 ve 1131 Bar - Belgrad - Novi Sad üzerinde uzatılmış bir rota üzerinde işleyecek. 
+Diğer günlerde Karadağ'dan Novi Sad'a tren seferleri yapılmamaktadır.
+
+Bu rotalara ilişkin bağlantılar:
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Bar&to=Novi+Sad&date=16.6.2024.&
+https://ivanov-gv.github.io/zpcg/official-site-redirect.html?from=Novi+Sad&to=Bar&date=16.6.2024.&`,
+			},
+		},
 	}
 )
