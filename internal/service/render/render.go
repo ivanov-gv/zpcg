@@ -31,16 +31,9 @@ const (
 )
 
 func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, destination string) message.InlineButton {
-	var text string
-	switch languageCode {
-	case language.Russian:
-		text = OfficialTimetableUrlTextRu
-	default:
-		text = OfficialTimetableUrlText
-	}
 	return message.InlineButton{
 		Type: message.UrlInlineButtonType,
-		Text: text,
+		Text: GetMessage(OfficialTimetableUrlTextMap, languageCode),
 		Url:  message.UrlButton{Url: getUrlToTimetable(origin, destination, time.Time{})},
 	}
 }
@@ -56,15 +49,9 @@ func inlineButtonWithUpdateCallback(languageCode language.Tag, currentDate time.
 }
 
 func inlineButtonWithReverseCallback(languageTag language.Tag, reverseCallback string) message.InlineButton {
-	var text string
-	if _text, found := ReverseRouteInlineButtonTextMap[languageTag]; found {
-		text = _text
-	} else {
-		text = ReverseRouteInlineButtonTextMap[DefaultLanguageTag]
-	}
 	return message.InlineButton{
 		Type: message.CallbackInlineButtonType,
-		Text: fmt.Sprintf("↪️ %s", text),
+		Text: fmt.Sprintf("↪️ %s", GetMessage(ReverseRouteInlineButtonTextMap, languageTag)),
 		Callback: message.CallbackButton{
 			Data: reverseCallback,
 		},
@@ -147,58 +134,55 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 	}
 }
 
-func (r *Render) ErrorMessage(languageCode language.Tag) message.Response {
-	switch languageCode {
-	case language.Russian:
-		return message.Response{Text: ErrorMessageRu}
-	default:
-		return message.Response{Text: ErrorMessageDefault}
-	}
-}
-
-func (r *Render) StartMessage(languageCode language.Tag) message.Response {
-	switch languageCode {
-	case language.Russian:
-		return message.Response{Text: StartMessageRu, ParseMode: message.ModeMarkdownV2}
-	default:
-		return message.Response{Text: StartMessageDefault, ParseMode: message.ModeMarkdownV2}
-	}
-}
-
-func (r *Render) BlackListedStations(languageCode language.Tag, stations ...timetable.BlackListedStation) message.Response {
-	var lines []string
-	for _, station := range stations {
-		var line string
-		if customMessage, ok := station.LanguageTagToCustomErrorMessageMap[languageCode.String()]; ok {
-			line = customMessage
-		} else {
-			line = fmt.Sprintf("%s: %s", station.Name, StationDoesNotExistMessageMap[languageCode])
-		}
-		lines = append(lines, line)
-	}
-	lines = append(lines,
-		"", // empty line
-		StationDoesNotExistMessageSuffixMap[languageCode])
+func (r *Render) ErrorMessage(languageTag language.Tag) message.Response {
 	return message.Response{
-		Text:      strings.Join(lines, "\n"),
+		Text:      GetMessage(ErrorMessageMap, languageTag),
 		ParseMode: message.ModeNone,
 	}
 }
 
-func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
-	if text, found := AlertUpdateNotificationTextMap[languageTag]; found {
-		return text
-	} else {
-		return AlertUpdateNotificationTextMap[DefaultLanguageTag]
+func (r *Render) StartMessage(languageTag language.Tag) message.Response {
+	return message.Response{
+		Text:      GetMessage(StartMessageMap, languageTag),
+		ParseMode: message.ModeMarkdownV2,
 	}
 }
 
-func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
-	if text, found := SimpleUpdateNotificationTextMap[languageTag]; found {
-		return text
-	} else {
-		return SimpleUpdateNotificationTextMap[DefaultLanguageTag]
+func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timetable.BlackListedStation) message.Response {
+	var lines []string
+	for _, station := range stations {
+		var line string
+		if customMessage, ok := station.LanguageTagToCustomErrorMessageMap[languageTag]; ok {
+			line = customMessage
+		} else if defaultMessage, ok := station.LanguageTagToCustomErrorMessageMap[DefaultLanguageTag]; ok {
+			line = defaultMessage
+		} else {
+			line = fmt.Sprintf("%s: %s", station.Name, GetMessage(StationDoesNotExistMessageMap, languageTag))
+		}
+		lines = append(lines, line)
 	}
+
+	return message.Response{
+		Text:      strings.Join(lines, "\n"),
+		ParseMode: message.ModeNone,
+		InlineKeyboard: [][]message.InlineButton{
+			{
+				{
+					Type: message.UrlInlineButtonType,
+					Text: GetMessage(StationDoesNotExistMessageSuffixMap, languageTag),
+					Url:  message.UrlButton{Url: googleMapWithAllStations},
+				},
+			},
+		},
+	}
+}
+
+func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
+	return GetMessage(AlertUpdateNotificationTextMap, languageTag)
+}
+
+func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
+	return GetMessage(SimpleUpdateNotificationTextMap, languageTag)
 }
 
 func ParseLanguageTag(languageCode string) language.Tag {
@@ -207,4 +191,11 @@ func ParseLanguageTag(languageCode string) language.Tag {
 		return DefaultLanguageTag
 	}
 	return tag
+}
+
+func GetMessage[T any](_map map[language.Tag]T, tag language.Tag) T {
+	if _message, ok := _map[tag]; ok {
+		return _message
+	}
+	return _map[DefaultLanguageTag]
 }

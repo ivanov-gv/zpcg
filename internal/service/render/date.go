@@ -13,9 +13,5 @@ func Date(tag language.Tag, currentDate time.Time) string {
 }
 
 func localizeMonth(tag language.Tag, month time.Month) string {
-	if namesMap, found := MonthNameMap[tag]; found {
-		return namesMap[month]
-	} else {
-		return MonthNameMap[DefaultLanguageTag][month]
-	}
+	return GetMessage(MonthNameMap, tag)[month]
 }

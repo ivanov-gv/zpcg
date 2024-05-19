@@ -2,6 +2,8 @@ package timetable
 
 import (
 	"time"
+
+	"golang.org/x/text/language"
 )
 
 // StationId is an id for stations. (-inf, 0] - for black listed stations, (0, +inf) - for regular stations
@@ -22,5 +24,5 @@ type Station struct {
 
 type BlackListedStation struct {
 	Name                               string
-	LanguageTagToCustomErrorMessageMap map[string]string
+	LanguageTagToCustomErrorMessageMap map[language.Tag]string
 }
