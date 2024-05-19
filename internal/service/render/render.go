@@ -154,6 +154,8 @@ func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timet
 		var line string
 		if customMessage, ok := station.LanguageTagToCustomErrorMessageMap[languageTag]; ok {
 			line = customMessage
+		} else if defaultMessage, ok := station.LanguageTagToCustomErrorMessageMap[DefaultLanguageTag]; ok {
+			line = defaultMessage
 		} else {
 			line = fmt.Sprintf("%s: %s", station.Name, GetMessage(StationDoesNotExistMessageMap, languageTag))
 		}
