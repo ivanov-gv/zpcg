@@ -254,7 +254,7 @@ var (
 			},
 		},
 		{
-			Names: []string{"Novi sad", "Нови сад", "Indjija", "Индия", "Stara Pazova", "Стара пазова", "Nova pazova", "Нова пазова", "Novi Beograd"}, // Новый белград - was not added to not interfere with Белград (beograd centar)
+			Names: []string{"Novi sad", "Нови сад", "Indjija", "Индия", "Stara Pazova", "Стара пазова", "Nova pazova", "Нова пазова"}, // Novi Beograd - was not added to not interfere with Beograd centar
 			LanguageTagToCustomErrorMessageMap: map[language.Tag]string{
 				language.Russian: `
 Поезда 1130 и 1131 с 15.06 по 16.09 будут ходить по продленному маршруту Бар - Белград - Нови Сад. 
