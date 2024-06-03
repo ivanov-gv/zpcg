@@ -3138,123 +3138,123 @@ var Timetable = timetable.ExportFormat{
 	TrainIdToTrainInfoMap: map[timetable.TrainId]timetable.TrainInfo{
 		432: timetable.TrainInfo{
 			TrainId:      432,
-			TimetableUrl: "https://zpcg.me/details?timetable=236",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=236",
 		},
 		433: timetable.TrainInfo{
 			TrainId:      433,
-			TimetableUrl: "https://zpcg.me/details?timetable=235",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=235",
 		},
 		6100: timetable.TrainInfo{
 			TrainId:      6100,
-			TimetableUrl: "https://zpcg.me/details?timetable=102",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=102",
 		},
 		6101: timetable.TrainInfo{
 			TrainId:      6101,
-			TimetableUrl: "https://zpcg.me/details?timetable=210",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=210",
 		},
 		6102: timetable.TrainInfo{
 			TrainId:      6102,
-			TimetableUrl: "https://zpcg.me/details?timetable=103",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=103",
 		},
 		6103: timetable.TrainInfo{
 			TrainId:      6103,
-			TimetableUrl: "https://zpcg.me/details?timetable=121",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=121",
 		},
 		6104: timetable.TrainInfo{
 			TrainId:      6104,
-			TimetableUrl: "https://zpcg.me/details?timetable=205",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=205",
 		},
 		6105: timetable.TrainInfo{
 			TrainId:      6105,
-			TimetableUrl: "https://zpcg.me/details?timetable=122",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=122",
 		},
 		6150: timetable.TrainInfo{
 			TrainId:      6150,
-			TimetableUrl: "https://zpcg.me/details?timetable=217",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=217",
 		},
 		6151: timetable.TrainInfo{
 			TrainId:      6151,
-			TimetableUrl: "https://zpcg.me/details?timetable=46",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=46",
 		},
 		6152: timetable.TrainInfo{
 			TrainId:      6152,
-			TimetableUrl: "https://zpcg.me/details?timetable=221",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=221",
 		},
 		6153: timetable.TrainInfo{
 			TrainId:      6153,
-			TimetableUrl: "https://zpcg.me/details?timetable=228",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=228",
 		},
 		6154: timetable.TrainInfo{
 			TrainId:      6154,
-			TimetableUrl: "https://zpcg.me/details?timetable=222",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=222",
 		},
 		6155: timetable.TrainInfo{
 			TrainId:      6155,
-			TimetableUrl: "https://zpcg.me/details?timetable=229",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=229",
 		},
 		6156: timetable.TrainInfo{
 			TrainId:      6156,
-			TimetableUrl: "https://zpcg.me/details?timetable=223",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=223",
 		},
 		6157: timetable.TrainInfo{
 			TrainId:      6157,
-			TimetableUrl: "https://zpcg.me/details?timetable=230",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=230",
 		},
 		6158: timetable.TrainInfo{
 			TrainId:      6158,
-			TimetableUrl: "https://zpcg.me/details?timetable=224",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=224",
 		},
 		6159: timetable.TrainInfo{
 			TrainId:      6159,
-			TimetableUrl: "https://zpcg.me/details?timetable=231",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=231",
 		},
 		6160: timetable.TrainInfo{
 			TrainId:      6160,
-			TimetableUrl: "https://zpcg.me/details?timetable=225",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=225",
 		},
 		6161: timetable.TrainInfo{
 			TrainId:      6161,
-			TimetableUrl: "https://zpcg.me/details?timetable=150",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=150",
 		},
 		7100: timetable.TrainInfo{
 			TrainId:      7100,
-			TimetableUrl: "https://zpcg.me/details?timetable=201",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=201",
 		},
 		7101: timetable.TrainInfo{
 			TrainId:      7101,
-			TimetableUrl: "https://zpcg.me/details?timetable=153",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=153",
 		},
 		7102: timetable.TrainInfo{
 			TrainId:      7102,
-			TimetableUrl: "https://zpcg.me/details?timetable=202",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=202",
 		},
 		7103: timetable.TrainInfo{
 			TrainId:      7103,
-			TimetableUrl: "https://zpcg.me/details?timetable=218",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=218",
 		},
 		7104: timetable.TrainInfo{
 			TrainId:      7104,
-			TimetableUrl: "https://zpcg.me/details?timetable=160",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=160",
 		},
 		7105: timetable.TrainInfo{
 			TrainId:      7105,
-			TimetableUrl: "https://zpcg.me/details?timetable=219",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=219",
 		},
 		7106: timetable.TrainInfo{
 			TrainId:      7106,
-			TimetableUrl: "https://zpcg.me/details?timetable=204",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=204",
 		},
 		7107: timetable.TrainInfo{
 			TrainId:      7107,
-			TimetableUrl: "https://zpcg.me/details?timetable=213",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=213",
 		},
 		7108: timetable.TrainInfo{
 			TrainId:      7108,
-			TimetableUrl: "https://zpcg.me/details?timetable=203",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=203",
 		},
 		7109: timetable.TrainInfo{
 			TrainId:      7109,
-			TimetableUrl: "https://zpcg.me/details?timetable=214",
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=214",
 		},
 	},
 	UnifiedStationNameToStationIdMap: map[string]timetable.StationId{

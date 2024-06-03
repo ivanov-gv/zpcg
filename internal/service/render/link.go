@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	urlBase    = "https://ivanov-gv.github.io/zpcg/official-site-redirect.html?"
-	fromParam  = "from="
-	toParam    = "to="
+	urlBase    = "https://zpcg.me/red-voznje?"
+	fromParam  = "start="
+	toParam    = "finish="
 	dateParam  = "date="
-	dateLayout = "02.01.2006."
+	dateLayout = "2006-01-02"
 )
 
 func getUrlToTimetable(origin, destination string, date time.Time) string {
