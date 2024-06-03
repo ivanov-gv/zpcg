@@ -258,7 +258,7 @@ var (
 			LanguageTagToCustomErrorMessageMap: map[language.Tag]string{
 				language.Russian: `
 Поезда 1130 и 1131 с 15.06 по 16.09 будут ходить по продленному маршруту Бар - Белград - Нови Сад. 
-В остальные дни поезда из черногории до Нови Сада не ходят.
+В остальные дни поезда из Черногории до Нови Сада не ходят.
 
 Ссылки на эти маршруты в расписании:
 https://zpcg.me/red-voznje?start=Bar&finish=Novi+Sad&date=2024-06-16`,
