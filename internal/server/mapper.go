@@ -64,8 +64,9 @@ func ResponseToTelegramSend(response message.ToSend) (text string, opts *gotgbot
 	}
 
 	return response.Text, &gotgbot.SendMessageOpts{
-		ParseMode:   string(response.ParseMode),
-		ReplyMarkup: replyMarkup,
+		ParseMode:          string(response.ParseMode),
+		ReplyMarkup:        replyMarkup,
+		LinkPreviewOptions: &gotgbot.LinkPreviewOptions{IsDisabled: true},
 	}
 }
 
@@ -84,11 +85,12 @@ func ResponseToTelegramUpdate(chatId int64, response message.ToUpdate) (text str
 
 	text = response.Text
 	opts = &gotgbot.EditMessageTextOpts{
-		ChatId:          _chatId,
-		MessageId:       _messageId,
-		InlineMessageId: _inlineMessageId,
-		ParseMode:       string(response.ParseMode),
-		ReplyMarkup:     inlineKeyboardToTelegram(response.InlineKeyboard),
+		ChatId:             _chatId,
+		MessageId:          _messageId,
+		InlineMessageId:    _inlineMessageId,
+		ParseMode:          string(response.ParseMode),
+		ReplyMarkup:        inlineKeyboardToTelegram(response.InlineKeyboard),
+		LinkPreviewOptions: &gotgbot.LinkPreviewOptions{IsDisabled: true},
 	}
 
 	return text, opts
