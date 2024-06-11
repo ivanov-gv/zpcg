@@ -370,7 +370,7 @@ Now it's your turn\!
 `
 	StationDoesNotExistMessageEn       = "This station does not exist"
 	StationDoesNotExistMessageSuffixEn = "Montenegro Railway Map"
-	OfficialTimetableUrlTextEn         = "More info"
+	OfficialTimetableUrlTextEn         = "More details"
 	ReverseRouteInlineButtonTextEn     = "Reverse"
 	AlertUpdateNotificationTextEn      = "" +
 		`The timetable is already updated

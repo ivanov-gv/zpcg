@@ -30,14 +30,6 @@ const (
 	timeLayout          = "15:04"
 )
 
-func inlineButtonWithOfficialTimetableUrl(languageCode language.Tag, origin, destination string) message.InlineButton {
-	return message.InlineButton{
-		Type: message.UrlInlineButtonType,
-		Text: GetMessage(OfficialTimetableUrlTextMap, languageCode),
-		Url:  message.UrlButton{Url: getUrlToTimetable(origin, destination, time.Time{})},
-	}
-}
-
 func inlineButtonWithUpdateCallback(languageCode language.Tag, currentDate time.Time, updateCallback string) message.InlineButton {
 	return message.InlineButton{
 		Type: message.CallbackInlineButtonType,
@@ -76,10 +68,12 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 			path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		lines = append(lines, line)
 	}
+	// render footer
+	footer := moreDetailsLink(languageTag, origin.Name, destination.Name)
+	lines = append(lines, "", footer)
 	// add inline keyboard with url to the official website
 	inlineKeyboard := [][]message.InlineButton{
 		{inlineButtonWithUpdateCallback(languageTag, currentDate, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
-		{inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, destination.Name)},
 	}
 	return message.Response{
 		Text:           strings.Join(lines, "\n"),
@@ -119,13 +113,12 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 		}
 		lines = append(lines, line)
 	}
+	// footer
+	footer := moreDetailsLink(languageTag, origin.Name, destination.Name)
+	lines = append(lines, "", footer)
 	// add inline keyboard with url to the official website
 	inlineKeyboard := [][]message.InlineButton{
 		{inlineButtonWithUpdateCallback(languageTag, currentDate, updateCallback), inlineButtonWithReverseCallback(languageTag, reverseCallback)},
-		{
-			inlineButtonWithOfficialTimetableUrl(languageTag, origin.Name, transfer.Name),
-			inlineButtonWithOfficialTimetableUrl(languageTag, transfer.Name, destination.Name),
-		},
 	}
 	return message.Response{
 		Text:           strings.Join(lines, "\n"),
@@ -183,6 +176,12 @@ func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
 
 func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
 	return GetMessage(SimpleUpdateNotificationTextMap, languageTag)
+}
+
+func moreDetailsLink(languageTag language.Tag, origin, destination string) string {
+	return fmt.Sprintf("[%s](%s)",
+		GetMessage(OfficialTimetableUrlTextMap, languageTag),
+		getUrlToTimetable(origin, destination, time.Time{}))
 }
 
 func ParseLanguageTag(languageCode string) language.Tag {

@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	BaseUrl                 = "https://zpcg.me"
-	GeneralTimetablePageUrl = "https://zpcg.me/search"
+	BaseUrl                 = "https://zcg-prevoz.me"
+	GeneralTimetablePageUrl = BaseUrl + "/search"
 )
 
 func ParseTimetable() (timetable.ExportFormat, error) {
