@@ -11,8 +11,8 @@ import (
 var Timetable = timetable.ExportFormat{
 	StationIdToTrainIdSet: map[timetable.StationId]timetable.TrainIdSet{
 		1: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -33,8 +33,8 @@ var Timetable = timetable.ExportFormat{
 			6161: struct{}{},
 		},
 		2: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -55,8 +55,8 @@ var Timetable = timetable.ExportFormat{
 			6161: struct{}{},
 		},
 		3: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -77,8 +77,8 @@ var Timetable = timetable.ExportFormat{
 			6161: struct{}{},
 		},
 		4: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -109,8 +109,8 @@ var Timetable = timetable.ExportFormat{
 			7109: struct{}{},
 		},
 		5: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -119,8 +119,8 @@ var Timetable = timetable.ExportFormat{
 			6105: struct{}{},
 		},
 		6: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -129,8 +129,8 @@ var Timetable = timetable.ExportFormat{
 			6105: struct{}{},
 		},
 		7: timetable.TrainIdSet{
-			432:  struct{}{},
-			433:  struct{}{},
+			432: struct{}{}, 1130: struct{}{},
+			433: struct{}{}, 1131: struct{}{},
 			6100: struct{}{},
 			6101: struct{}{},
 			6102: struct{}{},
@@ -138,18 +138,18 @@ var Timetable = timetable.ExportFormat{
 			6104: struct{}{},
 			6105: struct{}{},
 		},
-		8:  timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		9:  timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		10: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		11: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		12: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		13: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		14: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		15: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		16: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		17: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		18: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
-		19: timetable.TrainIdSet{432: struct{}{}, 433: struct{}{}},
+		8:  timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		9:  timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		10: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		11: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		12: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		13: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		14: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		15: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		16: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		17: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		18: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
+		19: timetable.TrainIdSet{432: struct{}{}, 1130: struct{}{}, 433: struct{}{}, 1131: struct{}{}},
 		20: timetable.TrainIdSet{
 			6100: struct{}{},
 			6101: struct{}{},
@@ -673,6 +673,98 @@ var Timetable = timetable.ExportFormat{
 				Departure: time.Date(0, time.January, 2, 6, 38, 0, 0, time.UTC),
 			},
 		},
+		1130: timetable.StationIdToStationMap{
+			1: timetable.Stop{
+				Id:        1,
+				Arrival:   time.Date(0, time.January, 1, 9, 0, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 9, 0, 0, 0, time.UTC),
+			},
+			2: timetable.Stop{
+				Id:        2,
+				Arrival:   time.Date(0, time.January, 1, 9, 14, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 9, 17, 0, 0, time.UTC),
+			},
+			4: timetable.Stop{
+				Id:        4,
+				Arrival:   time.Date(0, time.January, 1, 9, 54, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 10, 0, 0, 0, time.UTC),
+			},
+			5: timetable.Stop{
+				Id:        5,
+				Arrival:   time.Date(0, time.January, 1, 11, 16, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 11, 17, 0, 0, time.UTC),
+			},
+			6: timetable.Stop{
+				Id:        6,
+				Arrival:   time.Date(0, time.January, 1, 11, 34, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 11, 35, 0, 0, time.UTC),
+			},
+			7: timetable.Stop{
+				Id:        7,
+				Arrival:   time.Date(0, time.January, 1, 12, 0, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 12, 30, 0, 0, time.UTC),
+			},
+			8: timetable.Stop{
+				Id:        8,
+				Arrival:   time.Date(0, time.January, 1, 13, 20, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 13, 23, 0, 0, time.UTC),
+			},
+			9: timetable.Stop{
+				Id:        9,
+				Arrival:   time.Date(0, time.January, 1, 13, 28, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 13, 29, 0, 0, time.UTC),
+			},
+			10: timetable.Stop{
+				Id:        10,
+				Arrival:   time.Date(0, time.January, 1, 14, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 14, 31, 0, 0, time.UTC),
+			},
+			11: timetable.Stop{
+				Id:        11,
+				Arrival:   time.Date(0, time.January, 1, 16, 20, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 16, 25, 0, 0, time.UTC),
+			},
+			12: timetable.Stop{
+				Id:        12,
+				Arrival:   time.Date(0, time.January, 1, 16, 45, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 16, 46, 0, 0, time.UTC),
+			},
+			13: timetable.Stop{
+				Id:        13,
+				Arrival:   time.Date(0, time.January, 1, 17, 14, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 17, 15, 0, 0, time.UTC),
+			},
+			14: timetable.Stop{
+				Id:        14,
+				Arrival:   time.Date(0, time.January, 1, 18, 10, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 18, 11, 0, 0, time.UTC),
+			},
+			15: timetable.Stop{
+				Id:        15,
+				Arrival:   time.Date(0, time.January, 1, 18, 28, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 18, 29, 0, 0, time.UTC),
+			},
+			16: timetable.Stop{
+				Id:        16,
+				Arrival:   time.Date(0, time.January, 1, 18, 35, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 18, 36, 0, 0, time.UTC),
+			},
+			17: timetable.Stop{
+				Id:        17,
+				Arrival:   time.Date(0, time.January, 1, 19, 17, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 19, 20, 0, 0, time.UTC),
+			},
+			18: timetable.Stop{
+				Id:        18,
+				Arrival:   time.Date(0, time.January, 1, 19, 28, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 19, 42, 0, 0, time.UTC),
+			},
+			19: timetable.Stop{
+				Id:        19,
+				Arrival:   time.Date(0, time.January, 1, 19, 50, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 19, 51, 0, 0, time.UTC),
+			},
+		},
 		433: timetable.StationIdToStationMap{
 			1: timetable.Stop{
 				Id:        1,
@@ -768,6 +860,98 @@ var Timetable = timetable.ExportFormat{
 				Id:        19,
 				Arrival:   time.Date(0, time.January, 1, 20, 5, 0, 0, time.UTC),
 				Departure: time.Date(0, time.January, 1, 20, 5, 0, 0, time.UTC),
+			},
+		},
+		1131: timetable.StationIdToStationMap{
+			1: timetable.Stop{
+				Id:        1,
+				Arrival:   time.Date(0, time.January, 1, 20, 37, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 20, 37, 0, 0, time.UTC),
+			},
+			2: timetable.Stop{
+				Id:        2,
+				Arrival:   time.Date(0, time.January, 1, 20, 20, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 20, 23, 0, 0, time.UTC),
+			},
+			4: timetable.Stop{
+				Id:        4,
+				Arrival:   time.Date(0, time.January, 1, 19, 13, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 19, 36, 0, 0, time.UTC),
+			},
+			5: timetable.Stop{
+				Id:        5,
+				Arrival:   time.Date(0, time.January, 1, 17, 48, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 17, 49, 0, 0, time.UTC),
+			},
+			6: timetable.Stop{
+				Id:        6,
+				Arrival:   time.Date(0, time.January, 1, 17, 30, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 17, 31, 0, 0, time.UTC),
+			},
+			7: timetable.Stop{
+				Id:        7,
+				Arrival:   time.Date(0, time.January, 1, 16, 33, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 17, 5, 0, 0, time.UTC),
+			},
+			8: timetable.Stop{
+				Id:        8,
+				Arrival:   time.Date(0, time.January, 1, 15, 40, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 15, 43, 0, 0, time.UTC),
+			},
+			9: timetable.Stop{
+				Id:        9,
+				Arrival:   time.Date(0, time.January, 1, 15, 34, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 15, 35, 0, 0, time.UTC),
+			},
+			10: timetable.Stop{
+				Id:        10,
+				Arrival:   time.Date(0, time.January, 1, 14, 26, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 14, 32, 0, 0, time.UTC),
+			},
+			11: timetable.Stop{
+				Id:        11,
+				Arrival:   time.Date(0, time.January, 1, 12, 32, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 12, 38, 0, 0, time.UTC),
+			},
+			12: timetable.Stop{
+				Id:        12,
+				Arrival:   time.Date(0, time.January, 1, 12, 11, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 12, 12, 0, 0, time.UTC),
+			},
+			13: timetable.Stop{
+				Id:        13,
+				Arrival:   time.Date(0, time.January, 1, 11, 42, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 11, 43, 0, 0, time.UTC),
+			},
+			14: timetable.Stop{
+				Id:        14,
+				Arrival:   time.Date(0, time.January, 1, 10, 46, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 10, 47, 0, 0, time.UTC),
+			},
+			15: timetable.Stop{
+				Id:        15,
+				Arrival:   time.Date(0, time.January, 1, 10, 28, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 10, 29, 0, 0, time.UTC),
+			},
+			16: timetable.Stop{
+				Id:        16,
+				Arrival:   time.Date(0, time.January, 1, 10, 21, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 10, 22, 0, 0, time.UTC),
+			},
+			17: timetable.Stop{
+				Id:        17,
+				Arrival:   time.Date(0, time.January, 1, 9, 39, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 9, 40, 0, 0, time.UTC),
+			},
+			18: timetable.Stop{
+				Id:        18,
+				Arrival:   time.Date(0, time.January, 1, 9, 7, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 9, 31, 0, 0, time.UTC),
+			},
+			19: timetable.Stop{
+				Id:        19,
+				Arrival:   time.Date(0, time.January, 1, 8, 58, 0, 0, time.UTC),
+				Departure: time.Date(0, time.January, 1, 8, 59, 0, 0, time.UTC),
 			},
 		},
 		6100: timetable.StationIdToStationMap{
@@ -3140,9 +3324,17 @@ var Timetable = timetable.ExportFormat{
 			TrainId:      432,
 			TimetableUrl: "https://zcg-prevoz.me/details?timetable=236",
 		},
+		1130: timetable.TrainInfo{
+			TrainId:      1130,
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=236",
+		},
 		433: timetable.TrainInfo{
 			TrainId:      433,
 			TimetableUrl: "https://zcg-prevoz.me/details?timetable=235",
+		},
+		1131: timetable.TrainInfo{
+			TrainId:      1131,
+			TimetableUrl: "https://zcg-prevoz.me/details?timetable=236",
 		},
 		6100: timetable.TrainInfo{
 			TrainId:      6100,
