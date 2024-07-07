@@ -11,5 +11,6 @@ type ExportFormat struct {
 	TrainIdToTrainInfoMap            map[TrainId]TrainInfo
 	UnifiedStationNameToStationIdMap map[string]StationId
 	UnifiedStationNameList           [][]rune
+	StationTypes                     map[StationTypeId]StationType
 	TransferStationId                StationId
 }

@@ -1,4 +1,4 @@
-package model
+package timetable
 
 type StationAliases struct {
 	StationName string

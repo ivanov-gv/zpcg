@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"slices"
+	"io"
 	"sort"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -11,48 +11,61 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
 	"github.com/ivanov-gv/zpcg/internal/service/name"
-	"github.com/ivanov-gv/zpcg/internal/service/parser/detailed_page"
-	"github.com/ivanov-gv/zpcg/internal/service/parser/general_page"
-	parser_model "github.com/ivanov-gv/zpcg/internal/service/parser/model"
+	"github.com/ivanov-gv/zpcg/internal/service/parser/routes"
+	"github.com/ivanov-gv/zpcg/internal/service/parser/stations"
 )
 
 const (
-	BaseUrl                 = "https://zcg-prevoz.me"
-	GeneralTimetablePageUrl = BaseUrl + "/search"
+	BaseUrl        = "https://api.zpcg.me/api"
+	RoutesApiUrl   = BaseUrl + "/routes/cumulative"
+	StationsApiUrl = BaseUrl + "/stops"
+	Date           = "2024-09-14"
 )
 
+// AdditionalRoutesUrls GET response on RoutesApiUrl skips some routes. In order to have complete information we need to make some additional requests
+var AdditionalRoutesUrls = []string{
+	BaseUrl + "/routes?start=Bar&finish=Novi+Sad&date=" + Date,
+	BaseUrl + "/routes?start=Novi+Sad&finish=Bar&date=" + Date,
+	BaseUrl + "/routes?start=Bar&finish=Zemun&date=" + Date,
+	BaseUrl + "/routes?start=Zemun&finish=Bar&date=" + Date,
+}
+
 func ParseTimetable() (timetable.ExportFormat, error) {
-	generalTimetableResponse, err := retryablehttp.Get(GeneralTimetablePageUrl)
+	var (
+		zpcgStopIdToStationsMap map[int]timetable.Station
+		stationsTypesMap        map[timetable.StationTypeId]timetable.StationType
+		detailedTimetableMap    map[timetable.TrainId]timetable.DetailedTimetable
+	)
+	// parse stations
+	stationsResponse, err := retryablehttp.Get(StationsApiUrl)
 	if err != nil {
-		return timetable.ExportFormat{}, fmt.Errorf("can not get general timetable page with retryablehttp.Get: %w", err)
+		return timetable.ExportFormat{}, fmt.Errorf("retryablehttp.Get[url='%s']: %w", StationsApiUrl, err)
 	}
-	generalTimetableMap, err := general_page.ParseGeneralTimetablePage(generalTimetableResponse.Body)
+	zpcgStopIdToStationsMap, stationsTypesMap, err = stations.ParseStations(stationsResponse.Body)
 	if err != nil {
-		return timetable.ExportFormat{}, fmt.Errorf("general_page.ParseGeneralTimetablePage: %w", err)
+		return timetable.ExportFormat{}, fmt.Errorf("stations.ParseStations: %w", err)
 	}
 
-	detailedTimetableMap := make(map[timetable.TrainId]parser_model.DetailedTimetable, len(generalTimetableMap))
-	// do not rewrite this loop with concurrency because zpcg.me do not have enough resources to handle all those requests
-	// concurrency version is in the commit f5a2f983ce73fcc74f271d3bc4db51c2c56fe89f
-	trainIds := lo.Keys(generalTimetableMap)
-	slices.Sort(trainIds) // sort to make output stable
-	for _, trainId := range trainIds {
-		generalTimetable := generalTimetableMap[trainId]
-		detailedTimetableFullLink := BaseUrl + generalTimetable.DetailedTimetableLink
-		response, err := retryablehttp.Get(detailedTimetableFullLink)
-		if err != nil {
-			return timetable.ExportFormat{}, fmt.Errorf("can not get route info with route id = %d, link = %s using retryablehttp.Get: %w",
-				trainId, generalTimetable.DetailedTimetableLink, err)
-		}
-		detailedTimetable, err := detailed_page.ParseDetailedTimetablePage(trainId, detailedTimetableFullLink, response.Body)
-		if err != nil {
-			return timetable.ExportFormat{}, fmt.Errorf("trainId = %d, link = %s detailed_page.ParseDetailedTimetablePage: %w",
-				trainId, generalTimetable.DetailedTimetableLink, err)
-		}
-		detailedTimetableMap[detailedTimetable.TrainId] = detailedTimetable
+	// parser routes
+	routesResponse, err := retryablehttp.Get(RoutesApiUrl)
+	if err != nil {
+		return timetable.ExportFormat{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", RoutesApiUrl, err)
 	}
+	var additionalRoutesResponseBodies []io.ReadCloser
+	for _, url := range AdditionalRoutesUrls {
+		additionalRoutesResponse, err := retryablehttp.Get(url)
+		if err != nil {
+			return timetable.ExportFormat{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", url, err)
+		}
+		additionalRoutesResponseBodies = append(additionalRoutesResponseBodies, additionalRoutesResponse.Body)
+	}
+	detailedTimetableMap, err = routes.ParseRoutes(zpcgStopIdToStationsMap, routesResponse.Body, additionalRoutesResponseBodies...)
+	if err != nil {
+		return timetable.ExportFormat{}, fmt.Errorf("routes.ParseRoutes: %w", err)
+	}
+
 	// convert to transfer format
-	transferFormat := MapTimetableToTransferFormat(detailedTimetableMap)
+	transferFormat := MapTimetableToTransferFormat(detailedTimetableMap, lo.Values(zpcgStopIdToStationsMap))
 	// add blacklisted stations
 	transferFormat, err = AddBlacklistedStations(transferFormat)
 	if err != nil {
@@ -63,10 +76,12 @@ func ParseTimetable() (timetable.ExportFormat, error) {
 	if err != nil {
 		return timetable.ExportFormat{}, fmt.Errorf("AddAliases: %w", err)
 	}
+	// add station types
+	transferFormat.StationTypes = stationsTypesMap
 	return transferFormat, nil
 }
 
-func MapTimetableToTransferFormat(routes map[timetable.TrainId]parser_model.DetailedTimetable) timetable.ExportFormat {
+func MapTimetableToTransferFormat(routes map[timetable.TrainId]timetable.DetailedTimetable, allStations []timetable.Station) timetable.ExportFormat {
 	// fill stationIdToTrainIdSetMap
 	var stationIdToTrainIdSetMap = make(map[timetable.StationId]timetable.TrainIdSet)
 	for trainId, route := range routes {
@@ -92,14 +107,9 @@ func MapTimetableToTransferFormat(routes map[timetable.TrainId]parser_model.Deta
 		trainIdToStationsMap[trainId] = routeStationsMap
 	}
 	// fill stationIdToStationMap
-	var stationIdToStationMap = make(map[timetable.StationId]timetable.Station)
-	stationIdToStationNameMap := detailed_page.GetStationIdToNameMap()
-	for stationId, stationName := range stationIdToStationNameMap {
-		stationIdToStationMap[stationId] = timetable.Station{
-			Id:   stationId,
-			Name: stationName,
-		}
-	}
+	var stationIdToStationMap = lo.SliceToMap(allStations, func(item timetable.Station) (timetable.StationId, timetable.Station) {
+		return item.Id, item
+	})
 	// fill trainIdToTrainInfoMap
 	var trainIdToTrainInfoMap = make(map[timetable.TrainId]timetable.TrainInfo, len(routes))
 	for trainId, route := range routes {
@@ -112,7 +122,7 @@ func MapTimetableToTransferFormat(routes map[timetable.TrainId]parser_model.Deta
 	var unifiedStationNameToStationIdMap = make(map[string]timetable.StationId)
 	for _, route := range routes {
 		for _, station := range route.Stops {
-			stationName := detailed_page.GetStationIdToNameMap()[station.Id]
+			stationName := stationIdToStationMap[station.Id].Name
 			unifiedStationNameToStationIdMap[name.Unify(stationName)] = station.Id
 		}
 	}
