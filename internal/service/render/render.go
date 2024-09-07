@@ -63,9 +63,8 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	// render the rest of the message
 	for _, path := range paths {
 		train := r.trainsMap[path.TrainId]
-		line := fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
-			train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-			path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
+		line := fmt.Sprintf("`№%04d %s %s %s `",
+			train.TrainId, path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		lines = append(lines, line)
 	}
 	// render footer
@@ -102,14 +101,12 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 		)
 		if path.Origin.Id == originId && path.Destination.Id == transferId {
 			// left side of the table - A -> Transfer Stop
-			line = fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
-				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
+			line = fmt.Sprintf("`№%04d %s %s %s `",
+				train.TrainId, path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		} else {
 			// right side of the table - Transfer Stop -> B
-			line = fmt.Sprintf("[%04d](%s%s)`         %s %s %s `",
-				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
-				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
+			line = fmt.Sprintf("`№%04d         %s %s %s `",
+				train.TrainId, path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		}
 		lines = append(lines, line)
 	}
