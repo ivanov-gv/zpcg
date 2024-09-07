@@ -10,14 +10,13 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
-	parser_model "github.com/ivanov-gv/zpcg/internal/service/parser/model"
 	parser_utils "github.com/ivanov-gv/zpcg/internal/service/parser/utils"
 	"github.com/ivanov-gv/zpcg/internal/utils"
 )
 
-func ParseDetailedTimetablePage(routeNumber timetable.TrainId, detailedTimetableUrl string, reader io.Reader) (parser_model.DetailedTimetable, error) {
+func ParseDetailedTimetablePage(routeNumber timetable.TrainId, detailedTimetableUrl string, reader io.Reader) (timetable.DetailedTimetable, error) {
 	tokenizer := html.NewTokenizer(reader)
-	var timetable parser_model.DetailedTimetable
+	var _timetable timetable.DetailedTimetable
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
 		if tokenType != html.StartTagToken {
 			continue
@@ -34,13 +33,13 @@ func ParseDetailedTimetablePage(routeNumber timetable.TrainId, detailedTimetable
 		// found timetable with detailed route
 		parsedTimetable, err := ParseRouteTable(tokenizer)
 		if err != nil {
-			return parser_model.DetailedTimetable{}, fmt.Errorf("ParseRouteTable: %w", err)
+			return timetable.DetailedTimetable{}, fmt.Errorf("ParseRouteTable: %w", err)
 		}
-		timetable = parsedTimetable
+		_timetable = parsedTimetable
 	}
-	timetable.TrainId = routeNumber
-	timetable.TimetableUrl = detailedTimetableUrl
-	return timetable, nil
+	_timetable.TrainId = routeNumber
+	_timetable.TimetableUrl = detailedTimetableUrl
+	return _timetable, nil
 }
 
 type DetailedTableType int
@@ -113,8 +112,8 @@ func GetTableType(tokenizer *html.Tokenizer) DetailedTableType {
 	}
 }
 
-func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable, error) {
-	var result parser_model.DetailedTimetable
+func ParseRouteTable(tokenizer *html.Tokenizer) (timetable.DetailedTimetable, error) {
+	var result timetable.DetailedTimetable
 	for token := tokenizer.Token(); !parser_utils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if !parser_utils.IsRowBeginningReached(token) {
 			continue
@@ -127,7 +126,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (parser_model.DetailedTimetable,
 		}
 		station, err := ParseRow(tokenizer, fallbackTime)
 		if err != nil {
-			return parser_model.DetailedTimetable{}, fmt.Errorf("ParseRow: %w", err)
+			return timetable.DetailedTimetable{}, fmt.Errorf("ParseRow: %w", err)
 		}
 		// there might be a train with stops after midnight
 		// in this case we need to add 24h to the arrival/departure time

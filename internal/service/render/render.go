@@ -61,10 +61,11 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	// add prefix to align header with table content
 	lines = append(lines, header)
 	// render the rest of the message
+	timetableUrl := getUrlToTimetable(origin.Name, destination.Name, time.Time{})
 	for _, path := range paths {
 		train := r.trainsMap[path.TrainId]
-		line := fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
-			train.TrainId, train.TimetableUrl, timetableLinkAnchor,
+		line := fmt.Sprintf("[%04d](%s)` %s %s %s `",
+			train.TrainId, timetableUrl,
 			path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		lines = append(lines, line)
 	}
@@ -95,6 +96,8 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 	// add header
 	lines = append(lines, header)
 	// add other lines
+	originToTransferTimetableUrl := getUrlToTimetable(origin.Name, transfer.Name, time.Time{})
+	transferToDestinationTimetableUrl := getUrlToTimetable(transfer.Name, destination.Name, time.Time{})
 	for _, path := range paths {
 		var (
 			train = r.trainsMap[path.TrainId]
@@ -102,13 +105,13 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 		)
 		if path.Origin.Id == originId && path.Destination.Id == transferId {
 			// left side of the table - A -> Transfer Stop
-			line = fmt.Sprintf("[%04d](%s%s)` %s %s %s `",
-				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
+			line = fmt.Sprintf("[%04d](%s)` %s %s %s `",
+				train.TrainId, originToTransferTimetableUrl,
 				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		} else {
 			// right side of the table - Transfer Stop -> B
-			line = fmt.Sprintf("[%04d](%s%s)`         %s %s %s `",
-				train.TrainId, train.TimetableUrl, timetableLinkAnchor,
+			line = fmt.Sprintf("[%04d](%s)`         %s %s %s `",
+				train.TrainId, transferToDestinationTimetableUrl,
 				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		}
 		lines = append(lines, line)

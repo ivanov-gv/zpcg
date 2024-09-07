@@ -23,6 +23,6 @@ func generateStationId(stationName string) timetable.StationId {
 	return lastId
 }
 
-func GetStationIdToNameMap() map[timetable.StationId]string {
+func getStationIdToNameMap() map[timetable.StationId]string {
 	return lo.Invert(nameToIdMap)
 }

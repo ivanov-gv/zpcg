@@ -70,8 +70,8 @@ func renderTestDirectRoutes(tag language.Tag, _time time.Time, updateCallback, r
 func TestDirectRoutes(t *testing.T) {
 	_message := renderTestDirectRoutes(DefaultLanguageTag, time.Time{}, "updateCallback", "reverseCallback")
 	t.Logf("\n%v\n", _message)
-	assert.Contains(t, _message.Text, "1111](https:/somesite.com/timetable/1111")
-	assert.Contains(t, _message.Text, "222](https:/somesite.com/timetable/222")
+	assert.Contains(t, _message.Text, "1111")
+	assert.Contains(t, _message.Text, "222")
 	assert.Contains(t, _message.Text, "12:10") // origin departure
 	assert.Contains(t, _message.Text, "12:30") // destination arrival
 	assert.Contains(t, _message.Text, "08:10") // origin departure
@@ -138,8 +138,8 @@ func renderTestTransferRoutes(tag language.Tag, _time time.Time, updateCallback,
 func TestTransferRoutes(t *testing.T) {
 	_message := renderTestTransferRoutes(DefaultLanguageTag, time.Time{}, "updateCallback", "reverseCallback")
 	t.Logf("\n%v\n", _message)
-	assert.Contains(t, _message.Text, "1111](https:/somesite.com/timetable/1111")
-	assert.Contains(t, _message.Text, "222](https:/somesite.com/timetable/222")
+	assert.Contains(t, _message.Text, "1111")
+	assert.Contains(t, _message.Text, "222")
 	assert.Contains(t, _message.Text, "12:10")
 	assert.Contains(t, _message.Text, "12:30")
 	assert.Contains(t, _message.Text, "08:10")

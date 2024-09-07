@@ -17,9 +17,21 @@ type Stop struct {
 	Departure time.Time
 }
 
+type StationTypeId int
+
+type StationType struct {
+	Id     StationTypeId
+	Name   string
+	NameEn string
+}
+
 type Station struct {
-	Id   StationId
-	Name string
+	Id         StationId
+	ZpcgStopId int
+	Type       StationTypeId
+	Name       string
+	NameEn     string
+	NameCyr    string
 }
 
 type BlackListedStation struct {

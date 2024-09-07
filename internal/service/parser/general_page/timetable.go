@@ -9,14 +9,13 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
-	parser_model "github.com/ivanov-gv/zpcg/internal/service/parser/model"
 	parser_utils "github.com/ivanov-gv/zpcg/internal/service/parser/utils"
 	"github.com/ivanov-gv/zpcg/internal/utils"
 )
 
-func ParseGeneralTimetablePage(reader io.Reader) (map[timetable.TrainId]parser_model.GeneralTimetableRow, error) {
+func ParseGeneralTimetablePage(reader io.Reader) (map[timetable.TrainId]timetable.GeneralTimetableRow, error) {
 	tokenizer := html.NewTokenizer(reader)
-	generalTimetableRows := map[timetable.TrainId]parser_model.GeneralTimetableRow{}
+	generalTimetableRows := map[timetable.TrainId]timetable.GeneralTimetableRow{}
 	for tokenType := tokenizer.Next(); tokenizer.Err() == nil; tokenType = tokenizer.Next() { // until the end of the page is not reached
 		if tokenType != html.StartTagToken {
 			continue
@@ -35,8 +34,8 @@ func ParseGeneralTimetablePage(reader io.Reader) (map[timetable.TrainId]parser_m
 	return generalTimetableRows, nil
 }
 
-func ParseTable(tokenizer *html.Tokenizer) (map[timetable.TrainId]parser_model.GeneralTimetableRow, error) {
-	result := map[timetable.TrainId]parser_model.GeneralTimetableRow{}
+func ParseTable(tokenizer *html.Tokenizer) (map[timetable.TrainId]timetable.GeneralTimetableRow, error) {
+	result := map[timetable.TrainId]timetable.GeneralTimetableRow{}
 	for token := tokenizer.Token(); !parser_utils.IsTableEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if !parser_utils.IsRowBeginningReached(token) {
 			continue
@@ -57,10 +56,10 @@ const (
 	cellNumberForTrainType = 6
 )
 
-func ParseRow(tokenizer *html.Tokenizer) (parser_model.GeneralTimetableRow, error) {
+func ParseRow(tokenizer *html.Tokenizer) (timetable.GeneralTimetableRow, error) {
 	var (
 		cellNumber = -1
-		result     parser_model.GeneralTimetableRow
+		result     timetable.GeneralTimetableRow
 	)
 	for token := tokenizer.Token(); !parser_utils.IsRowEndReached(token); _, token = tokenizer.Next(), tokenizer.Token() {
 		if parser_utils.IsCellBeginningReached(token) {
@@ -78,7 +77,7 @@ func ParseRow(tokenizer *html.Tokenizer) (parser_model.GeneralTimetableRow, erro
 		if cellNumber == cellNumberForRouteId && token.Type == html.TextToken && !strings.Contains(token.Data, "\n") {
 			trainId, err := strconv.Atoi(token.Data)
 			if err != nil {
-				return parser_model.GeneralTimetableRow{}, fmt.Errorf("can not parse route id with strconv.Atoi: %w", err)
+				return timetable.GeneralTimetableRow{}, fmt.Errorf("can not parse route id with strconv.Atoi: %w", err)
 			}
 			result.TrainId = timetable.TrainId(trainId)
 			continue
@@ -88,7 +87,7 @@ func ParseRow(tokenizer *html.Tokenizer) (parser_model.GeneralTimetableRow, erro
 		if cellNumber == cellNumberForTrainType && token.Type == html.TextToken && !strings.Contains(token.Data, "\n") {
 			trainType, err := ParseTrainType(token.Data)
 			if err != nil {
-				return parser_model.GeneralTimetableRow{}, fmt.Errorf("ParseTrainType: %w", err)
+				return timetable.GeneralTimetableRow{}, fmt.Errorf("ParseTrainType: %w", err)
 			}
 			result.TrainType = trainType
 			continue

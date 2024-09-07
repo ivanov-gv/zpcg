@@ -184,6 +184,6 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 			Str("messageText", text).
 			Str("callbackData", callbackData).
 			Strs("responseShorts", responseShorts).
-			Msgf(logFmt, "new message handled")
+			Msgf(logFmt, "new callback handled")
 	}
 }
