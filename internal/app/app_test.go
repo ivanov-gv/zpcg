@@ -79,3 +79,47 @@ func TestBlackList(t *testing.T) {
 	}
 
 }
+
+func TestNameClashing(t *testing.T) {
+	app, err := NewApp()
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+
+	mapExpectedStationToPossibleInput := map[string][]string{
+		"Beograd": {
+			"Белград", "Belgrade", "Beograde", "Belgrad", "Београд", "Beograd",
+		},
+		"Novi Beograd": {
+			"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
+			"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
+		},
+		"Novi Sad": {
+			"Novi Sad", "New Sad", "Novij Sad",
+			"Новый Сад", "Нови сад",
+		},
+		"Herceg Novi": {
+			"Герцег нови", "Херцег Нови", "Херцег новый", "Герцег новый",
+			"Herceg novi",
+		},
+		"Stara Pazova": {
+			"Стара пазова", "Старая пазова",
+			"Stara Pazova",
+		},
+		"Nova Pazova": {
+			"Nova Pazova", "New Pazova",
+			"Нова Пазова",
+		},
+	}
+
+	for station, inputs := range mapExpectedStationToPossibleInput {
+		t.Run(station, func(t *testing.T) {
+			for _, originInput := range inputs {
+				input := originInput + ", Podgorica"
+				message, err := app.GenerateRoute(render.DefaultLanguageTag, input)
+				assert.NoError(t, err)
+				assert.Contains(t, message.Text, station,
+					"'%s': '%s'", input, message.Text)
+			}
+		})
+	}
+}
