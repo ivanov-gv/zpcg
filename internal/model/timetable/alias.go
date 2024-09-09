@@ -8,7 +8,23 @@ type StationAliases struct {
 var AliasesStationsList = []StationAliases{
 	{
 		StationName: "Beograd Centar",
-		Aliases:     []string{"belgrad", "Београд Центар", "Белград Центр"},
+		Aliases:     []string{"Beograd", "belgrad", "Београд Центар", "Белград Центр"},
+	},
+	{
+		StationName: "Novi Sad",
+		Aliases:     []string{"Нови сад", "Новый Сад"},
+	},
+	{
+		StationName: "Novi Beograd",
+		Aliases:     []string{"Novi Beograd", "Novi belgrad", "New Belgrade", "Нови Београд", "Новый Белград"},
+	},
+	{
+		StationName: "Stara Pazova",
+		Aliases:     []string{"Стара Пазова"},
+	},
+	{
+		StationName: "Nova Pazova",
+		Aliases:     []string{"Нова Пазова"},
 	},
 	{
 		StationName: "Bar",
