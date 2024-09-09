@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
+	lru "github.com/hashicorp/golang-lru/v2"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/yfuruyama/crzerolog"
@@ -40,6 +41,11 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 	if err != nil {
 		return fmt.Errorf("tgbotapi.NewBotAPI: %w", err)
 	}
+	// updates cache
+	updateCache, err := lru.New[int64, int8](64)
+	if err != nil {
+		return fmt.Errorf("lru.New[int64, int8]: %w", err)
+	}
 
 	// server middlewares
 	var postHandlers []PostTgMsgHandler
@@ -49,7 +55,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 	}
 	// server
 	mux := http.NewServeMux()
-	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot, postHandlers...))))
+	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot, updateCache, postHandlers...))))
 	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) { return })
 	// start
 	if err := http.ListenAndServe(":"+_config.Port, mux); !errors.Is(err, http.ErrServerClosed) {
@@ -60,7 +66,11 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 
 type PostTgMsgHandler func(message.ResponseWithChatId) message.ResponseWithChatId
 
-func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
+const (
+	maxUpdateRetry = 3
+)
+
+func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCache *lru.Cache[int64, int8],
 	messagePostHandler ...PostTgMsgHandler) func(http.ResponseWriter, *http.Request) {
 	const logfmt = "receiveUpdates: "
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -87,6 +97,13 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot,
 			httpStatus = http.StatusBadRequest
 			return
 		}
+		// retry updates only certain number of times
+		value, ok := updateCache.Get(update.UpdateId)
+		if ok && value >= maxUpdateRetry {
+			return
+		}
+		updateCache.Add(update.UpdateId, value+1)
+
 		var messages message.ResponseWithChatId
 		messages, warning = _app.HandleUpdate(UpdateFromTelegram(update))
 		if len(messages.Update) == 0 && len(messages.Send) == 0 && len(messages.Delete) == 0 && len(messages.AnswerCallback.CallbackQueryId) == 0 {
