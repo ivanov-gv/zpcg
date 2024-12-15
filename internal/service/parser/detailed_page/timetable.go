@@ -121,7 +121,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (timetable.DetailedTimetable, er
 		// row beginning reached
 		// if the time is not present in the timetable - just get the last station departure time or empty one
 		var fallbackTime time.Time
-		if prevStop, err := lo.Last(result.Stops); err == nil {
+		if prevStop, found := lo.Last(result.Stops); found {
 			fallbackTime = prevStop.Departure
 		}
 		station, err := ParseRow(tokenizer, fallbackTime)
@@ -130,7 +130,7 @@ func ParseRouteTable(tokenizer *html.Tokenizer) (timetable.DetailedTimetable, er
 		}
 		// there might be a train with stops after midnight
 		// in this case we need to add 24h to the arrival/departure time
-		if prevStop, err := lo.Last(result.Stops); err == nil &&
+		if prevStop, found := lo.Last(result.Stops); found &&
 			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
 				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
 				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02

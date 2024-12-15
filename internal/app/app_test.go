@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ivanov-gv/zpcg/internal/model/render"
 	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
-	"github.com/ivanov-gv/zpcg/internal/service/render"
 )
 
 func TestNewApp(t *testing.T) {
@@ -89,10 +89,6 @@ func TestNameClashing(t *testing.T) {
 		"Beograd": {
 			"Белград", "Belgrade", "Beograde", "Belgrad", "Београд", "Beograd",
 		},
-		"Novi Beograd": {
-			"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
-			"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
-		},
 		"Novi Sad": {
 			"Novi Sad", "New Sad", "Novij Sad",
 			"Новый Сад", "Нови сад",
@@ -101,14 +97,18 @@ func TestNameClashing(t *testing.T) {
 			"Герцег нови", "Херцег Нови", "Херцег новый", "Герцег новый",
 			"Herceg novi",
 		},
-		"Stara Pazova": {
-			"Стара пазова", "Старая пазова",
-			"Stara Pazova",
-		},
-		"Nova Pazova": {
-			"Nova Pazova", "New Pazova",
-			"Нова Пазова",
-		},
+		//"Novi Beograd": { // summer period stations
+		//	"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
+		//	"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
+		//},
+		//"Stara Pazova": {
+		//	"Стара пазова", "Старая пазова",
+		//	"Stara Pazova",
+		//},
+		//"Nova Pazova": {
+		//	"Nova Pazova", "New Pazova",
+		//	"Нова Пазова",
+		//},
 	}
 
 	for station, inputs := range mapExpectedStationToPossibleInput {

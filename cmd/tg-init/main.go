@@ -9,7 +9,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/samber/lo"
 
-	"github.com/ivanov-gv/zpcg/internal/service/render"
+	"github.com/ivanov-gv/zpcg/internal/model/render"
 )
 
 func main() {

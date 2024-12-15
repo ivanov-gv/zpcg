@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"golang.org/x/text/language"
+
+	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
 )
 
 func Date(tag language.Tag, currentDate time.Time) string {
@@ -13,5 +15,5 @@ func Date(tag language.Tag, currentDate time.Time) string {
 }
 
 func localizeMonth(tag language.Tag, month time.Month) string {
-	return GetMessage(MonthNameMap, tag)[month]
+	return GetMessage(model_render.MonthNameMap, tag)[month]
 }

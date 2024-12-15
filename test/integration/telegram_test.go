@@ -13,6 +13,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	mock_server "github.com/ivanov-gv/zpcg/gen/mocks/server"
 	"github.com/ivanov-gv/zpcg/internal/app"
@@ -21,7 +22,7 @@ import (
 )
 
 const (
-	TelegramApiToken  = "TelegramApiToken"
+	TelegramApiToken  = "123:abcd"
 	Port              = "8080" // TODO: take random open port
 	Url               = "localhost:" + Port
 	HttpServerAddress = "http://" + Url
@@ -48,7 +49,9 @@ func TestTelegramRouteResponse(t *testing.T) {
 	}()
 	assert.Eventually(t, func() bool {
 		conn, err := net.Dial("tcp", Url)
-		defer conn.Close()
+		if conn != nil {
+			defer conn.Close()
+		}
 		return err == nil
 	}, time.Second, 100*time.Millisecond)
 
@@ -58,6 +61,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 		const request = "{}"
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer([]byte(request)))
 		assert.NoError(t, err)
+		require.NotNil(t, response)
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 	})
 	// start message
@@ -71,13 +75,13 @@ func TestTelegramRouteResponse(t *testing.T) {
 			},
 		}
 		requestRaw := lo.Must(json.Marshal(request))
-		mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
+		require.NotNil(t, response)
 		assert.Equal(t, response.StatusCode, http.StatusOK)
-		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
+		t.Log("telegram response: ", lo.LastOrEmpty(mockTgClient.Calls).Arguments)
 	})
 	// start message ru
 	t.Run("start message ru", func(t *testing.T) {
@@ -90,11 +94,12 @@ func TestTelegramRouteResponse(t *testing.T) {
 			},
 		}
 		requestRaw := lo.Must(json.Marshal(request))
-		mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
+		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
+		require.NotNil(t, response)
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
@@ -109,11 +114,12 @@ func TestTelegramRouteResponse(t *testing.T) {
 			},
 		}
 		requestRaw := lo.Must(json.Marshal(request))
-		mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
+		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
+		require.NotNil(t, response)
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
@@ -128,13 +134,14 @@ func TestTelegramRouteResponse(t *testing.T) {
 		}
 
 		requestRaw := lo.Must(json.Marshal(request))
-		mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
+		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "answerCallbackQuery", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("true"), nil)
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "editMessageText", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
+		require.NotNil(t, response)
 		assert.Equal(t, http.StatusOK, response.StatusCode)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
@@ -149,13 +156,14 @@ func TestTelegramRouteResponse(t *testing.T) {
 		}
 
 		requestRaw := lo.Must(json.Marshal(request))
-		mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
+		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "answerCallbackQuery", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("true"), nil)
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
+		require.NotNil(t, response)
 		assert.Equal(t, http.StatusOK, response.StatusCode)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
