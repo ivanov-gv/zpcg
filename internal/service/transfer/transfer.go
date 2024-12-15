@@ -16,7 +16,7 @@ package timetable
 import (
 	"time"
 
-	"github.com/ivanov-gv/zpcg/internal/model"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 var Timetable = %#v

@@ -159,7 +159,7 @@ func parseStops(zpcgStopIdToStationsMap map[int]timetable.Station, timetableItem
 	for _, item := range timetableItems {
 		// if the time is not present in the timetable - just get the last station departure time or empty one
 		var fallbackTime time.Time
-		if prevStop, err := lo.Last(result); err == nil {
+		if prevStop, found := lo.Last(result); found {
 			fallbackTime = prevStop.Departure
 		}
 		// parse
@@ -170,7 +170,7 @@ func parseStops(zpcgStopIdToStationsMap map[int]timetable.Station, timetableItem
 
 		// there might be a train with stops after midnight
 		// in this case we need to add 24h to the arrival/departure time
-		if prevStop, err := lo.Last(result); err == nil &&
+		if prevStop, found := lo.Last(result); found &&
 			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
 				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
 				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02

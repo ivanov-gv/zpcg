@@ -12,6 +12,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/ivanov-gv/zpcg/internal/model/message"
+	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
@@ -68,7 +69,7 @@ func renderTestDirectRoutes(tag language.Tag, _time time.Time, updateCallback, r
 }
 
 func TestDirectRoutes(t *testing.T) {
-	_message := renderTestDirectRoutes(DefaultLanguageTag, time.Time{}, "updateCallback", "reverseCallback")
+	_message := renderTestDirectRoutes(model_render.DefaultLanguageTag, time.Time{}, "updateCallback", "reverseCallback")
 	t.Logf("\n%v\n", _message)
 	assert.Contains(t, _message.Text, "1111")
 	assert.Contains(t, _message.Text, "222")
@@ -136,7 +137,7 @@ func renderTestTransferRoutes(tag language.Tag, _time time.Time, updateCallback,
 }
 
 func TestTransferRoutes(t *testing.T) {
-	_message := renderTestTransferRoutes(DefaultLanguageTag, time.Time{}, "updateCallback", "reverseCallback")
+	_message := renderTestTransferRoutes(model_render.DefaultLanguageTag, time.Time{}, "updateCallback", "reverseCallback")
 	t.Logf("\n%v\n", _message)
 	assert.Contains(t, _message.Text, "1111")
 	assert.Contains(t, _message.Text, "222")
@@ -148,14 +149,14 @@ func TestTransferRoutes(t *testing.T) {
 
 func TestConstants(t *testing.T) {
 	var constantsToTest = map[string]map[language.Tag]string{
-		"ErrorMessageMap":                     ErrorMessageMap,
-		"StartMessageMap":                     StartMessageMap,
-		"StationDoesNotExistMessageMap":       StationDoesNotExistMessageMap,
-		"StationDoesNotExistMessageSuffixMap": StationDoesNotExistMessageSuffixMap,
-		"ReverseRouteInlineButtonTextMap":     ReverseRouteInlineButtonTextMap,
-		"AlertUpdateNotificationTextMap":      AlertUpdateNotificationTextMap,
-		"SimpleUpdateNotificationTextMap":     SimpleUpdateNotificationTextMap,
-		"OfficialTimetableUrlTextMap":         OfficialTimetableUrlTextMap,
+		"ErrorMessageMap":                     model_render.ErrorMessageMap,
+		"StartMessageMap":                     model_render.StartMessageMap,
+		"StationDoesNotExistMessageMap":       model_render.StationDoesNotExistMessageMap,
+		"StationDoesNotExistMessageSuffixMap": model_render.StationDoesNotExistMessageSuffixMap,
+		"ReverseRouteInlineButtonTextMap":     model_render.ReverseRouteInlineButtonTextMap,
+		"AlertUpdateNotificationTextMap":      model_render.AlertUpdateNotificationTextMap,
+		"SimpleUpdateNotificationTextMap":     model_render.SimpleUpdateNotificationTextMap,
+		"OfficialTimetableUrlTextMap":         model_render.OfficialTimetableUrlTextMap,
 	}
 
 	for name, _map := range constantsToTest {
@@ -164,8 +165,8 @@ func TestConstants(t *testing.T) {
 			languagesSortFunction := func(a, b language.Tag) int { return strings.Compare(a.String(), b.String()) }
 			actualLanguages := lo.Keys(_map)
 			slices.SortFunc(actualLanguages, languagesSortFunction)
-			expectedLanguages := SupportedLanguages
-			slices.SortFunc(SupportedLanguages, languagesSortFunction)
+			expectedLanguages := model_render.SupportedLanguages
+			slices.SortFunc(model_render.SupportedLanguages, languagesSortFunction)
 			assert.EqualValuesf(t, expectedLanguages, actualLanguages, "all the supported languages are present")
 			// there is no repeating values (i.e. set of keys ~ set of values)
 			valuesSet := lo.SliceToMap(lo.Values(_map), func(item string) (string, struct{}) { return item, struct{}{} })
@@ -177,24 +178,24 @@ func TestConstants(t *testing.T) {
 
 func TestAlertMessage(t *testing.T) {
 	const MaxTextLen = 200
-	for _, text := range lo.Values(AlertUpdateNotificationTextMap) {
-		assert.Less(t, len(text), MaxTextLen)
+	for lang, text := range model_render.AlertUpdateNotificationTextMap {
+		assert.Less(t, len(text), MaxTextLen, "lang tag: %s", lang.String())
 	}
-	for _, text := range lo.Values(SimpleUpdateNotificationTextMap) {
-		assert.Less(t, len(text), MaxTextLen)
+	for lang, text := range model_render.SimpleUpdateNotificationTextMap {
+		assert.Less(t, len(text), MaxTextLen, "lang tag: %s", lang.String())
 	}
 }
 
 func TestBelarusianLanguage(t *testing.T) {
 	parsed := ParseLanguageTag("be")
-	assert.Equal(t, parsed, Belarusian)
+	assert.Equal(t, parsed, model_render.Belarusian)
 	assert.Equal(t, parsed.String(), "be")
 }
 
 func TestMarkdownMessages(t *testing.T) {
 	t.Run("Markdown constants", func(t *testing.T) {
 		var constantsToTest = map[string]map[language.Tag]string{
-			"StartMessageMap": StartMessageMap,
+			"StartMessageMap": model_render.StartMessageMap,
 		}
 		for name, _map := range constantsToTest {
 			for languageTag, _message := range _map {
@@ -212,7 +213,7 @@ func TestMarkdownMessages(t *testing.T) {
 	})
 
 	t.Run("Markdown direct route", func(t *testing.T) {
-		for _, languageTag := range SupportedLanguages {
+		for _, languageTag := range model_render.SupportedLanguages {
 			t.Run(languageTag.String(), func(t *testing.T) {
 				_message := renderTestDirectRoutes(languageTag, time.Now(), "", "")
 				_, err := client.ParseTextEntities(&client.ParseTextEntitiesRequest{
@@ -226,7 +227,7 @@ func TestMarkdownMessages(t *testing.T) {
 		}
 	})
 	t.Run("Markdown transfer route", func(t *testing.T) {
-		for _, languageTag := range SupportedLanguages {
+		for _, languageTag := range model_render.SupportedLanguages {
 			t.Run(languageTag.String(), func(t *testing.T) {
 				_message := renderTestTransferRoutes(languageTag, time.Now(), "", "")
 				_, err := client.ParseTextEntities(&client.ParseTextEntitiesRequest{
@@ -242,12 +243,12 @@ func TestMarkdownMessages(t *testing.T) {
 }
 
 func TestBotInfo(t *testing.T) {
-	for languageTag, bot := range BotInfoMap {
+	for languageTag, bot := range model_render.BotInfoMap {
 		t.Run(languageTag.String(), func(t *testing.T) {
 			assert.Less(t, len([]rune(bot.Name)), 64)
 			assert.Less(t, len([]rune(bot.Description)), 512)
 			assert.Less(t, len([]rune(bot.ShortDescription)), 120)
-			for _, command := range AllCommands {
+			for _, command := range model_render.AllCommands {
 				assert.Contains(t, bot.CommandNames, command)
 			}
 		})

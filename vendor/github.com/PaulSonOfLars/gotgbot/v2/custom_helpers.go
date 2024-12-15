@@ -20,6 +20,22 @@ func (m Message) GetLink() string {
 	return fmt.Sprintf("https://t.me/c/%s/%d", rawChatId, m.MessageId)
 }
 
+// GetText returns the message text, for both text messages and media messages. (Why is this not the telegram default!)
+func (m Message) GetText() string {
+	if m.Caption != "" {
+		return m.Caption
+	}
+	return m.Text
+}
+
+// GetEntities returns the message entities, for both text messages and media messages. (Why is this not the telegram default!)
+func (m Message) GetEntities() []MessageEntity {
+	if len(m.CaptionEntities) > 0 {
+		return m.CaptionEntities
+	}
+	return m.Entities
+}
+
 // Reply is a helper function to easily call Bot.SendMessage as a reply to an existing Message.
 func (m Message) Reply(b *Bot, text string, opts *SendMessageOpts) (*Message, error) {
 	if opts == nil {
@@ -62,6 +78,19 @@ func (im InaccessibleMessage) ToMessage() *Message {
 	}
 }
 
+// ToChat is a helper function to turn a ChatFullInfo struct into a Chat.
+func (c ChatFullInfo) ToChat() Chat {
+	return Chat{
+		Id:        c.Id,
+		Type:      c.Type,
+		Title:     c.Title,
+		Username:  c.Username,
+		FirstName: c.FirstName,
+		LastName:  c.LastName,
+		IsForum:   c.IsForum,
+	}
+}
+
 // SendMessage is a helper function to easily call Bot.SendMessage in a chat.
 func (c Chat) SendMessage(b *Bot, text string, opts *SendMessageOpts) (*Message, error) {
 	return b.SendMessage(c.Id, text, opts)
@@ -80,6 +109,11 @@ func (c Chat) Promote(b *Bot, userId int64, opts *PromoteChatMemberOpts) (bool, 
 // URL gets the URL the file can be downloaded from.
 func (f File) URL(b *Bot, opts *RequestOpts) string {
 	return b.FileURL(b.Token, f.FilePath, opts)
+}
+
+// IsJoinRequest returns true if ChatMemberUpdated originated from a join request; either from a direct join, or from an invitelink.
+func (cm ChatMemberUpdated) IsJoinRequest() bool {
+	return cm.ViaJoinRequest || (cm.InviteLink != nil && cm.InviteLink.CreatesJoinRequest)
 }
 
 // unmarshalMaybeInaccessibleMessage is a JSON unmarshal helper to marshal the right structs into a

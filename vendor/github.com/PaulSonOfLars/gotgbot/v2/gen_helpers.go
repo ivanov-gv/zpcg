@@ -3,6 +3,11 @@
 
 package gotgbot
 
+// Get Helper method for Bot.GetBusinessConnection.
+func (bc BusinessConnection) Get(b *Bot, opts *GetBusinessConnectionOpts) (*BusinessConnection, error) {
+	return b.GetBusinessConnection(bc.Id, opts)
+}
+
 // Answer Helper method for Bot.AnswerCallbackQuery.
 func (cq CallbackQuery) Answer(b *Bot, opts *AnswerCallbackQueryOpts) (bool, error) {
 	return b.AnswerCallbackQuery(cq.Id, opts)
@@ -28,6 +33,11 @@ func (c Chat) CreateInviteLink(b *Bot, opts *CreateChatInviteLinkOpts) (*ChatInv
 	return b.CreateChatInviteLink(c.Id, opts)
 }
 
+// CreateSubscriptionInviteLink Helper method for Bot.CreateChatSubscriptionInviteLink.
+func (c Chat) CreateSubscriptionInviteLink(b *Bot, subscriptionPeriod int64, subscriptionPrice int64, opts *CreateChatSubscriptionInviteLinkOpts) (*ChatInviteLink, error) {
+	return b.CreateChatSubscriptionInviteLink(c.Id, subscriptionPeriod, subscriptionPrice, opts)
+}
+
 // DeclineJoinRequest Helper method for Bot.DeclineChatJoinRequest.
 func (c Chat) DeclineJoinRequest(b *Bot, userId int64, opts *DeclineChatJoinRequestOpts) (bool, error) {
 	return b.DeclineChatJoinRequest(c.Id, userId, opts)
@@ -48,13 +58,18 @@ func (c Chat) EditInviteLink(b *Bot, inviteLink string, opts *EditChatInviteLink
 	return b.EditChatInviteLink(c.Id, inviteLink, opts)
 }
 
+// EditSubscriptionInviteLink Helper method for Bot.EditChatSubscriptionInviteLink.
+func (c Chat) EditSubscriptionInviteLink(b *Bot, inviteLink string, opts *EditChatSubscriptionInviteLinkOpts) (*ChatInviteLink, error) {
+	return b.EditChatSubscriptionInviteLink(c.Id, inviteLink, opts)
+}
+
 // ExportInviteLink Helper method for Bot.ExportChatInviteLink.
 func (c Chat) ExportInviteLink(b *Bot, opts *ExportChatInviteLinkOpts) (string, error) {
 	return b.ExportChatInviteLink(c.Id, opts)
 }
 
 // Get Helper method for Bot.GetChat.
-func (c Chat) Get(b *Bot, opts *GetChatOpts) (*Chat, error) {
+func (c Chat) Get(b *Bot, opts *GetChatOpts) (*ChatFullInfo, error) {
 	return b.GetChat(c.Id, opts)
 }
 

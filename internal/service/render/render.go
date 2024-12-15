@@ -8,6 +8,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/ivanov-gv/zpcg/internal/model/message"
+	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
@@ -43,7 +44,7 @@ func inlineButtonWithUpdateCallback(languageCode language.Tag, currentDate time.
 func inlineButtonWithReverseCallback(languageTag language.Tag, reverseCallback string) message.InlineButton {
 	return message.InlineButton{
 		Type: message.CallbackInlineButtonType,
-		Text: fmt.Sprintf("↪️ %s", GetMessage(ReverseRouteInlineButtonTextMap, languageTag)),
+		Text: fmt.Sprintf("↪️ %s", GetMessage(model_render.ReverseRouteInlineButtonTextMap, languageTag)),
 		Callback: message.CallbackButton{
 			Data: reverseCallback,
 		},
@@ -132,14 +133,14 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 
 func (r *Render) ErrorMessage(languageTag language.Tag) message.Response {
 	return message.Response{
-		Text:      GetMessage(ErrorMessageMap, languageTag),
+		Text:      GetMessage(model_render.ErrorMessageMap, languageTag),
 		ParseMode: message.ModeNone,
 	}
 }
 
 func (r *Render) StartMessage(languageTag language.Tag) message.Response {
 	return message.Response{
-		Text:      GetMessage(StartMessageMap, languageTag),
+		Text:      GetMessage(model_render.StartMessageMap, languageTag),
 		ParseMode: message.ModeMarkdownV2,
 	}
 }
@@ -150,10 +151,10 @@ func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timet
 		var line string
 		if customMessage, ok := station.LanguageTagToCustomErrorMessageMap[languageTag]; ok {
 			line = customMessage
-		} else if defaultMessage, ok := station.LanguageTagToCustomErrorMessageMap[DefaultLanguageTag]; ok {
+		} else if defaultMessage, ok := station.LanguageTagToCustomErrorMessageMap[model_render.DefaultLanguageTag]; ok {
 			line = defaultMessage
 		} else {
-			line = fmt.Sprintf("%s: %s", station.Name, GetMessage(StationDoesNotExistMessageMap, languageTag))
+			line = fmt.Sprintf("%s: %s", station.Name, GetMessage(model_render.StationDoesNotExistMessageMap, languageTag))
 		}
 		lines = append(lines, line)
 	}
@@ -165,8 +166,8 @@ func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timet
 			{
 				{
 					Type: message.UrlInlineButtonType,
-					Text: GetMessage(StationDoesNotExistMessageSuffixMap, languageTag),
-					Url:  message.UrlButton{Url: googleMapWithAllStations},
+					Text: GetMessage(model_render.StationDoesNotExistMessageSuffixMap, languageTag),
+					Url:  message.UrlButton{Url: model_render.GoogleMapWithAllStations},
 				},
 			},
 		},
@@ -174,23 +175,23 @@ func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timet
 }
 
 func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
-	return GetMessage(AlertUpdateNotificationTextMap, languageTag)
+	return GetMessage(model_render.AlertUpdateNotificationTextMap, languageTag)
 }
 
 func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
-	return GetMessage(SimpleUpdateNotificationTextMap, languageTag)
+	return GetMessage(model_render.SimpleUpdateNotificationTextMap, languageTag)
 }
 
 func moreDetailsLink(languageTag language.Tag, origin, destination string) string {
 	return fmt.Sprintf("[%s](%s)",
-		GetMessage(OfficialTimetableUrlTextMap, languageTag),
+		GetMessage(model_render.OfficialTimetableUrlTextMap, languageTag),
 		getUrlToTimetable(origin, destination, time.Time{}))
 }
 
 func ParseLanguageTag(languageCode string) language.Tag {
 	tag, err := language.Parse(languageCode)
 	if err != nil {
-		return DefaultLanguageTag
+		return model_render.DefaultLanguageTag
 	}
 	return tag
 }
@@ -199,5 +200,5 @@ func GetMessage[T any](_map map[language.Tag]T, tag language.Tag) T {
 	if _message, ok := _map[tag]; ok {
 		return _message
 	}
-	return _map[DefaultLanguageTag]
+	return _map[model_render.DefaultLanguageTag]
 }

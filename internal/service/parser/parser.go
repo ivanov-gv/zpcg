@@ -19,18 +19,9 @@ const (
 	BaseUrl        = "https://api.zpcg.me/api"
 	RoutesApiUrl   = BaseUrl + "/routes/cumulative"
 	StationsApiUrl = BaseUrl + "/stops"
-	Date           = "2024-09-14"
 )
 
-// AdditionalRoutesUrls GET response on RoutesApiUrl skips some routes. In order to have complete information we need to make some additional requests
-var AdditionalRoutesUrls = []string{
-	BaseUrl + "/routes?start=Bar&finish=Novi+Sad&date=" + Date,
-	BaseUrl + "/routes?start=Novi+Sad&finish=Bar&date=" + Date,
-	BaseUrl + "/routes?start=Bar&finish=Zemun&date=" + Date,
-	BaseUrl + "/routes?start=Zemun&finish=Bar&date=" + Date,
-}
-
-func ParseTimetable() (timetable.ExportFormat, error) {
+func ParseTimetable(additionalRoutesHttpPaths ...string) (timetable.ExportFormat, error) {
 	var (
 		zpcgStopIdToStationsMap map[int]timetable.Station
 		stationsTypesMap        map[timetable.StationTypeId]timetable.StationType
@@ -52,8 +43,8 @@ func ParseTimetable() (timetable.ExportFormat, error) {
 		return timetable.ExportFormat{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", RoutesApiUrl, err)
 	}
 	var additionalRoutesResponseBodies []io.ReadCloser
-	for _, url := range AdditionalRoutesUrls {
-		additionalRoutesResponse, err := retryablehttp.Get(url)
+	for _, url := range additionalRoutesHttpPaths {
+		additionalRoutesResponse, err := retryablehttp.Get(BaseUrl + url)
 		if err != nil {
 			return timetable.ExportFormat{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", url, err)
 		}
