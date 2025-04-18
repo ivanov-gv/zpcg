@@ -1,7 +1,27 @@
 include .env
 
+# test
+
+.PHONY: test_unit
+test_unit:
+	go test -count=1 -race ./internal/...
+
+.PHONY: test_integration
+test_integration: # needs tdlib installed. see: https://tdlib.github.io/td/build.html
+	go test -count=1 -race ./test/...
+
+.PHONY: test
+test: # needs tdlib installed. see: https://tdlib.github.io/td/build.html
+	go test -count=1 -race ./...
+
+# deploy
+
+.PHONY: golines_install
+golines_install:
+	go install github.com/segmentio/golines@latest
+
 .PHONY: parse_timetable
-parse_timetable:
+parse_timetable: # needs golines. see target 'golines_install' or use `go install github.com/segmentio/golines@latest`
 	go run ./cmd/exporter -file=gen/timetable/timetable.gen.go
 	golines ./gen/timetable/timetable.gen.go --no-ignore-generated -w
 

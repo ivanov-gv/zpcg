@@ -35,6 +35,7 @@ var _config = config.Config{
 	Environment:      Environment,
 }
 
+// TestTelegramRouteResponse needs tdlib installed to run. see: https://tdlib.github.io/td/build.html
 func TestTelegramRouteResponse(t *testing.T) {
 	_app, err := app.NewApp()
 	assert.NoError(t, err)
