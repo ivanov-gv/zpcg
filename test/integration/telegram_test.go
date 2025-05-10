@@ -18,6 +18,7 @@ import (
 	mock_server "github.com/ivanov-gv/zpcg/gen/mocks/server"
 	"github.com/ivanov-gv/zpcg/internal/app"
 	"github.com/ivanov-gv/zpcg/internal/config"
+	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
 	"github.com/ivanov-gv/zpcg/internal/server"
 )
 
@@ -67,42 +68,27 @@ func TestTelegramRouteResponse(t *testing.T) {
 	})
 	// start message
 	t.Run("start message", func(t *testing.T) {
-		request := gotgbot.Update{
-			Message: &gotgbot.Message{
-				Text: "/start",
-				From: &gotgbot.User{
-					LanguageCode: "en",
-				},
-			},
+		for _, languageTag := range model_render.SupportedLanguages {
+			language := languageTag.String()
+			t.Run(language, func(t *testing.T) {
+				request := gotgbot.Update{
+					Message: &gotgbot.Message{
+						Text: "/start",
+						From: &gotgbot.User{
+							LanguageCode: language,
+						},
+					},
+				}
+				requestRaw := lo.Must(json.Marshal(request))
+				mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
+					Return([]byte("{}"), nil)
+				response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
+				assert.NoError(t, err)
+				require.NotNil(t, response)
+				assert.Equal(t, response.StatusCode, http.StatusOK)
+				t.Log("telegram response: ", lo.LastOrEmpty(mockTgClient.Calls).Arguments)
+			})
 		}
-		requestRaw := lo.Must(json.Marshal(request))
-		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
-			Return([]byte("{}"), nil)
-		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
-		assert.NoError(t, err)
-		require.NotNil(t, response)
-		assert.Equal(t, response.StatusCode, http.StatusOK)
-		t.Log("telegram response: ", lo.LastOrEmpty(mockTgClient.Calls).Arguments)
-	})
-	// start message ru
-	t.Run("start message ru", func(t *testing.T) {
-		request := gotgbot.Update{
-			Message: &gotgbot.Message{
-				Text: "/start",
-				From: &gotgbot.User{
-					LanguageCode: "ru",
-				},
-			},
-		}
-		requestRaw := lo.Must(json.Marshal(request))
-		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
-		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
-			Return([]byte("{}"), nil)
-		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
-		assert.NoError(t, err)
-		require.NotNil(t, response)
-		assert.Equal(t, response.StatusCode, http.StatusOK)
-		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
 	// timetable request
 	t.Run("timetable request", func(t *testing.T) {

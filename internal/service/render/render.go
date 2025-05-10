@@ -62,11 +62,10 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	// add prefix to align header with table content
 	lines = append(lines, header)
 	// render the rest of the message
-	timetableUrl := getUrlToTimetable(origin.Name, destination.Name, time.Time{})
 	for _, path := range paths {
 		train := r.trainsMap[path.TrainId]
-		line := fmt.Sprintf("[%04d](%s)` %s %s %s `",
-			train.TrainId, timetableUrl,
+		line := fmt.Sprintf("`%04d`` %s %s %s `",
+			train.TrainId,
 			path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		lines = append(lines, line)
 	}
@@ -97,8 +96,6 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 	// add header
 	lines = append(lines, header)
 	// add other lines
-	originToTransferTimetableUrl := getUrlToTimetable(origin.Name, transfer.Name, time.Time{})
-	transferToDestinationTimetableUrl := getUrlToTimetable(transfer.Name, destination.Name, time.Time{})
 	for _, path := range paths {
 		var (
 			train = r.trainsMap[path.TrainId]
@@ -106,13 +103,13 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 		)
 		if path.Origin.Id == originId && path.Destination.Id == transferId {
 			// left side of the table - A -> Transfer Stop
-			line = fmt.Sprintf("[%04d](%s)` %s %s %s `",
-				train.TrainId, originToTransferTimetableUrl,
+			line = fmt.Sprintf("`%04d`` %s %s %s `",
+				train.TrainId,
 				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		} else {
 			// right side of the table - Transfer Stop -> B
-			line = fmt.Sprintf("[%04d](%s)`         %s %s %s `",
-				train.TrainId, transferToDestinationTimetableUrl,
+			line = fmt.Sprintf("`%04d``         %s %s %s `",
+				train.TrainId,
 				path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
 		}
 		lines = append(lines, line)
@@ -138,10 +135,47 @@ func (r *Render) ErrorMessage(languageTag language.Tag) message.Response {
 	}
 }
 
-func (r *Render) StartMessage(languageTag language.Tag) message.Response {
+func (r *Render) Command(languageTag language.Tag, command string) message.Response {
+	switch model_render.BotCommand(strings.TrimSpace(command)) {
+	default:
+		fallthrough // default option - /start
+	case model_render.BotCommandStart:
+		return r.startMessage(languageTag)
+	case model_render.BotCommandHelp:
+		return r.helpMessage(languageTag)
+	case model_render.BotCommandMap:
+		return r.mapMessage(languageTag)
+	case model_render.BotCommandAbout:
+		return r.aboutMessage(languageTag)
+	}
+}
+
+func (r *Render) startMessage(languageTag language.Tag) message.Response {
 	return message.Response{
 		Text:      GetMessage(model_render.StartMessageMap, languageTag),
 		ParseMode: message.ModeMarkdownV2,
+	}
+}
+
+func (r *Render) helpMessage(languageTag language.Tag) message.Response {
+	return message.Response{
+		Text:      GetMessage(model_render.HelpMessageMap, languageTag),
+		ParseMode: message.ModeNone,
+	}
+}
+
+func (r *Render) aboutMessage(languageTag language.Tag) message.Response {
+	return message.Response{
+		Text:      GetMessage(model_render.AboutMessageMap, languageTag),
+		ParseMode: message.ModeNone,
+	}
+}
+
+func (r *Render) mapMessage(languageTag language.Tag) message.Response {
+	return message.Response{
+		Text: GetMessage(model_render.MapMessageMap, languageTag) + "\n" +
+			model_render.GoogleMapWithAllStations,
+		ParseMode: message.ModeNone,
 	}
 }
 
@@ -166,7 +200,7 @@ func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timet
 			{
 				{
 					Type: message.UrlInlineButtonType,
-					Text: GetMessage(model_render.StationDoesNotExistMessageSuffixMap, languageTag),
+					Text: GetMessage(model_render.RailwayMapButtonTextMap, languageTag),
 					Url:  message.UrlButton{Url: model_render.GoogleMapWithAllStations},
 				},
 			},

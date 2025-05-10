@@ -14,31 +14,26 @@ This bot is an attempt to solve those issues.
 ## Requirements
 
 1. Ensure it's straightforward and user-friendly to the greatest extent possible
-   1. ✅ Provides a menu with all available commands
-   2. ✅ Has a start message with brief and complete description of how to get the timetable
-   3. ✅ Returns the requested timetable even if the user made a typo
-   4. ✅ In case of an error returns message with a detailed description of how to resolve the issue
-   5. ✅ Has enough logging to check if the users reach their goals
-   6. ✅ Recognizes latin and cyrillic alphabet
-   7. ❌ Provides button interface for the most used stations
-   8. ~ Provides additional information:
-      1. ❌ Price and discounts
-      2. ❌ Marks trains as local/fast
-      3. ❌ Stations location, ticket office availability
-      4. ✅ Official website links
-      5. ✅ Last update time
+    1. Provides a menu with all available commands
+    2. Has a start message with brief and complete description of how to get the timetable
+    3. Returns the requested timetable even if the user made a typo
+    4. In case of an error returns message with a detailed description of how to resolve the issue
+    5. Has enough logging to check if the users reach their goals
+    6. Recognizes latin and cyrillic alphabet
+    7. Provides additional information:
+        1. Stations map
+        2. Official website links
+        3. Last update time
 2. Has a full, updated timetable
-   1. ✅ Parses original website automatically
-   2. ✅ Knows every single station
-   3. ❌ Updates timetable automatically (right now the updates are triggered manually, without schedule)
-   4. ❌ Updates timetable only if needed (checks if there are any changes on the official website)
-3. ✅ Cost-effective as much as possible
-   1. ✅ Runs in the cloud
-   2. ✅ Uses tg webhooks
-   3. ✅ Scales up/down automatically
-   4. ✅ Runs on 1~2 thread cpus with minimum RAM available on the cloud
-   5. ✅ Uses only in-memory storage, no external database or cache
-   6. ✅ Fully stateless, no persistence at all
+    1. Parses original website automatically
+    2. Knows every single station
+3. Cost-effective as much as possible
+    1. Runs in the cloud
+    2. Uses tg webhooks
+    3. Scales up/down automatically
+    4. Runs on 1~2 thread cpus with minimum RAM available on the cloud
+    5. Uses only in-memory storage, no external database or cache
+    6. Fully stateless, no persistence at all
 
 # Solution details
 
@@ -85,11 +80,11 @@ Response with a route without an intersection is in the following format:
 
 ```
  Podgorica > Danilovgrad
-[7100](https://zpcg.me/details?timetable=201#tab3) 08:00 > 08:29 
-[7102](https://zpcg.me/details?timetable=202#tab3) 12:50 > 13:19 
-[7104](https://zpcg.me/details?timetable=160#tab3) 15:35 > 16:04 
-[7106](https://zpcg.me/details?timetable=204#tab3) 18:30 > 18:59 
-[7108](https://zpcg.me/details?timetable=203#tab3) 21:45 > 22:14
+7100 08:00 > 08:29 
+7102 12:50 > 13:19 
+7104 15:35 > 16:04 
+7106 18:30 > 18:59 
+7108 21:45 > 22:14
 
 {inline button with a link to the route on zpcg.me}
 ```
@@ -133,7 +128,6 @@ The format is the same as for the route without intersections but:
    departure time from the intersection station and the departure time from the arrival station
 2. Rows are sorted by the time of the intersection station
 3. The message has two inline buttons for each route link
-
 
 ### Error message
 
@@ -207,29 +201,30 @@ It means we can easily rely on the assumptions listed above in order to optimize
 #### Steps
 
 1. **Preparation: needed data structures**
-   1. **StationIdToTrainIdSetMap**: map: station -> set of train ids
+    1. **StationIdToTrainIdSetMap**: map: station -> set of train ids
 
-      This field is a map where each key is a StationId and each value is a set of TrainId.
-      This map allows the PathFinder to know which trains depart from any given station. This information is essential
-      for
-      identifying possible routes when calculating the paths between two stations.
+       This field is a map where each key is a StationId and each value is a set of TrainId.
+       This map allows the PathFinder to know which trains depart from any given station. This information is essential
+       for
+       identifying possible routes when calculating the paths between two stations.
 
-      Train ids are unique and for every station exist a set of trains that passes the station. Consequently, it is
-      possible to fill this structure correctly.
+       Train ids are unique and for every station exist a set of trains that passes the station. Consequently, it is
+       possible to fill this structure correctly.
 
-   2. **TrainIdToStationsMap**: map: train id -> (set of stations -> {station name, arrival time, departure time})
+    2. **TrainIdToStationsMap**: map: train id -> (set of stations -> {station name, arrival time, departure time})
 
-      This field is also a map. Each key is a TrainId and each value is a StationIdToStationMap
-      that contains every station that the train stops at. This map is important to derive the sequence of stations that
-      each train traverses along its route.
+       This field is also a map. Each key is a TrainId and each value is a StationIdToStationMap
+       that contains every station that the train stops at. This map is important to derive the sequence of stations
+       that
+       each train traverses along its route.
 
-      According to the assumptions, every train passes each station of its route only once. That makes possible to
-      build a set of route stations with details about the arrival/departure time.
+       According to the assumptions, every train passes each station of its route only once. That makes possible to
+       build a set of route stations with details about the arrival/departure time.
 
-   3. **TransferStation**: station id for the interchange station
+    3. **TransferStation**: station id for the interchange station
 
-      This field represents a predefined station which serves as the only transfer point in case there are no direct
-      paths available between two requested stations.
+       This field represents a predefined station which serves as the only transfer point in case there are no direct
+       paths available between two requested stations.
 
 2. **Check for Direct Path**
 

@@ -137,8 +137,8 @@ func (a *App) HandleMessage(_message message.Message) (responseWithChatIds messa
 	)
 	switch {
 	case strings.HasPrefix(_message.Text, "/"):
-		// got command - send start message
-		response = a.render.StartMessage(languageTag)
+		// got command
+		response = a.render.Command(languageTag, _message.Text)
 	case strings.ContainsAny(_message.Text, string(lo.SpecialCharset)):
 		// got message with stations - send a timetable
 		response, err = a.GenerateRoute(languageTag, _message.Text)

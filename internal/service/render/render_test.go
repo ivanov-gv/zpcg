@@ -149,14 +149,17 @@ func TestTransferRoutes(t *testing.T) {
 
 func TestConstants(t *testing.T) {
 	var constantsToTest = map[string]map[language.Tag]string{
-		"ErrorMessageMap":                     model_render.ErrorMessageMap,
-		"StartMessageMap":                     model_render.StartMessageMap,
-		"StationDoesNotExistMessageMap":       model_render.StationDoesNotExistMessageMap,
-		"StationDoesNotExistMessageSuffixMap": model_render.StationDoesNotExistMessageSuffixMap,
-		"ReverseRouteInlineButtonTextMap":     model_render.ReverseRouteInlineButtonTextMap,
-		"AlertUpdateNotificationTextMap":      model_render.AlertUpdateNotificationTextMap,
-		"SimpleUpdateNotificationTextMap":     model_render.SimpleUpdateNotificationTextMap,
-		"OfficialTimetableUrlTextMap":         model_render.OfficialTimetableUrlTextMap,
+		"ErrorMessageMap":                 model_render.ErrorMessageMap,
+		"StartMessageMap":                 model_render.StartMessageMap,
+		"StationDoesNotExistMessageMap":   model_render.StationDoesNotExistMessageMap,
+		"RailwayMapButtonTextMap":         model_render.RailwayMapButtonTextMap,
+		"ReverseRouteInlineButtonTextMap": model_render.ReverseRouteInlineButtonTextMap,
+		"AlertUpdateNotificationTextMap":  model_render.AlertUpdateNotificationTextMap,
+		"SimpleUpdateNotificationTextMap": model_render.SimpleUpdateNotificationTextMap,
+		"OfficialTimetableUrlTextMap":     model_render.OfficialTimetableUrlTextMap,
+		"MapMessageMap":                   model_render.MapMessageMap,
+		"HelpMessageMap":                  model_render.HelpMessageMap,
+		"AboutMessageMap":                 model_render.AboutMessageMap,
 	}
 
 	for name, _map := range constantsToTest {
