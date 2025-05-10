@@ -334,7 +334,7 @@ The life cycle is simple:
 3. If there is no more requests for ~15 minutes - Cloud Run automatically scales it all down
 
 The request handling time (~200ms) is the only billable time in this lifecycle. The overall cost of the bot right now
-is about ~0.03 euros per month with 100~150 users and ~500 user requests per 30 days.
+is about 0.03 euros per month with 100-150 users and ~500 user requests per 30 days.
 
 The bot is almost free to maintain and as cost-effective as possible.
 
