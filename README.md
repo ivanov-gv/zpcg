@@ -307,12 +307,17 @@ Therefore, the algorithm has a linear time and space complexity.
 
 ### Exporter
 
+Exporter: `cmd/exporter`
+
 The Exporter prepares the necessary data structures for finding routes. It parses
 the [official site](https://zpcg.me/search)
 and saves these structures as a Go code file in `gen/timetable/timetable.gen.go`. The entire timetable is then compiled
 directly into the executable file, making it accessible without any additional steps.
 
 ### Telegram bot
+
+Initializer: `cmd/tg-init`
+Server: `cmd/tg-server`
 
 The bot waits for HTTP requests from Telegram, handles and sends messages to users. It runs on the Google Cloud Run
 platform,
