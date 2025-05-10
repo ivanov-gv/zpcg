@@ -97,6 +97,8 @@ Više volim Nikšićko tamno.
 
 Ja: https://github.com/ivanov-gv
 Ovaj projekt: https://github.com/ivanov-gv/zpcg
+
+Napravljeno zajedno s @Leti_deshevle
 `
 )
 

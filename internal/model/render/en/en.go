@@ -98,6 +98,8 @@ I prefer Nikšićko tamno.
 
 Me: https://github.com/ivanov-gv
 This project: https://github.com/ivanov-gv/zpcg
+
+Made together with @Leti_deshevle
 `
 )
 

@@ -97,6 +97,8 @@ Iли користећи ћирилицу:
 
 Ја: https://github.com/ivanov-gv
 Овај пројекат: https://github.com/ivanov-gv/zpcg
+
+Направљено заједно са @Leti_deshevle
 `
 )
 

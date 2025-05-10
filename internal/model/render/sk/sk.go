@@ -97,6 +97,8 @@ Ja mám radšej Niksicko tamno.
 
 Ja: https://github.com/ivanov-gv
 Tento projekt: https://github.com/ivanov-gv/zpcg
+
+Vytvorené spoločne s @Leti_deshevle
 `
 )
 

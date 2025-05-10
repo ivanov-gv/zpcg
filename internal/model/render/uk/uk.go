@@ -97,6 +97,8 @@ _Зроблено разом з @Leti\_deshevle_
 
 Я: https://github.com/ivanov-gv
 Цей проект: https://github.com/ivanov-gv/zpcg
+
+Зроблено разом з @Leti_deshevle
 `
 )
 

@@ -95,6 +95,8 @@ Ich bevorzuge Niksicko Tamno.
 
 Ich: https://github.com/ivanov-gv
 Dieses Projekt: https://github.com/ivanov-gv/zpcg
+
+Gemeinsam erstellt mit @Leti_deshevle
 `
 )
 

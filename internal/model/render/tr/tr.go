@@ -95,6 +95,8 @@ Ben Niksicko tamno'yu tercih ederim.
 
 Ben: https://github.com/ivanov-gv
 Bu proje: https://github.com/ivanov-gv/zpcg
+
+@Leti_deshevle ile birlikte yapıldı
 `
 )
 
