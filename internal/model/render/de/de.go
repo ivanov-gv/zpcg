@@ -17,7 +17,7 @@ Podgorica, Niksic`
 	AlertUpdateNotificationText  = "" +
 		`Der Fahrplan wurde bereits aktualisiert
 
-Vom 13.06.2025 bis 14.09.2025 wird ein Zug von Subotica nach Bar hinzugefügt
+Vom 13.06.2025 bis 14.09.2025 wird ein Zug von Novi Sad nach Bar hinzugefügt
 
 Ansonsten ändert sich der Fahrplan nicht`
 	SimpleUpdateNotificationText = "Der Fahrplan für heute wurde aktualisiert"
@@ -70,7 +70,7 @@ Jetzt sind Sie dran\!
 4. Geben Sie einfach zwei durch Kommas getrennte Stationen ein: „Podgorica, Bar“ und Sie erhalten den Fahrplan.
 5. Fahrkarten können nur am Bahnhof oder im Zug erworben werden. Nur Bargeld, keine Online-Tickets, manchmal werden an manchen Stationen Karten akzeptiert (ja, manchmal).
 6. Überprüfen Sie Preis, Rabatte und andere Details, indem Sie unten im Zeitplan auf den Link „Weitere Details“ klicken.
-7. Der Fahrplan bleibt das ganze Jahr über unverändert, mit Ausnahme eines Sommerzuges. Der Zug wird vom 13. Juni bis 14. September 2025 auf der Strecke Subotica – Belgrad – Bar verkehren. Der restliche Zeitplan bleibt genau gleich.
+7. Der Fahrplan bleibt das ganze Jahr über unverändert, mit Ausnahme eines Sommerzuges. Der Zug wird vom 13. Juni bis 14. September 2025 auf der Strecke Novi Sad – Belgrad – Bar verkehren. Der restliche Zeitplan bleibt genau gleich.
 8. Aktualisieren Sie den Zeitplan mit der linken Schaltfläche "🔄 'Datum'"
 9. Manchmal haben Züge Verspätung, besonders während der Sommersaison.
 10. Nähere Informationen zum Bot über /about

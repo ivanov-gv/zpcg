@@ -1,28 +1,34 @@
-package render
+package stations
 
 import "github.com/ivanov-gv/zpcg/internal/model/timetable"
+
+// don't forget to rebuild the timetable after changing these lines
 
 var AliasesStationsList = []timetable.StationAliases{
 	{
 		StationName: "Beograd Centar",
 		Aliases:     []string{"Beograd", "belgrad", "Београд Центар", "Белград Центр"},
 	},
-	//{ // summer period aliases
-	//	StationName: "Novi Sad",
-	//	Aliases:     []string{"Нови сад", "Новый Сад"},
-	//},
-	//{
-	//	StationName: "Novi Beograd",
-	//	Aliases:     []string{"Novi Beograd", "Novi belgrad", "New Belgrade", "Нови Београд", "Новый Белград"},
-	//},
-	//{
-	//	StationName: "Stara Pazova",
-	//	Aliases:     []string{"Стара Пазова"},
-	//},
+
+	// summer period aliases
+	{
+		StationName: "Novi Sad",
+		Aliases:     []string{"Нови сад", "Новый Сад"},
+	},
+	{
+		StationName: "Novi Beograd",
+		Aliases:     []string{"Novi Beograd", "Novi belgrad", "New Belgrade", "Нови Београд", "Новый Белград"},
+	},
+	{
+		StationName: "Stara Pazova",
+		Aliases:     []string{"Стара Пазова"},
+	},
 	//{
 	//	StationName: "Nova Pazova",
 	//	Aliases:     []string{"Нова Пазова"},
 	//},
+	// summer period aliases
+
 	{
 		StationName: "Bar",
 		Aliases:     []string{"Бар"},

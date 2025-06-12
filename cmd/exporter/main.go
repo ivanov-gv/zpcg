@@ -12,7 +12,7 @@ import (
 
 const timetableDefaultFilepath = "timetable.gen.go"
 
-const Date = "2024-12-15"
+const Date = "2025-06-15"
 
 // additionalRoutesUrls GET response on RoutesApiUrl skips some routes. In order to have complete information we need to make some additional requests
 var additionalRoutesUrls = []string{
@@ -27,6 +27,8 @@ var additionalRoutesUrls = []string{
 	"/routes?start=Bar&finish=Bijelo+Polje&date=" + Date,
 	"/routes?start=Bijelo+Polje&finish=Bar&date=" + Date,
 }
+
+// NOTE: adjust aliases and blacklist in 'internal/model/stations' package, if needed.
 
 func main() {
 	timetableFilepath := flag.String("file", timetableDefaultFilepath, "filepath to export timetable to")

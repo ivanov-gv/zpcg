@@ -4,7 +4,7 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"github.com/ivanov-gv/zpcg/internal/model/render"
+	"github.com/ivanov-gv/zpcg/internal/model/stations"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 	"github.com/ivanov-gv/zpcg/internal/service/name"
 )
@@ -27,7 +27,7 @@ var (
 	}()
 
 	BlackListedStations = lo.Flatten(
-		lo.Map(render.BlackListedStations, func(item struct {
+		lo.Map(stations.BlackListedStations, func(item struct {
 			Names                              []string
 			LanguageTagToCustomErrorMessageMap map[language.Tag]string
 		}, _ int) []timetable.BlackListedStation {

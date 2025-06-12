@@ -15,7 +15,7 @@ Podgorica, Nikšić`
 	AlertUpdateNotificationText  = "" +
 		`Raspored je već ažuriran
 
-Od 13.06.25 do 14.09.25 bit će dodan vlak Subotica - Bar
+Od 13.06.25 do 14.09.25 bit će dodan vlak Novi Sad - Bar
 
 Inače, raspored se ne mijenja`
 	SimpleUpdateNotificationText = "Raspored za danas je ažuriran"
@@ -72,7 +72,7 @@ Sada je vaš red\!
 4. Samo unesite dvije stanice odvojene zarezima: 'Podgorica, Bar' i dobit ćete raspored.
 5. Karte se mogu kupiti samo na kolodvoru ili u vlaku. Samo gotovina, nema online karata, ponekad se na nekim stanicama primaju kartice (da, ponekad).
 6. Provjerite cijenu, popuste i ostale detalje klikom na poveznicu 'Više detalja' pri dnu rasporeda.
-7. Vozni red ostaje isti tijekom cijele godine, s izuzetkom jednog ljetnog vlaka. Vlak će prometovati od 13. lipnja do 14. rujna 2025. na relaciji Subotica - Beograd - Bar. Ostatak rasporeda ostaje potpuno isti.
+7. Vozni red ostaje isti tijekom cijele godine, s izuzetkom jednog ljetnog vlaka. Vlak će prometovati od 13. lipnja do 14. rujna 2025. na relaciji Novi Sad - Beograd - Bar. Ostatak rasporeda ostaje potpuno isti.
 8. Ažurirajte raspored pomoću lijeve tipke "🔄 'datum'"
 9. Ponekad vlakovi kasne, posebno tijekom ljetne sezone.
 10. Detaljnije informacije o botu putem /about

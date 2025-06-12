@@ -174,7 +174,7 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 	}
 	switch {
 	case update.Message != nil:
-		chatId := update.Message.Chat.Id
+		chatId := update.Message.Chat.Id / 10000 // cut last 4 digits
 		languageCode := update.Message.From.LanguageCode
 		text := update.Message.Text
 		// log
@@ -185,7 +185,7 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 			Strs("responseShorts", responseShorts).
 			Msgf(logFmt, "new message handled")
 	case update.CallbackQuery != nil:
-		chatId := update.CallbackQuery.Message.GetChat().Id
+		chatId := update.CallbackQuery.Message.GetChat().Id / 10000 // cut last 4 digits
 		languageCode := update.CallbackQuery.From.LanguageCode
 		callbackData := update.CallbackQuery.Data
 

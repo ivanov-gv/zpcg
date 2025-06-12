@@ -14,7 +14,7 @@ Podgorica, Niksic`
 	AlertUpdateNotificationText  = "" +
 		`The timetable is already updated
 
-From June 13th to September 14th 2025 a new train Subotica - Belgrade - Bar will be added
+From June 13th to September 14th 2025 a new train Novi Sad - Belgrade - Bar will be added
 
 The rest of the timetable will remain exactly the same`
 	SimpleUpdateNotificationText = "Today's timetable is updated"
@@ -73,7 +73,7 @@ Now it's your turn\!
 4. Just type two stations with a comma: 'Podgorica, Bar', and you'll get the timetable.
 5. You can buy tickets only on a station or in a train. Only cash, no online tickets, cards are acceptable on some station, sometimes (yes, sometimes).
 6. Check the price, discounts and other details with the 'More details' link on the bottom of the timetable
-7. Timetable remains the same for the whole year, except for the one summer train. The train is running from June 13th to September 14th 2025 on a route Subotica - Belgrade - Bar. The rest of the timetable remains exactly the same.
+7. Timetable remains the same for the whole year, except for the one summer train. The train is running from June 13th to September 14th 2025 on a route Novi Sad - Belgrade - Bar. The rest of the timetable remains exactly the same.
 8. Update timetable with the left "🔄 'date'" button 	
 9. Sometimes trains are running late, especially in summer season.
 10. More information about the bot with /about
@@ -81,8 +81,8 @@ Now it's your turn\!
 
 	// /map
 
-	BotCommandNameMap = "Map of all stations"
-	MapMessage        = "Map with all stations"
+	BotCommandNameMap = "A map with all stations"
+	MapMessage        = "A map with all stations"
 
 	// /about
 
