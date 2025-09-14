@@ -12,10 +12,10 @@ import (
 
 const timetableDefaultFilepath = "timetable.gen.go"
 
-const Date = "2025-06-15"
+const Date = "2025-09-20"
 
-// additionalRoutesUrls GET response on RoutesApiUrl skips some routes. In order to have complete information we need to make some additional requests
-var additionalRoutesUrls = []string{
+// routesUrls GET response on RoutesApiUrl skips some routes. In order to have complete information we need to make some additional requests
+var routesUrls = []string{
 	"/routes?start=Bar&finish=Novi+Sad&date=" + Date,
 	"/routes?start=Novi+Sad&finish=Bar&date=" + Date,
 	"/routes?start=Bar&finish=Zemun&date=" + Date,
@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 
 	log.Print("starting to parse timetable...  ")
-	detailedTimetable, err := parser.ParseTimetable(additionalRoutesUrls...)
+	detailedTimetable, err := parser.ParseTimetable(routesUrls...)
 	if err != nil {
 		log.Fatal().Err(fmt.Errorf("can not parse timetable: %w", err)).Send()
 	}
