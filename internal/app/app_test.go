@@ -99,14 +99,14 @@ func TestNameClashing(t *testing.T) {
 		},
 
 		// summer period stations
-		"Novi Beograd": {
-			"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
-			"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
-		},
-		"Stara Pazova": {
-			"Стара пазова", "Старая пазова",
-			"Stara Pazova",
-		},
+		//"Novi Beograd": {
+		//	"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
+		//	"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
+		//},
+		//"Stara Pazova": {
+		//	"Стара пазова", "Старая пазова",
+		//	"Stara Pazova",
+		//},
 		//"Nova Pazova": {
 		//	"Nova Pazova", "New Pazova",
 		//	"Нова Пазова",

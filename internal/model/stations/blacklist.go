@@ -19,40 +19,40 @@ var BlackListedStations = []struct {
 		Names: []string{"Novi sad", "Нови сад", "Indjija", "Индия", "Stara Pazova", "Стара пазова", "Nova pazova", "Нова пазова", "Subotica", "Суботица"}, // Novi Beograd - was not added to not interfere with Beograd centar
 		LanguageTagToCustomErrorMessageMap: map[language.Tag]string{
 			language.Russian: `
-	2026 добавятся поезда по маршруту Бар - Белград - Нови Сад - Суботица.
+	Летом 2026 добавятся поезда по маршруту Бар - Белград - Нови Сад.
 	В остальные дни поезда из Черногории ходят только до Beograd Centar.
 	`,
 			language.Ukrainian: `
-	2026 додадуться поїзди за маршрутом Бар - Белград - Нові Сад - Суботиця.
+	Влітку 2026 року додадуться поїзди за маршрутом Бар - Белград - Нові Сад.
 	В інші дні поїзди з Чорногорії ходять тільки до Beograd Centar.
 	`,
 			render.Belarusian: `
-	2026 дададуцца цягнікі па маршруце Бар - Белград - Новы Сад - Суботыца.
-	У астатнія дні цягнікі з Чарнагорыі ходзяць толькі да Beograd Centar.
+	Ўлетку 2026 дададуцца цягнікі па маршруце Бар - Белград - Новы Сад.
+	Ў астатнія дні цягнікі з Чарнагорыі ходзяць толькі да Beograd Centar.
 	`,
 			language.English: `
-	In 2026 trains will be added on the route Bar - Belgrade - Novi Sad - Subotica.
+	In the summer of 2026, trains will be added on the route Bar - Belgrade - Novi Sad.
 	On other days, trains from Montenegro only run to Beograd Centar.
 	`,
 			language.German: `
-	2026 werden Züge auf der Strecke Bar - Belgrad - Novi Sad - Subotica hinzugefügt.
-	An anderen Tagen verkehren Züge aus Montenegro nur bis Beograd Centar.
+	Im Sommer 2026 werden Züge auf der Strecke Bar - Belgrad - Novi Sad verkehren.
+	An den übrigen Tagen fahren Züge aus Montenegro nur bis Beograd Centar.
 	`,
 			language.Serbian: `
-	2026 биће додати возови на релацији Бар – Београд – Нови Сад – Суботица.
+	Лета 2026. биће додати возови на релацији Бар – Београд – Нови Сад.
 	Осталим данима возови из Црне Горе иду само до Beograd Centar.
 	`,
 			language.Croatian: `
-	2026 bit će dodani vlakovi na ruti Bar - Beograd - Novi Sad - Subotica.
+	Ljeta 2026. bit će dodani vlakovi na ruti Bar - Beograd - Novi Sad.
 	Ostalim danima vlakovi iz Crne Gore voze samo do Beograd Centar.
 	`,
 			language.Slovak: `
-	2026 budú pridané vlaky na trase Bar - Beograd - Novi Sad - Subotica.
+	V lete 2026 budú pridané vlaky na trase Bar - Beograd - Novi Sad.
 	V ostatné dni vlaky z Čiernej Hory jazdia len do Beograd Centar.
 	`,
 			language.Turkish: `
-	2026 tarihleri arasında Bar - Belgrad - Novi Sad - Subotica rotasında ek trenler olacak.
-	Diğer günlerde Karadağ'dan trenler sadece Beograd Centar'a kadar çalışır.
+	2026 yazında Bar - Belgrad - Novi Sad hattına trenler eklenecek.
+	Diğer günlerde Karadağ'dan trenler sadece Beograd Centar'a kadar gider.
 	`,
 		},
 	},
