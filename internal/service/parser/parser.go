@@ -17,7 +17,6 @@ import (
 
 const (
 	BaseUrl        = "https://api.zpcg.me/api"
-	RoutesApiUrl   = BaseUrl + "/routes/cumulative"
 	StationsApiUrl = BaseUrl + "/stops"
 )
 
@@ -38,10 +37,6 @@ func ParseTimetable(additionalRoutesHttpPaths ...string) (timetable.ExportFormat
 	}
 
 	// parser routes
-	routesResponse, err := retryablehttp.Get(RoutesApiUrl)
-	if err != nil {
-		return timetable.ExportFormat{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", RoutesApiUrl, err)
-	}
 	var additionalRoutesResponseBodies []io.ReadCloser
 	for _, url := range additionalRoutesHttpPaths {
 		additionalRoutesResponse, err := retryablehttp.Get(BaseUrl + url)
@@ -50,7 +45,7 @@ func ParseTimetable(additionalRoutesHttpPaths ...string) (timetable.ExportFormat
 		}
 		additionalRoutesResponseBodies = append(additionalRoutesResponseBodies, additionalRoutesResponse.Body)
 	}
-	detailedTimetableMap, err = routes.ParseRoutes(zpcgStopIdToStationsMap, routesResponse.Body, additionalRoutesResponseBodies...)
+	detailedTimetableMap, err = routes.ParseRoutes(zpcgStopIdToStationsMap, additionalRoutesResponseBodies...)
 	if err != nil {
 		return timetable.ExportFormat{}, fmt.Errorf("routes.ParseRoutes: %w", err)
 	}

@@ -97,7 +97,9 @@ func TestNameClashing(t *testing.T) {
 			"Герцег нови", "Херцег Нови", "Херцег новый", "Герцег новый",
 			"Herceg novi",
 		},
-		//"Novi Beograd": { // summer period stations
+
+		// summer period stations
+		//"Novi Beograd": {
 		//	"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
 		//	"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
 		//},

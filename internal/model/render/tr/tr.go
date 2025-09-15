@@ -17,9 +17,7 @@ Podgorica, Bar`
 	AlertUpdateNotificationText  = "" +
 		`Tarife zaten güncellendi
 
-13 Haziran'dan 14 Eylül'e kadar Subotica - Belgrad - Bar yeni bir tren eklenecek
-
-Tarifenin geri kalanı tam olarak aynı kalacak`
+14 Aralık 2025'e kadar tarife değişmeyecek`
 	SimpleUpdateNotificationText = "Bugünün tarifesi güncellendi"
 
 	// bot description
@@ -70,7 +68,7 @@ Sıra sende\!
 4. Sadece virgülle ayrılmış iki istasyonu girin: 'Podgorica, Bar' ve sefer saatlerini göreceksiniz.
 5. Biletler yalnızca istasyondan veya tren içerisinde satın alınabilir. Sadece nakit, online bilet yok, bazen bazı istasyonlarda kart kabul ediliyor (evet, bazen).
 6. Programın alt kısmında bulunan 'Daha fazla bilgi' bağlantısına tıklayarak fiyatı, indirimleri ve diğer ayrıntıları kontrol edin.
-7. Yaz aylarında bir tren hariç, sefer saatleri yıl boyunca aynıdır. Tren, 13 Haziran - 14 Eylül 2025 tarihleri arasında Subotica - Belgrad - Bar güzergahında çalışacak. Programın geri kalanı aynı şekilde devam ediyor.
+7. Yaz aylarında bir tren hariç, sefer saatleri yıl boyunca aynıdır. Programın geri kalanı aynı şekilde devam ediyor.
 8. Soldaki "🔄 'tarih'" düğmesini kullanarak programı güncelleyin
 9. Bazen trenler gecikir, özellikle yaz sezonunda.
 10. Bot hakkında daha detaylı bilgi için /about adresini ziyaret edin.

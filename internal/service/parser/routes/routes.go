@@ -37,13 +37,9 @@ type rawAvailableRoutes struct {
 	Direct []rawTrainInfo `json:"direct"`
 }
 
-func ParseRoutes(zpcgStopIdToStationsMap map[int]timetable.Station, rawRoutesBytes io.ReadCloser, additionalRoutesBytes ...io.ReadCloser) (map[timetable.TrainId]timetable.DetailedTimetable, error) {
+func ParseRoutes(zpcgStopIdToStationsMap map[int]timetable.Station, routesBytes ...io.ReadCloser) (map[timetable.TrainId]timetable.DetailedTimetable, error) {
 	defer func() {
-		err := rawRoutesBytes.Close()
-		if err != nil {
-			log.Warn().Err(err).Msg("failed to close raw routes bytes")
-		}
-		for _, bytes := range additionalRoutesBytes {
+		for _, bytes := range routesBytes {
 			err := bytes.Close()
 			if err != nil {
 				log.Warn().Err(err).Msg("failed to close additionalRoutes bytes")
@@ -52,36 +48,18 @@ func ParseRoutes(zpcgStopIdToStationsMap map[int]timetable.Station, rawRoutesByt
 	}()
 
 	// read trains info
-	bytes, err := io.ReadAll(rawRoutesBytes)
-	if err != nil {
-		return nil, fmt.Errorf("io.ReadAll: %w", err)
-	}
-	var rawRoutes map[string]map[string]rawAvailableRoutes
-	err = json.Unmarshal(bytes, &rawRoutes)
-	if err != nil {
-		return nil, fmt.Errorf("json.Unmarshal: %w", err)
-	}
-	// get all trains
 	var allTrainInfos []rawTrainInfo
-	for _, rawRouteMap := range rawRoutes {
-		availableRoutes := lo.Values(rawRouteMap)
-		trainInfos := lo.Flatten(lo.Map(availableRoutes, func(item rawAvailableRoutes, index int) []rawTrainInfo {
-			return item.Direct
-		}))
-		allTrainInfos = append(allTrainInfos, trainInfos...)
-	}
-	// add additional trains
-	for _, additionalRouteBytes := range additionalRoutesBytes {
-		bytes, err := io.ReadAll(additionalRouteBytes)
+	for _, routeBytes := range routesBytes {
+		bytes, err := io.ReadAll(routeBytes)
 		if err != nil {
 			return nil, fmt.Errorf("io.ReadAll: %w", err)
 		}
-		var additionalRoute rawAvailableRoutes
-		err = json.Unmarshal(bytes, &additionalRoute)
+		var route rawAvailableRoutes
+		err = json.Unmarshal(bytes, &route)
 		if err != nil {
 			return nil, fmt.Errorf("json.Unmarshal: %w", err)
 		}
-		allTrainInfos = append(allTrainInfos, additionalRoute.Direct...)
+		allTrainInfos = append(allTrainInfos, route.Direct...)
 	}
 	// build a set of trains
 	var trainInfoMap = map[string]rawTrainInfo{}

@@ -15,9 +15,7 @@ Podgorica, Nikšić`
 	AlertUpdateNotificationText  = "" +
 		`Cestovný poriadok už bol aktualizovaný
 
-Od 13.06.2025 do 14.09.2025 bude pridaný vlak Subotica - Bar
-
-Inak sa poradie nezmení`
+Do 14. decembra 2025 sa cestovný poriadok nezmení`
 	SimpleUpdateNotificationText = "Cestovný poriadok pre dnešok bol aktualizovaný"
 
 	// Popis bota
@@ -72,7 +70,7 @@ Teraz je na vás\!
 4. Stačí zadať dve stanice oddelené čiarkami: „Podgorica, Bar“ a zobrazí sa vám cestovný poriadok.
 5. Lístky je možné zakúpiť iba na stanici alebo vo vlaku. Iba hotovosť, žiadne online lístky, niekedy sa na niektorých staniciach akceptujú karty (áno, niekedy).
 6. Cenu, zľavy a ďalšie podrobnosti si overte kliknutím na odkaz „Viac informácií“ v dolnej časti rozvrhu.
-7. Cestovný poriadok zostáva počas celého roka rovnaký, s výnimkou jedného letného vlaku. Vlak bude premávať od 13. júna do 14. septembra 2025 na trase Subotica - Belehrad - Bar. Zvyšok harmonogramu zostáva úplne rovnaký.
+7. Cestovný poriadok zostáva počas celého roka rovnaký, s výnimkou jedného letného vlaku. Zvyšok harmonogramu zostáva úplne rovnaký.
 8. Aktualizujte rozvrh pomocou ľavého tlačidla „🔄 'dátum'“
 9. Vlaky niekedy meškajú, najmä počas letnej sezóny.
 10. Podrobnejšie informácie o bote nájdete na /about
