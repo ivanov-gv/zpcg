@@ -11,22 +11,22 @@ var AliasesStationsList = []timetable.StationAliases{
 	},
 
 	// summer period aliases
-	//{
-	//	StationName: "Novi Sad",
-	//	Aliases:     []string{"Нови сад", "Новый Сад"},
-	//},
-	//{
-	//	StationName: "Novi Beograd",
-	//	Aliases:     []string{"Novi Beograd", "Novi belgrad", "New Belgrade", "Нови Београд", "Новый Белград"},
-	//},
-	//{
-	//	StationName: "Stara Pazova",
-	//	Aliases:     []string{"Стара Пазова"},
-	//},
-	//{
-	//	StationName: "Nova Pazova",
-	//	Aliases:     []string{"Нова Пазова"},
-	//},
+	{
+		StationName: "Novi Sad",
+		Aliases:     []string{"Нови сад", "Новый Сад"},
+	},
+	{
+		StationName: "Novi Beograd",
+		Aliases:     []string{"Novi Beograd", "Novi belgrad", "New Belgrade", "Нови Београд", "Новый Белград"},
+	},
+	{
+		StationName: "Stara Pazova",
+		Aliases:     []string{"Стара Пазова"},
+	},
+	{
+		StationName: "Nova Pazova",
+		Aliases:     []string{"Нова Пазова"},
+	},
 	// summer period aliases
 
 	{

@@ -21,9 +21,12 @@ var (
 		return result
 	}()
 
-	// AliasesOriginalUnifiedStationNameToUnifiedAliasesMap is a map of unified station name -> slice of unified aliases
-	AliasesOriginalUnifiedStationNameToUnifiedAliasesMap = lo.SliceToMap(stations.AliasesStationsList,
-		func(stationAliases timetable.StationAliases) (string, []string) {
-			return name.Unify(stationAliases.StationName), lo.Map(stationAliases.Aliases, name.UnifyIterative)
+	// AliasesWithUnifiedNames is a list of unified stations aliases
+	AliasesWithUnifiedNames = lo.Map(stations.AliasesStationsList,
+		func(item timetable.StationAliases, _ int) timetable.StationAliases {
+			return timetable.StationAliases{
+				StationName: name.Unify(item.StationName),
+				Aliases:     lo.Map(item.Aliases, name.UnifyIterative),
+			}
 		})
 )

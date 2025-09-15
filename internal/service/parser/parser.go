@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/hashicorp/go-retryablehttp"
+	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
@@ -149,18 +150,17 @@ func AddBlacklistedStations(_timetable timetable.ExportFormat) (timetable.Export
 }
 
 func AddAliases(_timetable timetable.ExportFormat) (timetable.ExportFormat, error) {
-	// add aliases to stations list
-	_timetable.UnifiedStationNameList = append(_timetable.UnifiedStationNameList,
-		lo.Map(AliasesAsUnifiedStationNames, func(item string, _ int) []rune { return []rune(item) })...)
-	// add mapping from aliases to station id
-	for stationName, aliases := range AliasesOriginalUnifiedStationNameToUnifiedAliasesMap {
-		stationId, ok := _timetable.UnifiedStationNameToStationIdMap[stationName]
+	for _, alias := range AliasesWithUnifiedNames {
+		stationId, ok := _timetable.UnifiedStationNameToStationIdMap[alias.StationName]
 		if !ok { // station not found
-			return timetable.ExportFormat{}, fmt.Errorf("can't find station to add aliases to: stationName = %s", stationName)
+			log.Warn().Str("station", alias.StationName).Msg("can't find station to add aliases to")
+			continue
 		}
-		for _, _alias := range aliases {
+		// found
+		for _, _alias := range alias.Aliases {
 			_timetable.UnifiedStationNameToStationIdMap[_alias] = stationId
 		}
+		_timetable.UnifiedStationNameList = append(_timetable.UnifiedStationNameList, []rune(alias.StationName))
 	}
 	return _timetable, nil
 }

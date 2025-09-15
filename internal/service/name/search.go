@@ -67,7 +67,7 @@ func findBestMatch(sample []rune, searchList [][]rune) (string, error) {
 
 	result := make([]Word, 0)
 	for _, word := range searchList {
-		// wordDiff shows difference between amount of every letter in sample and a given word
+		// wordDiff shows difference between occurrences of every letter in the sample and a given word
 		wordDiff := map[rune]int{}
 
 		for k, v := range sampleRunes {
