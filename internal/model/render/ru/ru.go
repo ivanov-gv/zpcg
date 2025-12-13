@@ -13,9 +13,7 @@ Podgorica, Niksic`
 	OfficialTimetableUrlText     = "Подробнее"
 	ReverseRouteInlineButtonText = "Обратно"
 	AlertUpdateNotificationText  = "" +
-		`Расписание уже обновлено
-
-До 14 декабря 2025 расписание не изменится`
+		`Расписание уже обновлено`
 	SimpleUpdateNotificationText = "Расписание на сегодня обновлено"
 
 	// bot description
@@ -96,6 +94,13 @@ _Сделан вместе с @Leti\_deshevle_
 
 Сделан вместе с @Leti_deshevle
 `
+
+	// warning about 2026 timetable update
+	Warning2026 = "" +
+		"ЖД Черногории обновили расписание, но не опубликовали его полностью. " +
+		"Как только полное расписание всех станций станет доступно, мы добавим его в бот, как и раньше. \n" +
+		"Мы не в силах на это повлиять. Извините за неудобства. \n\n" +
+		"Пока, пожалуйста, пользуйтесь этой таблицей:"
 )
 
 var MonthsMap = map[time.Month]string{

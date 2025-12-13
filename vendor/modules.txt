@@ -1,6 +1,11 @@
 # github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.30
 ## explicit; go 1.19
 github.com/PaulSonOfLars/gotgbot/v2
+github.com/PaulSonOfLars/gotgbot/v2/ext
+github.com/PaulSonOfLars/gotgbot/v2/ext/handlers
+github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/conversation
+github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters
+github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message
 # github.com/caarlos0/env/v10 v10.0.0
 ## explicit; go 1.17
 github.com/caarlos0/env/v10

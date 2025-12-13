@@ -12,9 +12,7 @@ Podgorica, Niksic`
 	OfficialTimetableUrlText     = "More details"
 	ReverseRouteInlineButtonText = "Reverse"
 	AlertUpdateNotificationText  = "" +
-		`The timetable has already been updated
-
-Until December 14, 2025 the timetable will not change`
+		`The timetable has already been updated`
 	SimpleUpdateNotificationText = "Today's timetable is updated"
 
 	// bot description
@@ -99,6 +97,13 @@ This project: https://github.com/ivanov-gv/zpcg
 
 Made together with @Leti_deshevle
 `
+
+	// warning 2026 timetable update
+	Warning2026 = "" +
+		"Montenegro Railways have updated the timetable, but have not published it in full. " +
+		"As soon as the complete timetable for all stations becomes available, we will add it to the bot as before.\n" +
+		"This is beyond our control. We apologize for the inconvenience.\n\n" +
+		"For now, please use this table:"
 )
 
 var MonthsMap = map[time.Month]string{

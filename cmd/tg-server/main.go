@@ -22,7 +22,7 @@ func main() {
 		log.Fatal().Err(fmt.Errorf(logfmt+"can't load config: %w", err)).Send()
 	}
 	// app
-	_app, err := app.NewApp()
+	_app, err := app.NewApp(_config.Environment)
 	if err != nil {
 		log.Fatal().Err(fmt.Errorf(logfmt+"app.NewApp: %w", err)).Send()
 	}

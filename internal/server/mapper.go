@@ -140,3 +140,14 @@ func ResponseToTelegramAnswerCallbackQuery(query message.ToAnswerCallbackQuery) 
 	}
 	return callbackQueryId, opts
 }
+
+func ResponseToTelegramSendPhoto(photo message.ToSendPhoto) (gotgbot.InputFileOrString, *gotgbot.SendPhotoOpts) {
+	switch photo.Type {
+	case message.PhotoTypeUrl:
+		return gotgbot.InputFileByURL(photo.Url), nil
+	case message.PhotoTypeFileId:
+		return gotgbot.InputFileByID(photo.FileId), nil
+	default:
+		panic(fmt.Errorf("unsupported photo type: %v", photo.Type))
+	}
+}
