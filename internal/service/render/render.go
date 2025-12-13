@@ -7,22 +7,26 @@ import (
 
 	"golang.org/x/text/language"
 
+	"github.com/ivanov-gv/zpcg/internal/config"
 	"github.com/ivanov-gv/zpcg/internal/model/message"
 	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
 func NewRender(stationsMap map[timetable.StationId]timetable.Station,
-	trainsMap map[timetable.TrainId]timetable.TrainInfo) *Render {
+	trainsMap map[timetable.TrainId]timetable.TrainInfo,
+	environment string) *Render {
 	return &Render{
 		stationsMap: stationsMap,
 		trainsMap:   trainsMap,
+		environment: environment,
 	}
 }
 
 type Render struct {
 	stationsMap map[timetable.StationId]timetable.Station
 	trainsMap   map[timetable.TrainId]timetable.TrainInfo
+	environment string
 }
 
 const (
@@ -217,6 +221,41 @@ func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
 
 func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
 	return GetMessage(model_render.SimpleUpdateNotificationTextMap, languageTag)
+}
+
+const (
+	timetablePhotoFileId    = "AgACAgQAAxkDAAKm6Gk9p0mBEWg27v0uFeBtc44ZjDD6AAJZC2sb0HD0UboRGukkuEBnAQADAgADeAADNgQ"
+	timetablePhotoFileIdPre = "AgACAgQAAxkDAAIIqWk9jfeQ4vasLhDcdk8f7UL90WwTAAJZC2sb0HD0UXTsVPl6r-vhAQADAgADeAADNgQ"
+	timetablePhotoUrl       = "https://api.zpcg.me/storage/news/5A8HGWBwzlFXitOCFswHwaNL1qJNsG7hmZFxCSup.png"
+)
+
+func (r *Render) UserWarningMessage(languageTag language.Tag) (message.ToSend, message.ToSendPhoto) {
+	var photo message.ToSendPhoto
+
+	switch r.environment {
+	case config.EnvironmentProdValue:
+		photo = message.ToSendPhoto{
+			Type:   message.PhotoTypeFileId,
+			FileId: timetablePhotoFileId,
+		}
+	case config.EnvironmentPreProdValue:
+		photo = message.ToSendPhoto{
+			Type:   message.PhotoTypeFileId,
+			FileId: timetablePhotoFileIdPre,
+		}
+	default:
+		photo = message.ToSendPhoto{
+			Type: message.PhotoTypeUrl,
+			Url:  timetablePhotoUrl,
+		}
+	}
+
+	return message.ToSend{
+		Response: message.Response{
+			Text:      GetMessage(model_render.Warning2026TextMap, languageTag),
+			ParseMode: message.ModeNone,
+		},
+	}, photo
 }
 
 func moreDetailsLink(languageTag language.Tag, origin, destination string) string {

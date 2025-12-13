@@ -13,9 +13,7 @@ Podgorica, Niksic`
 	OfficialTimetableUrlText     = "Детальніше"
 	ReverseRouteInlineButtonText = "Назад"
 	AlertUpdateNotificationText  = "" +
-		`Розклад вже оновлено
-
-До 14 грудня 2025 розклад не зміниться`
+		`Розклад вже оновлено`
 	SimpleUpdateNotificationText = "Розклад на сьогодні оновлено"
 
 	// опис бота
@@ -98,6 +96,13 @@ _Зроблено разом з @Leti\_deshevle_
 
 Зроблено разом з @Leti_deshevle
 `
+
+	// warning 2026 timetable update
+	Warning2026 = "" +
+		"Залізниці Чорногорії оновили розклад, але не опублікували його повністю. " +
+		"Щойно повний розклад усіх станцій стане доступним, ми додамо його до бота, як і раніше.\n" +
+		"Ми не можемо на це вплинути. Просимо вибачення за незручності.\n\n" +
+		"Поки що, будь ласка, користуйтеся цією таблицею:"
 )
 
 var MonthsMap = map[time.Month]string{

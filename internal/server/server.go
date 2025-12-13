@@ -81,6 +81,9 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			httpStatus          = http.StatusOK
 		)
 		defer func() {
+			if err := recover(); err != nil {
+				finalError = fmt.Errorf("finalError = '%w'; panic: %v", finalError, err)
+			}
 			logTrace(update, responses, warning, finalError)
 			w.WriteHeader(httpStatus)
 		}()
@@ -97,7 +100,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			httpStatus = http.StatusBadRequest
 			return
 		}
-		// retry updates only certain number of times
+		// retry updates only a certain number of times
 		value, ok := updateCache.Get(update.UpdateId)
 		if ok && value >= maxUpdateRetry {
 			return
@@ -143,6 +146,18 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			_, err = bot.AnswerCallbackQuery(ResponseToTelegramAnswerCallbackQuery(messages.AnswerCallback))
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.AnswerCallbackQuery: %w", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
+		// photo
+		for _, photoMessage := range messages.SendPhoto {
+			response, opts := ResponseToTelegramSendPhoto(photoMessage)
+			responses = append(responses, fmt.Sprintf("photo: '%s'", photoMessage))
+
+			_, err = bot.SendPhoto(messages.ChatId, response, opts)
+			if err != nil {
+				finalError = fmt.Errorf(logfmt+"bot.SendPhoto: %w", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}

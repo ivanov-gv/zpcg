@@ -1,5 +1,7 @@
 package message
 
+import "fmt"
+
 type From struct {
 	IsFilled     bool
 	LanguageCode string
@@ -96,10 +98,36 @@ type ToAnswerCallbackQuery struct {
 	ShowAlert       bool
 }
 
+type PhotoType int
+
+const (
+	_ PhotoType = iota
+	PhotoTypeUrl
+	PhotoTypeFileId
+)
+
+type ToSendPhoto struct {
+	Type   PhotoType
+	Url    string
+	FileId string
+}
+
+func (p ToSendPhoto) String() string {
+	switch p.Type {
+	case PhotoTypeFileId:
+		return fmt.Sprintf("fileId:'%s'", p.FileId)
+	case PhotoTypeUrl:
+		return fmt.Sprintf("url:'%s'", p.FileId)
+	default:
+		return "unknown photo type"
+	}
+}
+
 type ResponseWithChatId struct {
 	Send           []ToSend
 	Delete         []ToDelete
 	Update         []ToUpdate
 	AnswerCallback ToAnswerCallbackQuery
+	SendPhoto      []ToSendPhoto
 	ChatId         int64
 }

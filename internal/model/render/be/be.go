@@ -13,9 +13,7 @@ Podgorica, Niksic`
 	OfficialTimetableUrlText     = "Падрабязней"
 	ReverseRouteInlineButtonText = "Назад "
 	AlertUpdateNotificationText  = "" +
-		`Расклад ужо абноўлены
-
-по 14.12.2025 расклад не зменіцца`
+		`Расклад ужо абноўлены`
 	SimpleUpdateNotificationText = "Расклад на сёння абноўлены"
 
 	// апісанне бота
@@ -98,6 +96,13 @@ _Зроблена разам з @Leti\_deshevle_
 
 Зроблена разам з @Leti_deshevle
 `
+
+	// warning about 2026 timetable update
+	Warning2026 = "" +
+		"Чыгунка Чарнагорыі абнавіла расклад, але не апублікавала яго цалкам. " +
+		"Як толькі поўны расклад усіх станцый стане даступны, мы дадамо яго ў бота, як і раней.\n" +
+		"Мы не можам на гэта паўплываць. Прабачце за нязручнасці.\n\n" +
+		"Пакуль ласка, карыстайцеся гэтай табліцай:"
 )
 
 var MonthsMap = map[time.Month]string{

@@ -15,9 +15,7 @@ Podgorica, Niksic`
 	OfficialTimetableUrlText     = "Mehr erfahren"
 	ReverseRouteInlineButtonText = "Zurück"
 	AlertUpdateNotificationText  = "" +
-		`Der Fahrplan wurde bereits aktualisiert
-
-Bis zum 14. Dezember 2025 ändert sich der Fahrplan nicht`
+		`Der Fahrplan wurde bereits aktualisiert`
 	SimpleUpdateNotificationText = "Der Fahrplan für heute wurde aktualisiert"
 
 	// Bot-Beschreibung
@@ -96,6 +94,13 @@ Dieses Projekt: https://github.com/ivanov-gv/zpcg
 
 Gemeinsam erstellt mit @Leti_deshevle
 `
+
+	// warning about 2026 timetable update
+	Warning2026 = "" +
+		"Die montenegrinische Eisenbahn hat den Fahrplan aktualisiert, ihn jedoch nicht vollständig veröffentlicht. " +
+		"Sobald der vollständige Fahrplan aller Stationen verfügbar ist, werden wir ihn wie bisher in den Bot aufnehmen.\n" +
+		"Darauf haben wir keinen Einfluss. Entschuldigung für die Unannehmlichkeiten.\n\n" +
+		"Bitte nutzen Sie vorerst diese Tabelle:"
 )
 
 var MonthsMap = map[time.Month]string{
