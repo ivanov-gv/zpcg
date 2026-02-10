@@ -13,7 +13,10 @@ Podgorica, Nikšić`
 	OfficialTimetableUrlText     = "Viac informácií"
 	ReverseRouteInlineButtonText = "Späť"
 	AlertUpdateNotificationText  = "" +
-		`Cestovný poriadok už bol aktualizovaný`
+		`Cestovný poriadok už bol aktualizovaný
+Od 13.06.2026 do 14.09.2026 bude pridaný vlak Subotica - Bar
+
+Inak sa poradie nezmení`
 	SimpleUpdateNotificationText = "Cestovný poriadok pre dnešok bol aktualizovaný"
 
 	// Popis bota
@@ -96,13 +99,6 @@ Tento projekt: https://github.com/ivanov-gv/zpcg
 
 Vytvorené spoločne s @Leti_deshevle
 `
-
-	// warning 2026 timetable update
-	Warning2026 = "" +
-		"Železnice Čiernej Hory aktualizovali cestovný poriadok, ale nezverejnili ho v plnom rozsahu. " +
-		"Hneď ako bude dostupný kompletný cestovný poriadok pre všetky stanice, pridáme ho do bota ako predtým.\n" +
-		"Toto nemáme možnosť ovplyvniť. Ospravedlňujeme sa za nepríjemnosti.\n\n" +
-		"Zatiaľ prosím používajte túto tabuľku:"
 )
 
 var MonthsMap = map[time.Month]string{
