@@ -15,7 +15,10 @@ Podgorica, Bar`
 	OfficialTimetableUrlText     = "Daha fazla bilgi"
 	ReverseRouteInlineButtonText = "Tersine"
 	AlertUpdateNotificationText  = "" +
-		`Tarife zaten güncellendi`
+		`Tarife zaten güncellendi
+13 Haziran'dan 14 Eylül'e kadar Subotica - Belgrad - Bar yeni bir tren eklenecek
+
+Tarifenin geri kalanı tam olarak aynı kalacak`
 	SimpleUpdateNotificationText = "Bugünün tarifesi güncellendi"
 
 	// bot description
@@ -94,13 +97,6 @@ Bu proje: https://github.com/ivanov-gv/zpcg
 
 @Leti_deshevle ile birlikte yapıldı
 `
-
-	// warning 2026 timetable update
-	Warning2026 = "" +
-		"Karadağ Demiryolları sefer tarifesini güncelledi, ancak tamamını yayımlamadı. " +
-		"Tüm istasyonlar için tam tarife доступ olabilir olmaz, daha önce olduğu gibi bota ekleyeceğiz.\n" +
-		"Bunun üzerinde bir etkimiz yok. Rahatsızlık için özür dileriz.\n\n" +
-		"Şimdilik lütfen bu tabloyu kullanın:"
 )
 
 var MonthsMap = map[time.Month]string{

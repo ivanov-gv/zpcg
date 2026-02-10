@@ -21,7 +21,7 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/service/transfer"
 )
 
-func NewApp(environment string) (*App, error) {
+func NewApp() (*App, error) {
 	// timetable
 	_timetable := transfer.ImportTimetable()
 	// finder
@@ -29,7 +29,7 @@ func NewApp(environment string) (*App, error) {
 	// name resolver
 	stationNameResolver := name.NewStationNameResolver(_timetable.UnifiedStationNameToStationIdMap, _timetable.UnifiedStationNameList, _timetable.StationIdToStationMap)
 	// render
-	_render := render.NewRender(_timetable.StationIdToStationMap, _timetable.TrainIdToTrainInfoMap, environment)
+	_render := render.NewRender(_timetable.StationIdToStationMap, _timetable.TrainIdToTrainInfoMap)
 	// blacklist
 	blackList := blacklist.NewBlackListService()
 	// date
@@ -59,29 +59,25 @@ type App struct {
 }
 
 func (a *App) HandleUpdate(update message.Update) (responseWithChatIds message.ResponseWithChatId, warning error) {
-	var languageTag language.Tag
 	switch update.Type {
 	case message.MessageUpdateType:
-		responseWithChatIds, languageTag, warning = a.HandleMessage(update.Message)
+		return a.HandleMessage(update.Message)
 	case message.CallbackUpdateType:
-		responseWithChatIds, languageTag, warning = a.HandleCallback(update.Callback)
+		return a.HandleCallback(update.Callback)
 	default: // including model.UnsupportedUpdateType
 		return message.ResponseWithChatId{}, nil
 	}
-
-	// TODO: remove when timetable on zpcg is ready to fetch
-	return a.rewriteWithWarningMessage(languageTag, responseWithChatIds), warning
 }
 
-func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChatIds message.ResponseWithChatId, languageTag language.Tag, warning error) {
-	languageTag = render.ParseLanguageTag(callbackMessage.From.LanguageCode)
+func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChatIds message.ResponseWithChatId, warning error) {
+	var languageTag = render.ParseLanguageTag(callbackMessage.From.LanguageCode)
 	defer func() { // we have to answer the callback anyway
 		responseWithChatIds.ChatId = callbackMessage.ChatId
 		responseWithChatIds.AnswerCallback.CallbackQueryId = callbackMessage.Id
 	}()
 	_callback, err := a.callback.ParseCallback(callbackMessage.Data)
 	if err != nil {
-		return message.ResponseWithChatId{}, languageTag, fmt.Errorf("failed to parse callback [data='%s']: %w", callbackMessage.Data, err)
+		return message.ResponseWithChatId{}, fmt.Errorf("failed to parse callback [data='%s']: %w", callbackMessage.Data, err)
 	}
 	switch _callback.Type {
 	case callback_model.UpdateType:
@@ -93,12 +89,12 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 					Text:      a.render.AlertUpdateNotificationText(languageTag),
 					ShowAlert: true,
 				},
-			}, languageTag, nil
+			}, nil
 		}
 		// update outdated
 		response, err := a.GenerateRouteForStations(languageTag, data.Origin, data.Destination)
 		if err != nil {
-			return message.ResponseWithChatId{}, languageTag,
+			return message.ResponseWithChatId{},
 				fmt.Errorf("GenerateRouteForStations [lang=%s, origin=%s, destination=%s] : %w",
 					languageTag, data.Origin, data.Destination, err)
 		}
@@ -113,12 +109,12 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 			ChatId:         callbackMessage.ChatId,
 			Update:         update,
 			AnswerCallback: message.ToAnswerCallbackQuery{Text: a.render.SimpleUpdateNotificationText(languageTag)},
-		}, languageTag, nil
+		}, nil
 	case callback_model.ReverseRouteType:
 		var data = _callback.ReverseRouteData
 		response, err := a.GenerateRouteForStations(languageTag, data.Destination, data.Origin)
 		if err != nil {
-			return message.ResponseWithChatId{}, languageTag,
+			return message.ResponseWithChatId{},
 				fmt.Errorf("GenerateRouteForStations [lang=%s, origin=%s, destination=%s] : %w",
 					languageTag, data.Destination, data.Origin, err)
 		}
@@ -127,15 +123,15 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 				Response: response,
 			},
 		}
-		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Send: send}, languageTag, nil
+		return message.ResponseWithChatId{ChatId: callbackMessage.ChatId, Send: send}, nil
 	default:
-		return message.ResponseWithChatId{}, languageTag,
+		return message.ResponseWithChatId{},
 			fmt.Errorf("unknown callback type(%s) [data='%s']", _callback.Type, callbackMessage.Data)
 	}
 }
 
-func (a *App) HandleMessage(_message message.Message) (responseWithChatIds message.ResponseWithChatId, languageTag language.Tag, warning error) {
-	languageTag = render.ParseLanguageTag(_message.From.LanguageCode)
+func (a *App) HandleMessage(_message message.Message) (responseWithChatIds message.ResponseWithChatId, warning error) {
+	languageTag := render.ParseLanguageTag(_message.From.LanguageCode)
 	var (
 		response message.Response
 		err      error
@@ -166,7 +162,7 @@ func (a *App) HandleMessage(_message message.Message) (responseWithChatIds messa
 	return message.ResponseWithChatId{
 		Send:   send,
 		ChatId: _message.ChatId,
-	}, languageTag, err
+	}, err
 }
 
 const stationsDelimiter = ','
@@ -230,12 +226,4 @@ func (a *App) GenerateRouteForStations(languageTag language.Tag, originInput, de
 			updateCallback, reverseCallback)
 	}
 	return _message, nil
-}
-
-// TODO: remove when timetable on zpcg is ready to fetch
-func (a *App) rewriteWithWarningMessage(languageTag language.Tag, response message.ResponseWithChatId) message.ResponseWithChatId {
-	text, photo := a.render.UserWarningMessage(languageTag)
-	response.SendPhoto = []message.ToSendPhoto{photo}
-	response.Send = []message.ToSend{text}
-	return response
 }

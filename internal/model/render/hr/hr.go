@@ -13,7 +13,10 @@ Podgorica, Nikšić`
 	OfficialTimetableUrlText     = "Više informacija"
 	ReverseRouteInlineButtonText = "Natrag"
 	AlertUpdateNotificationText  = "" +
-		`Raspored je već ažuriran`
+		`Raspored je već ažuriran
+Od 13.06.26 do 14.09.26 bit će dodan vlak Subotica - Bar
+
+Inače, raspored se ne mijenja`
 	SimpleUpdateNotificationText = "Raspored za danas je ažuriran"
 
 	// Opis bota
@@ -96,13 +99,6 @@ Ovaj projekt: https://github.com/ivanov-gv/zpcg
 
 Napravljeno zajedno s @Leti_deshevle
 `
-
-	// warning 2026 timetable update
-	Warning2026 = "" +
-		"Željeznice Crne Gore ažurirale su vozni red, ali ga nisu u potpunosti objavile. " +
-		"Čim cjeloviti vozni red za sve postaje bude dostupan, dodat ćemo ga u bot kao i prije.\n" +
-		"Na to ne možemo utjecati. Ispričavamo se zbog neugodnosti.\n\n" +
-		"Za sada, molimo koristite ovu tablicu:"
 )
 
 var MonthsMap = map[time.Month]string{

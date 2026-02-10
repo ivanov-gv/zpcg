@@ -275,15 +275,4 @@ var (
 		language.Slovak:    sk.OfficialTimetableUrlText,
 		language.Turkish:   tr.OfficialTimetableUrlText,
 	}
-	Warning2026TextMap = map[language.Tag]string{
-		language.Russian:   ru.Warning2026,
-		language.Ukrainian: uk.Warning2026,
-		Belarusian:         be.Warning2026,
-		language.English:   en.Warning2026,
-		language.German:    de.Warning2026,
-		language.Serbian:   sr.Warning2026,
-		language.Croatian:  hr.Warning2026,
-		language.Slovak:    sk.Warning2026,
-		language.Turkish:   tr.Warning2026,
-	}
 )
