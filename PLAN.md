@@ -7,157 +7,261 @@ The Montenegro Railways timetable changes twice a year: a summer international t
 - Summer-only stations (Novi Sad, Indjija, Stara Pazova, Nova Pazova, Subotica) are **permanently blacklisted** with a "coming June 12" message
 - The owner must **manually re-run the parser** at midnight on season-change day and redeploy
 
-**Goal:** Parse the timetable once for the whole year (fetching both winter and summer dates), compile all schedules into the binary, and at runtime serve the correct timetable based on today's date.
+**Goal:** Parse the timetable once for the whole year (fetching multiple dates), compile all schedules into the binary, and at runtime serve the correct timetable based on today's date.
 
 **Key decisions:**
-- **Season boundaries are defined manually in code** (updated once per year), not derived from API validity dates
-- **Summer-only stations queried outside summer** get a specific seasonal message (similar to current blacklist behavior, but date-aware)
-- **Train validity** is still stored via `ValidFrom`/`ValidTo` from the API and used for runtime filtering
+- **Parsing configuration comes from a config file** (dates, routes, season boundaries) — not hardcoded
+- **Train seasonality is derived by comparing fetch sets** — NOT from API's `ValidFrom`/`ValidTo` fields (the API is unreliable except for the route endpoint)
+- **Same route URLs are fetched for each date** — summer-only routes simply return empty for winter dates
+- **Seasons form a continuous timeline** — no gaps, every date belongs to exactly one season (from -∞ to +∞)
+- **Validity is a proper struct** with `IsEmpty()`, setter, getter — impossible to have one date set without the other
+- **Summer-only stations queried outside summer** get a specific seasonal message (date-aware, multilingual)
+- **Integration tests are mandatory** for season switching scenarios
+
+---
+
+## Core Algorithm
+
+### Parsing
+
+Given a config file with 3 seasons and 3 fetch dates:
+
+```
+Season 1 "winter-early":  -∞  to  2026-06-11  (fetch with date 2026-05-25)
+Season 2 "summer":        2026-06-12  to  2026-09-15  (fetch with date 2026-06-25)
+Season 3 "winter-late":   2026-09-16  to  +∞  (fetch with date 2026-11-25)
+```
+
+1. For each season, fetch all routes using that season's `fetch_date`
+2. Each fetch returns a set of trains (identified by `TrainNumber`)
+3. Classify each train by which seasons returned it:
+   - Train in all 3 → **year-round** → Validity is empty (= always valid)
+   - Train only in season 2 → **summer-only** → Validity: `[{Jun 12, Sep 15}]`
+   - Train in seasons 1+3 but not 2 → **winter-only** → Validity: `[{-∞, Jun 11}, {Sep 16, +∞}]` (two ranges)
+   - Train only in season 1 → Validity: `[{-∞, Jun 11}]`
+4. Merge all trains into one timetable, each `TrainInfo` carrying its validity ranges
+
+### Runtime
+
+For a user query:
+1. Resolve station names
+2. Check permanent blacklist (Budva, Tivat, etc.)
+3. Check seasonal availability — is either station seasonal and currently unavailable?
+4. `PathFinder.FindRoutes(origin, dest, today)` — filters trains where `today` falls within at least one validity range
+5. Render timetable
 
 ---
 
 ## Checklist
 
 ### Phase 1: Data Model Changes
-- [ ] 1.1 — Add `ValidFrom`, `ValidTo` fields to `TrainInfo` in `internal/model/timetable/train.go`
-- [ ] 1.2 — Create season config in a new file `internal/model/timetable/season.go` with manual date boundaries and seasonal station definitions
-- [ ] 1.3 — Remove summer stations group from `internal/model/stations/blacklist.go`
-- [ ] 1.4 — Add/uncomment summer station aliases in `internal/model/stations/alias.go` (if any exist)
+- [ ] 1.1 — Create `Validity` struct in `internal/model/timetable/validity.go` with `IsEmpty() bool`, `Set(from, to)`, `Get() []ValidityRange`, and `Contains(date) bool`
+- [ ] 1.2 — Add `Validity` field to `TrainInfo` in `internal/model/timetable/train.go`
+- [ ] 1.3 — Create season config types in `internal/model/timetable/season.go` (Season, SeasonConfig)
+- [ ] 1.4 — Move summer stations seasonal message from `internal/model/stations/blacklist.go` to season config; remove summer stations from permanent blacklist
+- [ ] 1.5 — Uncomment/add summer station aliases in `internal/model/stations/alias.go`
 
-### Phase 2: Exporter Changes
-- [ ] 2.1 — Update `cmd/exporter/main.go` to fetch timetable for multiple dates (winter + summer)
-- [ ] 2.2 — Update `internal/service/parser/routes/routes.go` deduplication: same train across dates → merge, keep more stops, widen validity range
-- [ ] 2.3 — Update `internal/service/parser/parser.go` `MapTimetableToTransferFormat()` to preserve `ValidFrom`/`ValidTo` in `TrainInfo`
-- [ ] 2.4 — Regenerate `gen/timetable/timetable.gen.go` with both seasons' data
+### Phase 2: Parser Config File
+- [ ] 2.1 — Define config file format (YAML or JSON) with seasons, fetch dates, route templates, summer station names
+- [ ] 2.2 — Create config parser in `internal/service/parser/config.go`
+- [ ] 2.3 — Create the config file (e.g. `cmd/exporter/config.yaml`)
+- [ ] 2.4 — Update `cmd/exporter/main.go` to read config file instead of hardcoded dates/routes
 
-### Phase 3: Runtime Filtering
-- [ ] 3.1 — Update `PathFinder` constructor to accept `TrainIdToTrainInfoMap`
-- [ ] 3.2 — Update `PathFinder.FindRoutes()` to accept `time.Time` and filter trains by `ValidFrom`/`ValidTo`
-- [ ] 3.3 — Add `PathFinder.IsStationAvailable(stationId, date)` method — checks if any train serving the station is valid on the given date
-- [ ] 3.4 — Create date-aware seasonal check in `internal/service/blacklist/` (or `app/`) using season config: if a station is seasonal and current date is outside its season → return seasonal message
-- [ ] 3.5 — Update `App.GenerateRouteForStations()` to pass current date to pathfinder and perform seasonal availability check
-- [ ] 3.6 — Update `App.NewApp()` to wire new dependencies
+### Phase 3: Exporter Multi-Season Parsing
+- [ ] 3.1 — Update `parser.ParseTimetable()` to accept season configs, fetch routes per season
+- [ ] 3.2 — Implement train set comparison: for each train, determine which seasons returned it
+- [ ] 3.3 — Assign validity ranges to each train based on its season presence
+- [ ] 3.4 — Handle deduplication: same train across seasons → keep version with more stops
+- [ ] 3.5 — Update `MapTimetableToTransferFormat()` to preserve `Validity` in `TrainInfo`
+- [ ] 3.6 — Regenerate `gen/timetable/timetable.gen.go` with all seasons' data
 
-### Phase 4: Tests
-- [ ] 4.1 — Unit test: `PathFinder` with date filtering — trains outside validity excluded
-- [ ] 4.2 — Unit test: `PathFinder` with date filtering — trains within validity included
-- [ ] 4.3 — Unit test: `PathFinder` boundary dates — ValidFrom and ValidTo days themselves are inclusive
-- [ ] 4.4 — Unit test: `PathFinder` with zero/empty validity — always valid (backward compat)
-- [ ] 4.5 — Unit test: `IsStationAvailable()` — summer station available in summer, unavailable in winter
-- [ ] 4.6 — App test: query summer station in winter → seasonal message returned
-- [ ] 4.7 — App test: query summer station in summer → valid routes returned
-- [ ] 4.8 — Uncomment summer station entries in `TestNameClashing` in `internal/app/app_test.go`
-- [ ] 4.9 — Update `TestBlackList` — summer stations no longer in permanent blacklist
-- [ ] 4.10 — Ensure all existing tests pass: `make test_unit`
-- [ ] 4.11 — Integration test: seasonal scenario via test Telegram server (if practical)
+### Phase 4: Runtime Filtering
+- [ ] 4.1 — Update `PathFinder` constructor to accept `TrainIdToTrainInfoMap`
+- [ ] 4.2 — Update `PathFinder.FindRoutes()` to accept `time.Time` and filter trains by `Validity.Contains(date)`
+- [ ] 4.3 — Add `PathFinder.IsStationAvailable(stationId, date)` method
+- [ ] 4.4 — Add seasonal availability check in `App.GenerateRouteForStations()` using season config
+- [ ] 4.5 — Update `App.NewApp()` to wire new dependencies
+- [ ] 4.6 — Make `App` date-testable: allow injecting a fixed date for testing
+
+### Phase 5: Tests (mandatory)
+- [ ] 5.1 — Unit test: `Validity` struct — `IsEmpty()`, `Contains()`, `Set()`, edge cases
+- [ ] 5.2 — Unit test: `PathFinder` date filtering — summer train excluded in winter
+- [ ] 5.3 — Unit test: `PathFinder` date filtering — summer train included in summer
+- [ ] 5.4 — Unit test: `PathFinder` boundary dates — season start/end days are inclusive
+- [ ] 5.5 — Unit test: `PathFinder` empty validity — always valid (year-round trains)
+- [ ] 5.6 — Unit test: `PathFinder` non-contiguous validity — winter train valid in seasons 1+3
+- [ ] 5.7 — Unit test: `IsStationAvailable()` — summer station available/unavailable by date
+- [ ] 5.8 — Unit test: config file parsing — valid config, missing fields, malformed dates
+- [ ] 5.9 — Unit test: train set comparison — correct season classification
+- [ ] 5.10 — App test: query summer station in winter → seasonal message
+- [ ] 5.11 — App test: query summer station in summer → valid routes
+- [ ] 5.12 — Uncomment summer station entries in `TestNameClashing`
+- [ ] 5.13 — Update `TestBlackList` — summer stations no longer in permanent blacklist
+- [ ] 5.14 — Ensure all existing tests pass: `make test_unit`
+- [ ] 5.15 — Integration test: winter scenario — send "Novi Sad, Bar" → seasonal message via test Telegram server
+- [ ] 5.16 — Integration test: summer scenario — send "Novi Sad, Bar" → valid timetable via test Telegram server
+- [ ] 5.17 — Integration test: year-round route unaffected — send "Nikšić, Bar" → valid timetable in any season
+- [ ] 5.18 — Integration test: season boundary — test on exact switch date
 
 ---
 
 ## Detailed Design
 
-### 1. Data Model Changes
+### 1. Validity Struct
 
-#### 1.1 — `internal/model/timetable/train.go`
+**New file: `internal/model/timetable/validity.go`**
 
-Add validity dates to `TrainInfo`:
-```go
-type TrainInfo struct {
-    TrainId      TrainId
-    TimetableUrl string
-    ValidFrom    time.Time  // new
-    ValidTo      time.Time  // new
-}
-```
-
-This is the core change. `TrainInfo` is stored in `ExportFormat.TrainIdToTrainInfoMap` and compiled into `gen/timetable/timetable.gen.go`. The export uses `%#v` formatting, and the template already imports `"time"`, so the generated code will include `ValidFrom`/`ValidTo` automatically.
-
-#### 1.2 — New file: `internal/model/timetable/season.go`
-
-Define season boundaries and seasonal stations:
 ```go
 package timetable
 
 import "time"
 
-type Season struct {
-    Start time.Time // inclusive
-    End   time.Time // inclusive
+// ValidityRange represents a date range [From, To] inclusive.
+// Zero From means -infinity (no start constraint).
+// Zero To means +infinity (no end constraint).
+type ValidityRange struct {
+    from time.Time
+    to   time.Time
 }
 
-// SummerSeason defines when the summer timetable is active.
-// Update these dates annually when ZPCG publishes the new schedule.
-var SummerSeason = Season{
-    Start: time.Date(2026, time.June, 12, 0, 0, 0, 0, time.UTC),
-    End:   time.Date(2026, time.September, 15, 0, 0, 0, 0, time.UTC),
+// Validity represents when a train is valid to run.
+// Empty ranges means the train is always valid (year-round).
+type Validity struct {
+    ranges []ValidityRange
 }
 
-// SummerOnlyStationNames lists station names that are only reachable
-// during summer season. Used for seasonal unavailability messages.
-var SummerOnlyStationNames = []string{
-    "Novi Sad", "Indjija", "Stara Pazova", "Nova Pazova", "Subotica",
-    // Novi Beograd intentionally excluded to not clash with "Beograd Centar"
+// NewValidity creates a Validity from one or more ranges.
+// Both from and to must be zero or both must be non-zero within each range.
+func NewValidity(ranges ...ValidityRange) Validity { ... }
+
+// NewValidityRange creates a range. Pass time.Time{} for -∞ or +∞.
+func NewValidityRange(from, to time.Time) ValidityRange { ... }
+
+// IsEmpty returns true if the train is year-round (no restrictions).
+func (v Validity) IsEmpty() bool { return len(v.ranges) == 0 }
+
+// Contains returns true if the given date falls within any validity range.
+func (v Validity) Contains(date time.Time) bool {
+    if v.IsEmpty() {
+        return true // year-round
+    }
+    d := truncateToDate(date)
+    for _, r := range v.ranges {
+        fromOk := r.from.IsZero() || !d.Before(r.from)
+        toOk := r.to.IsZero() || !d.After(r.to)
+        if fromOk && toOk {
+            return true
+        }
+    }
+    return false
 }
+
+// Ranges returns the validity ranges (read-only access).
+func (v Validity) Ranges() []ValidityRange { return v.ranges }
 ```
 
-The seasonal message text (multilingual) can live here too, or stay near the render/blacklist packages. It's the same message currently in `blacklist.go` for summer stations, just repurposed for date-aware checks.
+The struct is immutable after construction — `ranges` is unexported. `NewValidityRange` validates that both dates are either zero or non-zero (prevents one-sided ranges). However: -∞ or +∞ is represented by a zero `time.Time`, which IS valid for the first/last season.
 
-#### 1.3 — `internal/model/stations/blacklist.go`
+**Clarification on -∞ / +∞ semantics:** A `ValidityRange{from: time.Time{}, to: someDate}` means "valid from the beginning of time until someDate". A `ValidityRange{from: someDate, to: time.Time{}}` means "valid from someDate forever". Both `from` and `to` being zero simultaneously is not allowed (use `IsEmpty()` for year-round instead).
 
-Remove the first entry (the `// summer season stations` group with Novi Sad, Indjija, etc.). All other blacklisted stations (Budva, Tivat, Kotor, etc.) remain — they genuinely have no train stations.
+### 2. Config File
 
-#### 1.4 — `internal/model/stations/alias.go`
+**New file: `cmd/exporter/config.yaml`**
 
-Check if summer station aliases are commented out. If so, uncomment them so fuzzy name matching works for Novi Sad, Stara Pazova, etc.
+```yaml
+seasons:
+  - name: winter-early
+    end: "2026-06-11"
+    fetch_date: "2026-05-25"
+  - name: summer
+    start: "2026-06-12"
+    end: "2026-09-15"
+    fetch_date: "2026-06-25"
+  - name: winter-late
+    start: "2026-09-16"
+    fetch_date: "2026-11-25"
 
----
+routes:
+  - start: Bar
+    finish: Subotica
+  - start: Subotica
+    finish: Bar
+  - start: Bar
+    finish: Zemun
+  - start: Zemun
+    finish: Bar
+  - start: Podgorica
+    finish: Bar
+  - start: Bar
+    finish: Podgorica
+  - start: Podgorica
+    finish: "Nikšić"
+  - start: "Nikšić"
+    finish: Podgorica
+  - start: Bar
+    finish: Bijelo Polje
+  - start: Bijelo Polje
+    finish: Bar
 
-### 2. Exporter Changes
+summer_only_stations:
+  - Novi Sad
+  - Indjija
+  - Stara Pazova
+  - Nova Pazova
+  - Subotica
+```
 
-#### 2.1 — `cmd/exporter/main.go`
+**Rules:**
+- First season has no `start` (= -∞), last season has no `end` (= +∞)
+- Each season's `end` + 1 day = next season's `start` (continuous, no gaps)
+- Each season has a `fetch_date` that falls within its date range
+- Config parser validates continuity and completeness
 
-Fetch for two dates:
+**New file: `internal/service/parser/config.go`**
+- Parses YAML config
+- Validates season continuity (no gaps, no overlaps)
+- Validates fetch dates fall within their season range
+- Returns typed `ParserConfig` struct
+
+### 3. Exporter Changes
+
+**`cmd/exporter/main.go`**
+- Read config file path from `-config` flag (default: `config.yaml`)
+- Parse config
+- For each season: build route URLs as `fmt.Sprintf("/routes?start=%s&finish=%s&date=%s", route.Start, route.Finish, season.FetchDate)`
+- Call updated `parser.ParseTimetableMultiSeason()`
+
+**`internal/service/parser/parser.go`**
+
+New function:
 ```go
-var Dates = []string{
-    "2025-12-14",  // winter schedule
-    "2026-07-01",  // summer schedule
+func ParseTimetableMultiSeason(config ParserConfig) (timetable.ExportFormat, error) {
+    // 1. Parse stations (once)
+    // 2. For each season: fetch routes → map[TrainId]DetailedTimetable
+    // 3. Build presence map: trainId → set of season indices
+    // 4. For each train:
+    //    - Present in all seasons → Validity{} (empty = year-round)
+    //    - Otherwise → Validity with ranges from the seasons where it appears
+    //    - Pick version with most stops for the train data
+    // 5. Merge all trains → single map
+    // 6. MapTimetableToTransferFormat (existing, with Validity)
+    // 7. Add blacklist + aliases (existing)
 }
 ```
 
-Build route URLs for each date and combine them all into a single `parser.ParseTimetable(allUrls...)` call.
+**Train set comparison example with 3 seasons:**
 
-The route set for summer should include the Bar–Subotica route that doesn't exist in winter. The existing routes (Bar–Zemun, Podgorica–Bar, etc.) should be fetched for both dates to capture any schedule differences.
+| Train | S1 (winter) | S2 (summer) | S3 (winter) | Validity |
+|-------|:-----------:|:-----------:|:-----------:|----------|
+| 6100  | ✓ | ✓ | ✓ | empty (year-round) |
+| 9001  | ✗ | ✓ | ✗ | `[{Jun 12, Sep 15}]` |
+| 432   | ✓ | ✗ | ✓ | `[{-∞, Jun 11}, {Sep 16, +∞}]` |
 
-#### 2.2 — `internal/service/parser/routes/routes.go`
+### 4. Runtime Changes
 
-Current deduplication keeps the train entry with more stops. Update to handle the same `TrainNumber` appearing across different dates:
-- If same train, same stops → keep one, but widen validity range: `ValidFrom = min(both)`, `ValidTo = max(both)`
-- If same train, different stops → keep the one with more stops (existing behavior), inherit wider validity
-- Different trains → no conflict
+**`internal/service/pathfinder/pathfinder.go`**
 
-#### 2.3 — `internal/service/parser/parser.go`
-
-In `MapTimetableToTransferFormat()`, update the `trainIdToTrainInfoMap` construction:
-```go
-trainIdToTrainInfoMap[trainId] = timetable.TrainInfo{
-    TrainId:      trainId,
-    TimetableUrl: route.TimetableUrl,
-    ValidFrom:    route.ValidFrom,  // new
-    ValidTo:      route.ValidTo,    // new
-}
-```
-
-No other changes needed in this function — station maps, name maps, etc. will naturally include summer stations since those trains and stops are now in the parsed data.
-
-#### 2.4 — Regenerate timetable
-
-Run `make parse_timetable` (or `go run ./cmd/exporter -file gen/timetable/timetable.gen.go`). The generated file will now contain ~10-20 additional trains (summer schedule) with their `ValidFrom`/`ValidTo` dates. All summer stations appear as regular positive-ID stations.
-
----
-
-### 3. Runtime Filtering
-
-#### 3.1 — `internal/service/pathfinder/pathfinder.go` — Constructor
-
+Add `trainIdToTrainInfoMap` to struct. Update signatures:
 ```go
 func NewPathFinder(
     stationIdToTrainIdSetMap map[timetable.StationId]timetable.TrainIdSet,
@@ -165,175 +269,109 @@ func NewPathFinder(
     trainIdToTrainInfoMap    map[timetable.TrainId]timetable.TrainInfo,  // new
     transferStation          timetable.StationId,
 ) *PathFinder
+
+func (p *PathFinder) FindRoutes(aStation, bStation timetable.StationId, currentDate time.Time) ([]timetable.Path, bool)
+
+func (p *PathFinder) IsStationAvailable(stationId timetable.StationId, currentDate time.Time) bool
 ```
 
-Store `trainIdToTrainInfoMap` in the struct.
-
-#### 3.2 — `pathfinder.go` — Date-filtered route finding
-
-Update `FindRoutes` signature:
+In `findDirectPaths`, after building candidate set, filter:
 ```go
-func (p *PathFinder) FindRoutes(aStation, bStation timetable.StationId, currentDate time.Time) (routes []timetable.Path, isDirectRoute bool)
-```
-
-Pass `currentDate` through to `findDirectPaths`. In the loop over candidate trains, add:
-```go
-if !p.isTrainValidOnDate(trainId, currentDate) {
+if !p.trainIdToTrainInfoMap[trainId].Validity.Contains(currentDate) {
     continue
 }
 ```
 
-Helper method:
+**`internal/app/app.go`**
+
+In `GenerateRouteForStations`, after name resolution and permanent blacklist check:
 ```go
-func (p *PathFinder) isTrainValidOnDate(trainId timetable.TrainId, date time.Time) bool {
-    info, ok := p.trainIdToTrainInfoMap[trainId]
-    if !ok {
-        return true // no info → always valid
-    }
-    if info.ValidFrom.IsZero() && info.ValidTo.IsZero() {
-        return true // no constraints → always valid
-    }
-    // Compare dates only (ignore time component)
-    d := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
-    return !d.Before(info.ValidFrom) && !d.After(info.ValidTo)
+// Check seasonal availability
+if msg, unavailable := a.checkSeasonalAvailability(originStationId, destinationStationId, languageTag); unavailable {
+    return msg, nil
 }
-```
-
-#### 3.3 — `pathfinder.go` — Station availability
-
-```go
-func (p *PathFinder) IsStationAvailable(stationId timetable.StationId, currentDate time.Time) bool {
-    trainIds, ok := p.stationIdToTrainIdSetMap[stationId]
-    if !ok {
-        return false
-    }
-    for trainId := range trainIds {
-        if p.isTrainValidOnDate(trainId, currentDate) {
-            return true
-        }
-    }
-    return false
-}
-```
-
-#### 3.4 — Seasonal unavailability messages
-
-Two options for where to put this logic:
-
-**In `app/app.go`** (recommended for simplicity): After resolving station names and before the permanent-blacklist check, check if the station is seasonal and currently unavailable:
-
-```go
-// After name resolution, before permanent blacklist check:
-if seasonMsg, isSeasonal := a.checkSeasonalAvailability(originStationId, destinationStationId, languageTag); isSeasonal {
-    return seasonMsg, nil
-}
-```
-
-The `checkSeasonalAvailability` method uses the season config to determine if a station is seasonal, and the pathfinder's `IsStationAvailable` to check if it has trains today. If seasonal and no trains → return the multilingual seasonal message.
-
-The multilingual seasonal message text (currently in `blacklist.go` summer entry) moves to the season config or a companion file.
-
-#### 3.5 — `internal/app/app.go` — Wire it together
-
-In `GenerateRouteForStations`:
-```go
-// 1. Resolve names (existing)
-// 2. Check permanent blacklist (existing — now without summer stations)
-// 3. NEW: Check seasonal availability
-// 4. Find routes with date (updated call)
+// Find routes with date filtering
 routes, isDirect := a.finder.FindRoutes(originStationId, destinationStationId, a.dateService.CurrentDateAsTime())
 ```
 
-#### 3.6 — `internal/app/app.go` — `NewApp()` constructor
-
-Pass `TrainIdToTrainInfoMap` to `NewPathFinder`:
+Date injection for testing — add options pattern or `NewAppWithDate()`:
 ```go
-finder := pathfinder.NewPathFinder(
-    _timetable.StationIdToTrainIdSet,
-    _timetable.TrainIdToStationMap,
-    _timetable.TrainIdToTrainInfoMap,  // new
-    _timetable.TransferStationId,
-)
+func NewApp(opts ...AppOption) (*App, error)
+
+type AppOption func(*App)
+
+func WithFixedDate(date time.Time) AppOption {
+    return func(a *App) { a.dateService = newFixedDateService(date) }
+}
 ```
 
----
+### 5. Integration Tests
 
-### 4. Test Plan
+**`test/integration/telegram_test.go`**
 
-#### 4.1–4.4 — PathFinder unit tests (`internal/service/pathfinder/pathfinder_test.go`)
+All scenarios use the real HTTP server with mocked Telegram client, injecting a fixed date:
 
-Create a small synthetic timetable with:
-- Train A: `ValidFrom=2026-01-01, ValidTo=2026-12-31` (year-round)
-- Train B: `ValidFrom=2026-06-12, ValidTo=2026-09-15` (summer only)
-- Train C: zero validity dates (always valid)
+**5.15 — Winter scenario:**
+- App date: 2026-01-15
+- Send: `{"message": {"text": "Novi Sad, Bar", ...}}`
+- Mock expects `sendMessage` call
+- Assert response text contains seasonal unavailability message (multilingual)
+- Assert response does NOT contain train departure times
 
-Test cases:
-- Winter date → only trains A and C returned
-- Summer date → trains A, B, and C returned
-- Boundary: June 12 → train B included
-- Boundary: September 15 → train B included
-- September 16 → train B excluded
+**5.16 — Summer scenario:**
+- App date: 2026-07-15
+- Send: `{"message": {"text": "Novi Sad, Bar", ...}}`
+- Mock expects `sendMessage` call
+- Assert response text contains train IDs and times
+- Assert response does NOT contain seasonal message
 
-#### 4.5 — `IsStationAvailable` tests
+**5.17 — Year-round route unaffected:**
+- App date: 2026-01-15 AND 2026-07-15
+- Send: `{"message": {"text": "Nikšić, Bar", ...}}`
+- Assert both return valid timetable with trains
 
-Using the same synthetic timetable:
-- Station only served by summer train → available in summer, unavailable in winter
-- Station served by year-round train → always available
-
-#### 4.6–4.7 — App seasonal tests (`internal/app/app_test.go`)
-
-These need the app's date to be controllable. Options:
-- Add `NewAppWithDate(date time.Time)` or `App.SetDate(date)` for testing
-- Or make `DateService` injectable with a fixed-date variant
-
-Test:
-- Create app with winter date → query "Bar, Novi Sad" → seasonal message
-- Create app with summer date → query "Bar, Novi Sad" → valid routes
-
-#### 4.8 — Uncomment summer stations in `TestNameClashing`
-
-The commented-out entries for Novi Beograd, Stara Pazova, Nova Pazova, Novi Sad become active. These test that fuzzy name matching works for summer stations.
-
-#### 4.9 — Update `TestBlackList`
-
-Summer stations are no longer in `blacklist.BlackListedStations`, so the test loop naturally skips them. Verify the test still passes with the reduced blacklist.
-
-#### 4.10 — Full test pass: `make test_unit`
-
-#### 4.11 — Integration test (stretch goal)
-
-Add a test case in `test/integration/telegram_test.go` that sends a message like "Novi Sad, Bar" and validates the response is either a seasonal message or valid timetable depending on the configured test date.
+**5.18 — Season boundary:**
+- App date: 2026-06-11 → "Novi Sad, Bar" → seasonal message
+- App date: 2026-06-12 → "Novi Sad, Bar" → valid timetable
 
 ---
 
-## Files to Modify (Summary)
+## Files to Modify / Create
 
 | File | Change |
 |------|--------|
-| `internal/model/timetable/train.go` | Add `ValidFrom`, `ValidTo` to `TrainInfo` |
-| `internal/model/timetable/season.go` | **New file** — season config, seasonal station list, seasonal messages |
+| `internal/model/timetable/validity.go` | **New** — `Validity`, `ValidityRange` structs |
+| `internal/model/timetable/validity_test.go` | **New** — Validity unit tests |
+| `internal/model/timetable/train.go` | Add `Validity` field to `TrainInfo` |
+| `internal/model/timetable/season.go` | **New** — season config types |
 | `internal/model/stations/blacklist.go` | Remove summer stations group |
-| `internal/model/stations/alias.go` | Uncomment/add summer station aliases |
-| `cmd/exporter/main.go` | Multiple dates, expanded route URLs |
-| `internal/service/parser/routes/routes.go` | Merge validity ranges for same train across dates |
-| `internal/service/parser/parser.go` | Preserve `ValidFrom`/`ValidTo` in `TrainInfo` |
-| `internal/service/pathfinder/pathfinder.go` | Add date filtering, train info map, `IsStationAvailable` |
-| `internal/app/app.go` | Pass date to pathfinder, seasonal availability check, wire new deps |
-| `internal/service/pathfinder/pathfinder_test.go` | Date-filtered pathfinding tests |
-| `internal/app/app_test.go` | Seasonal behavior tests, uncomment summer stations |
-| `gen/timetable/timetable.gen.go` | Regenerated with both seasons |
+| `internal/model/stations/alias.go` | Uncomment summer station aliases |
+| `cmd/exporter/config.yaml` | **New** — parser config file |
+| `cmd/exporter/main.go` | Read config file, multi-date fetching |
+| `internal/service/parser/config.go` | **New** — config file parser + validation |
+| `internal/service/parser/config_test.go` | **New** — config parsing tests |
+| `internal/service/parser/parser.go` | Multi-season parsing, train classification |
+| `internal/service/pathfinder/pathfinder.go` | Date filtering, `IsStationAvailable` |
+| `internal/service/pathfinder/pathfinder_test.go` | Date-filtered tests |
+| `internal/app/app.go` | Date wiring, seasonal check, date injection |
+| `internal/app/app_test.go` | Seasonal behavior tests |
+| `test/integration/telegram_test.go` | Season switching integration tests |
+| `gen/timetable/timetable.gen.go` | Regenerated with all seasons |
 
 ## Implementation Order
 
-1. **Phase 1** first — safe, no behavioral changes until the exporter and runtime are updated
-2. **Phase 2** — exporter changes can be tested in isolation by running the exporter and inspecting output
-3. **Phase 3** — this is where behavior changes; do runtime filtering + app wiring together
-4. **Phase 4** — tests throughout, but especially after Phase 3
+1. **Phase 1** — Data model (Validity struct, season config types, blacklist cleanup)
+2. **Phase 2** — Config file format + parser
+3. **Phase 3** — Exporter multi-season parsing
+4. **Phase 4** — Runtime filtering in PathFinder + App
+5. **Phase 5** — Tests throughout, integration tests last
 
 ## Verification
 
 1. `make test_unit` — all tests pass
-2. Query winter-only route (Nikšić → Bar) → works year-round, no regression
-3. Query summer station (Bar → Novi Sad) with winter date → seasonal message
-4. Query summer station (Bar → Novi Sad) with summer date → valid routes
-5. Permanent blacklist stations (Budva, Tivat, etc.) → still show "no train station" messages
+2. `make test_integration` — season switching works end-to-end
+3. Winter route (Nikšić → Bar) → works in any season
+4. Summer station (Bar → Novi Sad) in winter → seasonal message
+5. Summer station (Bar → Novi Sad) in summer → valid routes
+6. Season boundary (Jun 11 vs Jun 12) → correct behavior
+7. Permanent blacklist (Budva, Tivat) → unchanged
