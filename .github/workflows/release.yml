@@ -1,0 +1,159 @@
+name: Release
+
+# Triggered by pushing a version tag, e.g.: git tag v1.2.3 && git push origin v1.2.3
+#
+# Pipeline:
+#   1. Build & push Docker image
+#   2. Deploy to test environment (requires manual approval via GitHub Environment protection)
+#   3. Deploy to production
+#
+# TODO: create two environments in Settings → Environments:
+#   "release-test"  — add required reviewers to gate the test env deploy
+#   "production"    — add required reviewers to gate the production deploy
+#
+# TODO: set up these secrets in the repository settings:
+#   GCLOUD_SA_KEY_TEST   — service account JSON key for the test project
+#   GCLOUD_SA_KEY_PROD   — service account JSON key for the production project
+#   DOCKER_REGISTRY      — e.g. gcr.io/my-project or europe-docker.pkg.dev/my-project/my-repo
+#   TELEGRAM_APITOKEN_TEST  — test bot token
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  # TODO: replace with actual values
+  DOCKER_REGISTRY: "TODO-registry"
+  GCLOUD_REGION: "TODO-region"
+  GCLOUD_SERVICE_NAME: "zpcg"
+
+jobs:
+  build:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for git describe
+
+      - name: Resolve image tag
+        id: meta
+        run: |
+          VERSION="${{ github.ref_name }}"
+          IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/${{ env.GCLOUD_SERVICE_NAME }}:${VERSION}"
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Building version ${VERSION} → ${IMAGE_TAG}"
+
+      # TODO: uncomment once GCP credentials are set up
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GCLOUD_SA_KEY_PROD }}
+
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build Docker image
+        run: |
+          echo "Would build: ${{ steps.meta.outputs.image_tag }}"
+          # TODO: uncomment once registry auth is configured
+          # docker build \
+          #   -t "${{ steps.meta.outputs.image_tag }}" \
+          #   -f deploy/Dockerfile \
+          #   --build-arg VERSION="${{ steps.meta.outputs.version }}" \
+          #   --build-arg COMMIT="${{ github.sha }}" \
+          #   .
+
+      - name: Push Docker image
+        run: |
+          echo "Would push: ${{ steps.meta.outputs.image_tag }}"
+          # TODO: uncomment once registry auth is configured
+          # docker push "${{ steps.meta.outputs.image_tag }}"
+
+  deploy-test:
+    name: Deploy to Test Environment
+    needs: build
+    runs-on: ubuntu-latest
+    # TODO: create a "release-test" environment in Settings → Environments.
+    # Add required reviewers there to make this step require manual approval before proceeding.
+    environment: release-test
+    env:
+      GCLOUD_PROJECT_ID: "TODO-test-project-id"
+      GCLOUD_SERVICE_NAME_TEST: "zpcg-test"
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: uncomment once GCP credentials are set up
+      # - name: Authenticate to Google Cloud (test)
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GCLOUD_SA_KEY_TEST }}
+
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run (test)
+        run: |
+          echo "Would deploy ${{ needs.build.outputs.image_tag }} to test environment"
+          # TODO: uncomment once test environment exists
+          # gcloud run deploy "${{ env.GCLOUD_SERVICE_NAME_TEST }}" \
+          #   --image="${{ needs.build.outputs.image_tag }}" \
+          #   --set-secrets=TELEGRAM_APITOKEN=${{ secrets.TELEGRAM_APITOKEN_TEST }} \
+          #   --set-env-vars=ENVIRONMENT=test \
+          #   --execution-environment=gen1 \
+          #   --region="${{ env.GCLOUD_REGION }}" \
+          #   --project="${{ env.GCLOUD_PROJECT_ID }}" \
+          # && gcloud run services update-traffic "${{ env.GCLOUD_SERVICE_NAME_TEST }}" \
+          #   --to-latest \
+          #   --region "${{ env.GCLOUD_REGION }}"
+
+      - name: Print test environment URL
+        run: |
+          echo "Test URL: TODO — retrieve from gcloud run services describe"
+
+  deploy-production:
+    name: Deploy to Production
+    needs: [build, deploy-test]
+    runs-on: ubuntu-latest
+    # TODO: create a "production" environment in Settings → Environments.
+    # Add required reviewers there to gate production deploys.
+    environment: production
+    env:
+      GCLOUD_PROJECT_ID: "TODO-prod-project-id"
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: uncomment once GCP credentials are set up
+      # - name: Authenticate to Google Cloud (production)
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GCLOUD_SA_KEY_PROD }}
+
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run (production)
+        run: |
+          echo "Would deploy ${{ needs.build.outputs.image_tag }} to production"
+          # TODO: uncomment once production environment is wired up
+          # gcloud run deploy "${{ env.GCLOUD_SERVICE_NAME }}" \
+          #   --image="${{ needs.build.outputs.image_tag }}" \
+          #   --set-secrets=TELEGRAM_APITOKEN=${{ secrets.TELEGRAM_APITOKEN_PROD }} \
+          #   --set-env-vars=ENVIRONMENT=production \
+          #   --execution-environment=gen1 \
+          #   --region="${{ env.GCLOUD_REGION }}" \
+          #   --project="${{ env.GCLOUD_PROJECT_ID }}" \
+          # && gcloud run services update-traffic "${{ env.GCLOUD_SERVICE_NAME }}" \
+          #   --to-latest \
+          #   --region "${{ env.GCLOUD_REGION }}"
+
+      - name: Create GitHub Release
+        run: |
+          echo "Would create GitHub release for ${{ github.ref_name }}"
+          # TODO: uncomment once ready
+          # GH_TOKEN=$(contribute token) gh release create "${{ github.ref_name }}" \
+          #   --title "Release ${{ github.ref_name }}" \
+          #   --generate-notes
