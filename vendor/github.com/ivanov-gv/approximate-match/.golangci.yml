@@ -1,0 +1,32 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    # --- correctness (superset of standard) ---
+    - errcheck        # unchecked errors
+    - govet           # go vet
+    - staticcheck     # static analysis (includes gosimple + unused checks)
+    - ineffassign     # assignments that are never used
+    - bodyclose       # http response body not closed
+    - noctx           # http calls without context
+    - errorlint       # incorrect error wrapping (Go 1.13+)
+    # --- style / quality ---
+    - revive          # drop-in replacement for golint
+    - gocritic        # code quality suggestions
+    - misspell        # spelling errors
+    - gosec           # security issues
+    - exhaustive      # missing enum switch cases
+
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true  # don't require comments on every exported symbol
+    gocritic:
+      disabled-checks:
+        - ifElseChain   # we use guard clauses
+
+formatters:
+  enable:
+    - goimports       # gofmt + import organization (strictly better than gofmt alone)
