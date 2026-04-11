@@ -138,6 +138,22 @@ func (r *Render) ErrorMessage(languageTag language.Tag) message.Response {
 	}
 }
 
+func (r *Render) StationNotFoundMessage(languageTag language.Tag) message.Response {
+	return message.Response{
+		Text:      GetMessage(model_render.StationDoesNotExistMessageMap, languageTag),
+		ParseMode: message.ModeNone,
+		InlineKeyboard: [][]message.InlineButton{
+			{
+				{
+					Type: message.UrlInlineButtonType,
+					Text: GetMessage(model_render.RailwayMapButtonTextMap, languageTag),
+					Url:  message.UrlButton{Url: model_render.GoogleMapWithAllStations},
+				},
+			},
+		},
+	}
+}
+
 func (r *Render) Command(languageTag language.Tag, command string) message.Response {
 	switch model_render.BotCommand(strings.TrimSpace(command)) {
 	default:

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -152,7 +153,11 @@ func (a *App) HandleMessage(_message message.Message) (responseWithChatIds messa
 	}
 	// handle error
 	if err != nil {
-		response = a.render.ErrorMessage(languageTag)
+		if errors.Is(err, name.ErrNoMatchesFound) {
+			response = a.render.StationNotFoundMessage(languageTag)
+		} else {
+			response = a.render.ErrorMessage(languageTag)
+		}
 	}
 	send := []message.ToSend{
 		{
