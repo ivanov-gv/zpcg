@@ -13,8 +13,6 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/service/name"
 )
 
-type rawStationId int
-
 type rawStationType struct {
 	StopTypeID int    `json:"StopTypeID"`
 	NameMe     string `json:"Name_me"`

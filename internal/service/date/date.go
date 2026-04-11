@@ -24,7 +24,10 @@ type DateService struct {
 	ctx         context.Context
 }
 
-const day = 24 * time.Hour
+const (
+	day                = 24 * time.Hour
+	podgoricaUTCOffset = 2 * time.Hour // FIXME: Cloud Run runs in UTC; time.In(location) broken there
+)
 
 // NewDateService holds current date and updates it once a day
 func NewDateService(ctx context.Context) *DateService {
@@ -53,7 +56,7 @@ func (d *DateService) CurrentDateAsTime() time.Time {
 }
 
 func (d *DateService) startUpdatingLoop(duration time.Duration) time.Time {
-	now := time.Now().Add(2 * time.Hour) // FIXME: on the CLoud Run time is in UTC, but converting it to Podgorica time using In(location) is not working for some reason
+	now := time.Now().Add(podgoricaUTCOffset)
 	currentDate := now.Truncate(duration)
 	d.currentDate.Store(toInt64(currentDate))
 	go func() {
@@ -64,7 +67,7 @@ func (d *DateService) startUpdatingLoop(duration time.Duration) time.Time {
 			case <-d.ctx.Done():
 				return
 			case now = <-timer.C:
-				now = now.Add(2 * time.Hour) // FIXME: on the CLoud Run time is in UTC, but converting it to Podgorica time using In(location) is not working for some reason
+				now = now.Add(podgoricaUTCOffset)
 				d.currentDate.Store(toInt64(tomorrow))
 				tomorrow = tomorrow.Add(duration)
 				timer.Reset(tomorrow.Sub(now))

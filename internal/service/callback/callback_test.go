@@ -2,9 +2,12 @@ package callback
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConstants(t *testing.T) {
 	service := NewCallbackService()
-	service.ParseCallback("1|Podgorica | Nikšić|")
+	_, err := service.ParseCallback("1|Podgorica | Nikšić|")
+	assert.NoError(t, err)
 }

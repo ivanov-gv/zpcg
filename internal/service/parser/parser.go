@@ -113,8 +113,7 @@ func MapTimetableToTransferFormat(routes map[timetable.TrainId]timetable.Detaile
 		}
 	}
 	// fill unifiedStationNameList
-	var unifiedStationNameList []string
-	unifiedStationNameList = lo.Keys(unifiedStationNameToStationIdMap)
+	unifiedStationNameList := lo.Keys(unifiedStationNameToStationIdMap)
 	// sort for more predictable output
 	sort.Strings(unifiedStationNameList)
 	// get transfer station id
@@ -142,7 +141,7 @@ func AddBlacklistedStations(_timetable timetable.ExportFormat) (timetable.Export
 	// ensure the map is not broken
 	if oldMapLen := len(_timetable.UnifiedStationNameToStationIdMap) + len(blacklist.UnifiedStationNameToStationIdMap); len(newMap) != oldMapLen {
 		return timetable.ExportFormat{},
-			fmt.Errorf("seems like some stations got overriden by the black list [diff=%d]", len(newMap)-oldMapLen)
+			fmt.Errorf("seems like some stations got overridden by the black list [diff=%d]", len(newMap)-oldMapLen)
 	}
 	_timetable.UnifiedStationNameToStationIdMap = newMap
 	return _timetable, nil

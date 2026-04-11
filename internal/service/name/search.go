@@ -59,7 +59,7 @@ func findBestMatch(sample []rune, searchList [][]rune) (string, error) {
 	sampleRunes := map[rune]RuneStat{}
 	// define number of every letter in the sample, save every substring starting with that letter
 	for i, char := range sample {
-		stat, _ := sampleRunes[char]
+		stat := sampleRunes[char]
 		stat.num += 1
 		stat.substrings = append(stat.substrings, sample[i:])
 		sampleRunes[char] = stat

@@ -12,6 +12,8 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/model/render"
 )
 
+const botRequestTimeout = 30 * time.Second
+
 func main() {
 	var token string
 	if _token, ok := os.LookupEnv("TELEGRAM_APITOKEN"); ok {
@@ -24,13 +26,13 @@ func main() {
 			Client:             http.Client{},
 			UseTestEnvironment: false,
 			DefaultRequestOpts: &gotgbot.RequestOpts{
-				Timeout: time.Second * 30,
+				Timeout: botRequestTimeout,
 				APIURL:  "",
 			},
 		}),
 		DisableTokenCheck: false,
 		RequestOpts: &gotgbot.RequestOpts{
-			Timeout: time.Second * 30,
+			Timeout: botRequestTimeout,
 			APIURL:  "",
 		},
 	})

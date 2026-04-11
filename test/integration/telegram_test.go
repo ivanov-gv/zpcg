@@ -52,7 +52,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 	assert.Eventually(t, func() bool {
 		conn, err := net.Dial("tcp", Url)
 		if conn != nil {
-			defer conn.Close()
+			_ = conn.Close()
 		}
 		return err == nil
 	}, time.Second, 100*time.Millisecond)
@@ -64,6 +64,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer([]byte(request)))
 		assert.NoError(t, err)
 		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 	})
 	// start message
@@ -85,6 +86,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 				response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 				assert.NoError(t, err)
 				require.NotNil(t, response)
+				defer func() { _ = response.Body.Close() }()
 				assert.Equal(t, response.StatusCode, http.StatusOK)
 				t.Log("telegram response: ", lo.LastOrEmpty(mockTgClient.Calls).Arguments)
 			})
@@ -107,6 +109,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
 		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
@@ -129,6 +132,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
 		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})
@@ -151,6 +155,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
 		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
 	})

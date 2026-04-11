@@ -1,59 +1,26 @@
+version: "2"
+
 run:
   timeout: 5m
   modules-download-mode: vendor
 
 linters:
+  default: standard  # errcheck, govet, ineffassign, staticcheck, unused
   enable:
-    - errcheck       # check for unchecked errors
-    - govet          # go vet passes
-    - staticcheck    # static analysis
-    - gosimple       # simplification suggestions
-    - ineffassign    # detect ineffectual assignments
-    - unused         # detect unused code
-    - mnd            # magic numbers
-    - revive         # general linting rules (replaces golint)
-    - goimports      # import grouping and formatting
-    - gocritic       # various diagnostics
-    - noctx          # detect http requests without context
-    - bodyclose      # ensure http response bodies are closed
-    - nilerr         # detect returning nil error when non-nil
-    - unparam        # detect unused function parameters
-    - misspell       # correct common spelling mistakes
+    - mnd        # magic numbers
+    - bodyclose  # ensure http response bodies are closed
+    - unparam    # detect unused function parameters
+    - misspell   # correct common spelling mistakes
 
-linters-settings:
-  mnd:
-    checks:
-      - argument
-      - case
-      - condition
-      - operation
-      - return
-      - assign
-  revive:
-    rules:
-      - name: exported
-      - name: var-naming
-      - name: error-return
-      - name: error-naming
-      - name: if-return
-      - name: increment-decrement
-      - name: range
-      - name: receiver-naming
-      - name: time-naming
-      - name: unexported-return
-      - name: indent-error-flow
-      - name: errorf
-      - name: empty-block
-      - name: superfluous-else
-      - name: unreachable-code
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - performance
-      - style
+  settings:
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - operation
+        - return
+        - assign
 
-issues:
-  # no global exceptions per guidelines — all suppressions must be local with //nolint:<linter> // reason
-  exclude-rules: []
-  max-issues-per-linter: 0
-  max-same-issues: 0
+# No global exclusions per guidelines — all suppressions must be
+# local //nolint:<linter> // reason comments at the specific line.

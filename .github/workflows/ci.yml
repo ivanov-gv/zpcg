@@ -19,11 +19,8 @@ jobs:
           cache: false  # using vendor, no module cache needed
 
       - name: Run unit tests
-        run: |
-          # internal/service/render tests require the native tdlib C library (CGO).
-          # Exclude it here the same way the Makefile's test_integration comment documents.
-          PKGS=$(go list ./internal/... | grep -v 'service/render')
-          go test -count=1 -race $PKGS
+        # render_test.go has //go:build !nolibdeps — skip it since tdlib C library is unavailable on CI.
+        run: go test -count=1 -race -tags nolibdeps ./internal/...
 
   lint:
     name: Lint
@@ -40,7 +37,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64.8
-          # Exclude internal/service/render — its tests import go-tdlib/client which
-          # requires the native tdlib C library not available on CI runners.
-          args: --timeout=5m --exclude-dirs=internal/service/render ./...
+          version: v2.11.4
+          # render_test.go has //go:build !nolibdeps: it imports go-tdlib/client (CGO)
+          # which requires the native tdlib C library not available on CI runners.
+          args: --timeout=5m --build-tags nolibdeps ./...
