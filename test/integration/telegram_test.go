@@ -171,15 +171,18 @@ func TestTelegramRouteResponse(t *testing.T) {
 			},
 		}
 		requestRaw := lo.Must(json.Marshal(request))
+		var capturedParams map[string]string
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
+			Run(func(_ context.Context, _, _ string, params map[string]string, _ map[string]gotgbot.FileReader, _ *gotgbot.RequestOpts) {
+				capturedParams = params
+			}).
 			Return([]byte("{}"), nil)
 		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
 		assert.NoError(t, err)
 		require.NotNil(t, response)
 		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
-		params := lo.LastOrEmpty(mockTgClient.Calls).Arguments.Get(3).(map[string]string)
-		assert.Equal(t, model_render.StationDoesNotExistMessageMap[language.English], params["text"])
-		assert.Contains(t, params["reply_markup"], model_render.GoogleMapWithAllStations)
+		assert.Equal(t, model_render.StationDoesNotExistMessageMap[language.English], capturedParams["text"])
+		assert.Contains(t, capturedParams["reply_markup"], model_render.GoogleMapWithAllStations)
 	})
 }
