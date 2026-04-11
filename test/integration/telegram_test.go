@@ -68,6 +68,33 @@ func TestTelegramRouteResponse(t *testing.T) {
 		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, response.StatusCode, http.StatusOK)
 	})
+	// unknown station request — must run before "start message" to avoid stale sendMessage expectations
+	// consuming the Run callback before it gets a chance to match
+	t.Run("unknown station request", func(t *testing.T) {
+		request := gotgbot.Update{
+			UpdateId: 100, // unique ID so the dedup cache doesn't drop it
+			Message: &gotgbot.Message{
+				Text: "Berlin, London",
+				From: &gotgbot.User{
+					LanguageCode: "en",
+				},
+			},
+		}
+		requestRaw := lo.Must(json.Marshal(request))
+		var capturedParams map[string]string
+		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
+			Run(func(_ context.Context, _, _ string, params map[string]string, _ map[string]gotgbot.FileReader, _ *gotgbot.RequestOpts) {
+				capturedParams = params
+			}).
+			Return([]byte("{}"), nil)
+		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
+		assert.NoError(t, err)
+		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
+		assert.Equal(t, http.StatusOK, response.StatusCode)
+		assert.Equal(t, model_render.StationDoesNotExistMessageMap[language.English], capturedParams["text"])
+		assert.Contains(t, capturedParams["reply_markup"], model_render.GoogleMapWithAllStations)
+	})
 	// start message
 	t.Run("start message", func(t *testing.T) {
 		for _, languageTag := range model_render.SupportedLanguages {
@@ -159,31 +186,5 @@ func TestTelegramRouteResponse(t *testing.T) {
 		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
-	})
-	// unknown station request
-	t.Run("unknown station request", func(t *testing.T) {
-		request := gotgbot.Update{
-			UpdateId: 100, // unique ID — all other tests use default 0, which gets deduplicated after 3 retries
-			Message: &gotgbot.Message{
-				Text: "Berlin, London",
-				From: &gotgbot.User{
-					LanguageCode: "en",
-				},
-			},
-		}
-		requestRaw := lo.Must(json.Marshal(request))
-		var capturedParams map[string]string
-		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
-			Run(func(_ context.Context, _, _ string, params map[string]string, _ map[string]gotgbot.FileReader, _ *gotgbot.RequestOpts) {
-				capturedParams = params
-			}).
-			Return([]byte("{}"), nil)
-		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
-		assert.NoError(t, err)
-		require.NotNil(t, response)
-		defer func() { _ = response.Body.Close() }()
-		assert.Equal(t, http.StatusOK, response.StatusCode)
-		assert.Equal(t, model_render.StationDoesNotExistMessageMap[language.English], capturedParams["text"])
-		assert.Contains(t, capturedParams["reply_markup"], model_render.GoogleMapWithAllStations)
 	})
 }
