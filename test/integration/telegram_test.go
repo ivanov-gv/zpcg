@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/text/language"
 
 	mock_server "github.com/ivanov-gv/zpcg/gen/mocks/server"
 	"github.com/ivanov-gv/zpcg/internal/app"
@@ -158,5 +159,27 @@ func TestTelegramRouteResponse(t *testing.T) {
 		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
 		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
+	})
+	// unknown station request
+	t.Run("unknown station request", func(t *testing.T) {
+		request := gotgbot.Update{
+			Message: &gotgbot.Message{
+				Text: "Berlin, London",
+				From: &gotgbot.User{
+					LanguageCode: "en",
+				},
+			},
+		}
+		requestRaw := lo.Must(json.Marshal(request))
+		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
+			Return([]byte("{}"), nil)
+		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
+		assert.NoError(t, err)
+		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
+		assert.Equal(t, http.StatusOK, response.StatusCode)
+		params := lo.LastOrEmpty(mockTgClient.Calls).Arguments.Get(3).(map[string]string)
+		assert.Equal(t, model_render.StationDoesNotExistMessageMap[language.English], params["text"])
+		assert.Contains(t, params["reply_markup"], model_render.GoogleMapWithAllStations)
 	})
 }
