@@ -1,6 +1,6 @@
 module github.com/ivanov-gv/zpcg
 
-go 1.23
+go 1.26.1
 
 require (
 	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.30
@@ -8,17 +8,18 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/rs/zerolog v1.33.0
-	github.com/samber/lo v1.47.0
-	github.com/stretchr/testify v1.10.0
+	github.com/samber/lo v1.53.0
+	github.com/stretchr/testify v1.11.1
 	github.com/yfuruyama/crzerolog v0.3.1
 	github.com/zelenin/go-tdlib v0.7.4
 	golang.org/x/net v0.32.0
-	golang.org/x/text v0.21.0
+	golang.org/x/text v0.34.0
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/ivanov-gv/approximate-match v0.0.0-20260410195618-220fa966108a // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
