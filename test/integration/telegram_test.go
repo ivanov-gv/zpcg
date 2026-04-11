@@ -163,6 +163,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 	// unknown station request
 	t.Run("unknown station request", func(t *testing.T) {
 		request := gotgbot.Update{
+			UpdateId: 100, // unique ID — all other tests use default 0, which gets deduplicated after 3 retries
 			Message: &gotgbot.Message{
 				Text: "Berlin, London",
 				From: &gotgbot.User{
