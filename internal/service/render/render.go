@@ -62,7 +62,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	// add prefix to align header with table content
 	lines = append(lines, header)
 	// render the rest of the message
-	timetableUrl := getUrlToTimetable(origin.Name, destination.Name, time.Time{})
+	timetableUrl := getUrlToTimetable(origin.Name, destination.Name)
 	for _, path := range paths {
 		train := r.trainsMap[path.TrainId]
 		line := fmt.Sprintf("[%04d](%s)` %s %s %s `",
@@ -97,8 +97,8 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 	// add header
 	lines = append(lines, header)
 	// add other lines
-	originToTransferTimetableUrl := getUrlToTimetable(origin.Name, transfer.Name, time.Time{})
-	transferToDestinationTimetableUrl := getUrlToTimetable(transfer.Name, destination.Name, time.Time{})
+	originToTransferTimetableUrl := getUrlToTimetable(origin.Name, transfer.Name)
+	transferToDestinationTimetableUrl := getUrlToTimetable(transfer.Name, destination.Name)
 	for _, path := range paths {
 		var (
 			train = r.trainsMap[path.TrainId]
@@ -222,7 +222,7 @@ func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {
 func moreDetailsLink(languageTag language.Tag, origin, destination string) string {
 	return fmt.Sprintf("[%s](%s)",
 		GetMessage(model_render.OfficialTimetableUrlTextMap, languageTag),
-		getUrlToTimetable(origin, destination, time.Time{}))
+		getUrlToTimetable(origin, destination))
 }
 
 func ParseLanguageTag(languageCode string) language.Tag {

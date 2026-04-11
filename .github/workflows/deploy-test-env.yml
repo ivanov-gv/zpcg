@@ -1,0 +1,94 @@
+name: Deploy to Test Environment
+
+# Runs ONLY on explicit manual trigger — never automatically.
+# Use this to validate a PR in a real environment before merging.
+#
+# How to trigger:
+#   gh workflow run deploy-test-env.yml --ref <pr-branch>
+#   or via Actions → "Deploy to Test Environment" → Run workflow → select branch
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy (for tracking)'
+        required: false
+        type: string
+
+# TODO: set up these secrets in the repository settings when the test environment is provisioned:
+#   GCLOUD_SA_KEY_TEST      — service account JSON key with Cloud Run deploy permissions
+#   DOCKER_REGISTRY         — e.g. gcr.io/my-project or europe-docker.pkg.dev/my-project/my-repo
+#   TELEGRAM_APITOKEN_TEST  — test bot token
+
+env:
+  # TODO: replace with actual test project/region values
+  GCLOUD_PROJECT_ID: "TODO-test-project-id"
+  GCLOUD_REGION: "TODO-region"
+  GCLOUD_SERVICE_NAME: "zpcg-test"
+  DOCKER_REGISTRY: "TODO-registry"
+
+jobs:
+  deploy-test:
+    name: Deploy PR to Test Environment
+    runs-on: ubuntu-latest
+    # TODO: create a "test" environment in Settings → Environments with optional reviewers if desired
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log deploy intent
+        run: |
+          echo "Deploying branch '${{ github.ref_name }}' to test environment"
+          if [ -n "${{ inputs.pr_number }}" ]; then
+            echo "Associated PR: #${{ inputs.pr_number }}"
+          fi
+
+      # TODO: uncomment and configure once GCP credentials are set up
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GCLOUD_SA_KEY_TEST }}
+
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build image
+        run: |
+          IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/${{ env.GCLOUD_SERVICE_NAME }}:pr-${{ github.sha }}"
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
+          # TODO: uncomment once registry auth is configured
+          # docker build \
+          #   -t "${IMAGE_TAG}" \
+          #   -f deploy/Dockerfile \
+          #   --build-arg VERSION="$(git describe --tags --always)" \
+          #   --build-arg COMMIT="${{ github.sha }}" \
+          #   .
+
+      - name: Push image
+        run: |
+          echo "Would push: ${IMAGE_TAG}"
+          # TODO: uncomment once registry auth is configured
+          # docker push "${IMAGE_TAG}"
+
+      - name: Deploy to Cloud Run (test)
+        run: |
+          echo "Would deploy ${IMAGE_TAG} to Cloud Run service '${GCLOUD_SERVICE_NAME}'"
+          # TODO: uncomment and fill in once test environment exists
+          # gcloud run deploy "${{ env.GCLOUD_SERVICE_NAME }}" \
+          #   --image="${IMAGE_TAG}" \
+          #   --set-secrets=TELEGRAM_APITOKEN=${{ secrets.TELEGRAM_APITOKEN_TEST }} \
+          #   --set-env-vars=ENVIRONMENT=test \
+          #   --execution-environment=gen1 \
+          #   --region="${{ env.GCLOUD_REGION }}" \
+          #   --project="${{ env.GCLOUD_PROJECT_ID }}" \
+          # && gcloud run services update-traffic "${{ env.GCLOUD_SERVICE_NAME }}" \
+          #   --to-latest \
+          #   --region "${{ env.GCLOUD_REGION }}"
+
+      - name: Print test environment URL
+        run: |
+          echo "Test environment URL: TODO — retrieve from gcloud run services describe output"
+          # TODO: uncomment once environment exists
+          # gcloud run services describe "${{ env.GCLOUD_SERVICE_NAME }}" \
+          #   --region="${{ env.GCLOUD_REGION }}" \
+          #   --project="${{ env.GCLOUD_PROJECT_ID }}" \
+          #   --format="value(status.url)"

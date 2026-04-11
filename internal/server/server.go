@@ -42,7 +42,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 		return fmt.Errorf("tgbotapi.NewBotAPI: %w", err)
 	}
 	// updates cache
-	updateCache, err := lru.New[int64, int8](64)
+	updateCache, err := lru.New[int64, int8](updateCacheSize)
 	if err != nil {
 		return fmt.Errorf("lru.New[int64, int8]: %w", err)
 	}
@@ -56,7 +56,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 	// server
 	mux := http.NewServeMux()
 	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot, updateCache, postHandlers...))))
-	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) { return })
+	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) {})
 	// start
 	if err := http.ListenAndServe(":"+_config.Port, mux); !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("http.ListenAndServe: %w", err)
@@ -67,7 +67,10 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 type PostTgMsgHandler func(message.ResponseWithChatId) message.ResponseWithChatId
 
 const (
-	maxUpdateRetry = 3
+	maxUpdateRetry   = 3
+	updateCacheSize  = 64    // max number of in-flight update IDs to deduplicate
+	logPreviewLines  = 2     // how many response lines to show in the log trace
+	chatIdDivisor    = 10000 // cut last 4 digits from chat ID for privacy in logs
 )
 
 func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCache *lru.Cache[int64, int8],
@@ -180,16 +183,16 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 	// log responseTexts
 	var responseShorts []string
 	for _, response := range responseTexts {
-		// get first 2 lines of the response
+		// get first logPreviewLines lines of the response
 		responseLines := strings.Split(response, "\n")
-		if len(responseLines) > 2 {
-			responseLines = responseLines[:2]
+		if len(responseLines) > logPreviewLines {
+			responseLines = responseLines[:logPreviewLines]
 		}
 		responseShorts = append(responseShorts, strings.Join(responseLines, "\n"))
 	}
 	switch {
 	case update.Message != nil:
-		chatId := update.Message.Chat.Id / 10000 // cut last 4 digits
+		chatId := update.Message.Chat.Id / chatIdDivisor // cut last 4 digits for privacy
 		languageCode := update.Message.From.LanguageCode
 		text := update.Message.Text
 		// log
@@ -200,7 +203,7 @@ func logTrace(update gotgbot.Update, responseTexts []string, warning, finalError
 			Strs("responseShorts", responseShorts).
 			Msgf(logFmt, "new message handled")
 	case update.CallbackQuery != nil:
-		chatId := update.CallbackQuery.Message.GetChat().Id / 10000 // cut last 4 digits
+		chatId := update.CallbackQuery.Message.GetChat().Id / chatIdDivisor // cut last 4 digits for privacy
 		languageCode := update.CallbackQuery.From.LanguageCode
 		callbackData := update.CallbackQuery.Data
 

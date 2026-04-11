@@ -178,7 +178,7 @@ func parseInputStations(input string) (originStation, destinationStation string,
 
 	// parse stations
 	stations := strings.Split(inputWithProperDelimiter, string(stationsDelimiter))
-	if len(stations) < 2 {
+	if len(stations) < 2 { //nolint:mnd // need at least origin and destination
 		return "", "", fmt.Errorf("not enough stations provided: %s", inputWithProperDelimiter)
 	}
 	return stations[0], lo.Must(lo.Last(stations)), nil

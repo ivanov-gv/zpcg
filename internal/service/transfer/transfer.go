@@ -22,13 +22,15 @@ import (
 var Timetable = %#v
 `
 
+const exportedFilePermissions = 0644 // owner read/write, group/world read
+
 func ExportTimetable(filename string, timetable timetable2.ExportFormat) error {
 	fileContent := fmt.Sprintf(timetableGoFileFormat, timetable)
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-	defer file.Close()
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, exportedFilePermissions)
 	if err != nil {
 		return fmt.Errorf("can not open file with os.OpenFile: %w", err)
 	}
+	defer func() { _ = file.Close() }()
 	_, err = file.WriteString(fileContent)
 	if err != nil {
 		return fmt.Errorf("can not encode timetable with enc.Encode: %w", err)

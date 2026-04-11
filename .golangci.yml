@@ -1,0 +1,26 @@
+version: "2"
+
+run:
+  timeout: 5m
+  modules-download-mode: vendor
+
+linters:
+  default: standard  # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - mnd        # magic numbers
+    - bodyclose  # ensure http response bodies are closed
+    - unparam    # detect unused function parameters
+    - misspell   # correct common spelling mistakes
+
+  settings:
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - operation
+        - return
+        - assign
+
+# No global exclusions per guidelines — all suppressions must be
+# local //nolint:<linter> // reason comments at the specific line.
