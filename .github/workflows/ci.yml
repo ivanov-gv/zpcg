@@ -47,8 +47,8 @@ jobs:
           echo "CGO_LDFLAGS=-L$HOME/tdlib/lib -ltdjson" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=$HOME/tdlib/lib" >> "$GITHUB_ENV"
 
-      - name: Run unit tests
-        run: go test -count=1 -race ./internal/...
+      - name: Run all tests
+        run: go test -count=1 -race ./...
 
   lint:
     name: Lint
