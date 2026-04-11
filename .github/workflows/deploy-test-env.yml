@@ -27,16 +27,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v3
         with:
-          project_id: ${{ env.GCLOUD_PROJECT_ID }}
-          workload_identity_provider: ${{ env.GCLOUD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.GCLOUD_SERVICE_ACCOUNT }}
+          project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.GCLOUD_REGION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ vars.GCLOUD_REGION }}-docker.pkg.dev --quiet
 
       - name: Build image and push
         run: |
-          IMAGE_TAG="${{ env.DOCKER_IMAGE_PATH }}:commit-${{ github.sha }}-pr-${{ inputs.pr_number }}"
+          IMAGE_TAG="${{ vars.DOCKER_IMAGE_PATH }}:commit-${{ github.sha }}-pr-${{ inputs.pr_number }}"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
           docker build -t "${IMAGE_TAG}" -f deploy/Dockerfile . \
             --label "commit=${{ github.sha }}" \
@@ -45,13 +45,13 @@ jobs:
           docker push "${IMAGE_TAG}"
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy "${{ env.GCLOUD_PROJECT }}" \
+          gcloud run deploy "${{ vars.GCLOUD_PROJECT }}" \
             --image="${IMAGE_TAG}" \
-            --set-env-vars=ENVIRONMENT=${{ env.ENV_VAR_ENVIRONMENT }} \
+            --set-env-vars=ENVIRONMENT=${{ vars.ENV_VAR_ENVIRONMENT }} \
             --set-secrets=TELEGRAM_APITOKEN=${{ secrets.SECRET_TELEGRAM_APITOKEN }} \
             --execution-environment=gen1 \
-            --region="${{ env.GCLOUD_REGION }}" \
-            --project="${{ env.GCLOUD_PROJECT_ID }}" \
-          && gcloud run services update-traffic "${{ env.GCLOUD_PROJECT }}" \
+            --region="${{ vars.GCLOUD_REGION }}" \
+            --project="${{ vars.GCLOUD_PROJECT_ID }}" \
+          && gcloud run services update-traffic "${{ vars.GCLOUD_PROJECT }}" \
             --to-latest \
-            --region "${{ env.GCLOUD_REGION }}"
+            --region "${{ vars.GCLOUD_REGION }}"
