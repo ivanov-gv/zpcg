@@ -1,6 +1,3 @@
-//go:build !nolibdeps
-// requires the native tdlib C library (CGO); CI uses -tags nolibdeps to skip this file
-
 package render
 
 import (

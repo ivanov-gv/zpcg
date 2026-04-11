@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# tdlib commit required by github.com/zelenin/go-tdlib v0.7.4
+env:
+  TDLIB_COMMIT: 971684a
+
 jobs:
   test:
     name: Unit Tests
@@ -18,9 +22,33 @@ jobs:
           go-version-file: go.mod
           cache: false  # using vendor, no module cache needed
 
+      - name: Cache tdlib
+        id: cache-tdlib
+        uses: actions/cache@v4
+        with:
+          path: ~/tdlib
+          key: tdlib-${{ env.TDLIB_COMMIT }}-${{ runner.os }}
+
+      - name: Build and install tdlib
+        if: steps.cache-tdlib.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make git zlib1g-dev libssl-dev gperf php-cli cmake g++
+          git clone https://github.com/tdlib/td.git /tmp/td
+          cd /tmp/td
+          git checkout ${{ env.TDLIB_COMMIT }}
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/tdlib" ..
+          cmake --build . --target install -j$(nproc)
+
+      - name: Configure CGO environment for tdlib
+        run: |
+          echo "CGO_CFLAGS=-I$HOME/tdlib/include" >> "$GITHUB_ENV"
+          echo "CGO_LDFLAGS=-L$HOME/tdlib/lib -ltdjson" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$HOME/tdlib/lib" >> "$GITHUB_ENV"
+
       - name: Run unit tests
-        # render_test.go has //go:build !nolibdeps — skip it since tdlib C library is unavailable on CI.
-        run: go test -count=1 -race -tags nolibdeps ./internal/...
+        run: go test -count=1 -race ./internal/...
 
   lint:
     name: Lint
@@ -34,10 +62,32 @@ jobs:
           go-version-file: go.mod
           cache: false
 
+      - name: Cache tdlib
+        id: cache-tdlib
+        uses: actions/cache@v4
+        with:
+          path: ~/tdlib
+          key: tdlib-${{ env.TDLIB_COMMIT }}-${{ runner.os }}
+
+      - name: Build and install tdlib
+        if: steps.cache-tdlib.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make git zlib1g-dev libssl-dev gperf php-cli cmake g++
+          git clone https://github.com/tdlib/td.git /tmp/td
+          cd /tmp/td
+          git checkout ${{ env.TDLIB_COMMIT }}
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/tdlib" ..
+          cmake --build . --target install -j$(nproc)
+
+      - name: Configure CGO environment for tdlib
+        run: |
+          echo "CGO_CFLAGS=-I$HOME/tdlib/include" >> "$GITHUB_ENV"
+          echo "CGO_LDFLAGS=-L$HOME/tdlib/lib -ltdjson" >> "$GITHUB_ENV"
+
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.4
-          # render_test.go has //go:build !nolibdeps: it imports go-tdlib/client (CGO)
-          # which requires the native tdlib C library not available on CI runners.
-          args: --timeout=5m --build-tags nolibdeps ./...
+          args: --timeout=5m ./...
