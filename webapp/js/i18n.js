@@ -40,6 +40,8 @@ const DICT = {
     "map.legend.sel":  "Selected",
     "map.legend.line": "Route line",
     "map.tap":         "Tap a station to pick it",
+    "map.offline":     "Map unavailable offline",
+    "map.error":       "Could not load map",
 
     "alerts.title":         "Alerts",
     "alerts.empty":         "No active alerts.",
@@ -114,6 +116,8 @@ const DICT = {
     "map.legend.sel":  "Выбрано",
     "map.legend.line": "Линия маршрута",
     "map.tap":         "Нажмите на станцию, чтобы выбрать",
+    "map.offline":     "Карта недоступна офлайн",
+    "map.error":       "Не удалось загрузить карту",
 
     "alerts.title":         "Оповещения",
     "alerts.empty":         "Активных оповещений нет.",
@@ -188,6 +192,8 @@ const DICT = {
     "map.legend.sel":  "Izabrano",
     "map.legend.line": "Linija rute",
     "map.tap":         "Dodirni stanicu za izbor",
+    "map.offline":     "Mapa nedostupna offline",
+    "map.error":       "Nije moguće učitati mapu",
 
     "alerts.title":         "Obaveštenja",
     "alerts.empty":         "Nema aktivnih obaveštenja.",

@@ -57,18 +57,32 @@ export class PathFinder {
     for (const trainId of trainsA) {
       if (!trainsB.has(trainId)) continue;
       const train = this.db.train(trainId);
-      const fromStop = train.stops.find(s => s.stationId === fromId);
-      const toStop   = train.stops.find(s => s.stationId === toId);
-      if (!fromStop || !toStop) continue;
-      // Sort order of train.stops is departure-ascending — compare directly.
-      if (hhmmToMin(fromStop.departure) >= hhmmToMin(toStop.arrival)) continue;
+      const fromIdx = train.stops.findIndex(s => s.stationId === fromId);
+      const toIdx   = train.stops.findIndex(s => s.stationId === toId);
+      if (fromIdx < 0 || toIdx < 0) continue;
+      const fromStop = train.stops[fromIdx];
+      const toStop   = train.stops[toIdx];
+      const depMin = hhmmToMin(fromStop.departure);
+      const arrMin = hhmmToMin(toStop.arrival);
+
+      if (fromIdx < toIdx) {
+        // Normal daytime train: array order matches travel order.
+        if (depMin >= arrMin) continue;
+      } else {
+        // Overnight train: stops array wraps at midnight, fromIdx > toIdx.
+        if (depMin <= arrMin) continue;
+      }
+
+      let durationMin = arrMin - depMin;
+      if (durationMin < 0) durationMin += 24 * 60;
+
       routes.push({
         trainId,
         fromStationId: fromId,
         toStationId:   toId,
         departure:     fromStop.departure,
         arrival:       toStop.arrival,
-        durationMin:   hhmmToMin(toStop.arrival) - hhmmToMin(fromStop.departure),
+        durationMin,
       });
     }
     return routes;
@@ -88,12 +102,11 @@ export class PathFinder {
       const arrivalMin = hhmmToMin(a.arrival);
       const candidate = legB.find(b => hhmmToMin(b.departure) >= arrivalMin + 1);
       if (!candidate) continue;
-      out.push({
-        leg1: a,
-        leg2: candidate,
-        totalMin: hhmmToMin(candidate.arrival) - hhmmToMin(a.departure),
-        waitMin:  hhmmToMin(candidate.departure) - arrivalMin,
-      });
+      let totalMin = hhmmToMin(candidate.arrival) - hhmmToMin(a.departure);
+      if (totalMin < 0) totalMin += 24 * 60;
+      let waitMin = hhmmToMin(candidate.departure) - arrivalMin;
+      if (waitMin < 0) waitMin += 24 * 60;
+      out.push({ leg1: a, leg2: candidate, totalMin, waitMin });
     }
     // Sort final routes by when the user actually leaves.
     out.sort((x, y) => hhmmToMin(x.leg1.departure) - hhmmToMin(y.leg1.departure));

@@ -15,46 +15,56 @@ export class StationsMap {
 
   mount(containerEl, { onStationClick, highlight = [], routeIds = [] } = {}) {
     this.onStationClick = onStationClick;
-    // Centre over Montenegro → visible without zooming for most traffic.
-    this.map = L.map(containerEl, {
-      center: [42.6, 19.3],
-      zoom: 8,
-      zoomControl: true,
-      attributionControl: true,
-    });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 18,
-    }).addTo(this.map);
 
-    // Draw every station.
-    for (const s of this.db.stations) {
-      const coord = this.db.coordOf(s.id);
-      if (!coord) continue;
-      const isMain = s.type === 4;
-      const marker = L.circleMarker([coord.lat, coord.lng], {
-        radius: isMain ? 7 : 4,
-        color: isMain ? "#c0392b" : "#707579",
-        weight: isMain ? 2 : 1,
-        fillColor: isMain ? "#c0392b" : "#ffffff",
-        fillOpacity: isMain ? 0.9 : 0.9,
-      });
-      const typeName = t(`station.type.${s.type}`);
-      marker.bindPopup(
-        `<b>${escapeHtml(s.name)}</b><br>` +
-        `<span style="color:#707579">${escapeHtml(s.nameCyr)}</span><br>` +
-        `<small>${escapeHtml(typeName)}</small>`
-      );
-      marker.on("click", () => { this.onStationClick?.(s); });
-      marker.addTo(this.map);
-      this.markers.set(s.id, marker);
+    if (typeof L === 'undefined') {
+      containerEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--hint-color,#707579);padding:2rem;text-align:center">${escapeHtml(t("map.offline"))}</div>`;
+      return;
     }
 
-    if (routeIds.length >= 2) this.showRoute(routeIds);
-    if (highlight.length) this.highlightStations(highlight);
+    try {
+      this.map = L.map(containerEl, {
+        center: [42.6, 19.3],
+        zoom: 8,
+        zoomControl: true,
+        attributionControl: true,
+      });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 18,
+      }).addTo(this.map);
+
+      for (const s of this.db.stations) {
+        const coord = this.db.coordOf(s.id);
+        if (!coord) continue;
+        const isMain = s.type === 4;
+        const marker = L.circleMarker([coord.lat, coord.lng], {
+          radius: isMain ? 7 : 4,
+          color: isMain ? "#c0392b" : "#707579",
+          weight: isMain ? 2 : 1,
+          fillColor: isMain ? "#c0392b" : "#ffffff",
+          fillOpacity: isMain ? 0.9 : 0.9,
+        });
+        const typeName = t(`station.type.${s.type}`);
+        marker.bindPopup(
+          `<b>${escapeHtml(s.name)}</b><br>` +
+          `<span style="color:#707579">${escapeHtml(s.nameCyr)}</span><br>` +
+          `<small>${escapeHtml(typeName)}</small>`
+        );
+        marker.on("click", () => { this.onStationClick?.(s); });
+        marker.addTo(this.map);
+        this.markers.set(s.id, marker);
+      }
+
+      if (routeIds.length >= 2) this.showRoute(routeIds);
+      if (highlight.length) this.highlightStations(highlight);
+    } catch (e) {
+      console.warn("Map init failed:", e);
+      containerEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--hint-color,#707579);padding:2rem;text-align:center">${escapeHtml(t("map.error"))}</div>`;
+    }
   }
 
   showRoute(stationIds) {
+    if (!this.map) return;
     this.clearRoute();
     const latlngs = stationIds
       .map(id => this.db.coordOf(id))
@@ -79,6 +89,7 @@ export class StationsMap {
   }
 
   highlightStations(ids) {
+    if (!this.map) return;
     for (const id of ids) {
       const marker = this.markers.get(id);
       if (!marker) continue;
@@ -93,6 +104,7 @@ export class StationsMap {
   }
 
   flyToStation(id) {
+    if (!this.map) return;
     const coord = this.db.coordOf(id);
     if (!coord) return;
     this.map.flyTo([coord.lat, coord.lng], 11, { duration: 0.6 });

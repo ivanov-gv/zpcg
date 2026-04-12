@@ -107,6 +107,12 @@ async function init() {
     tab.addEventListener("click", () => router.go(tab.dataset.route));
   });
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(err =>
+      console.warn('SW registration failed:', err)
+    );
+  }
+
   applyStaticTranslations();
   router.handle();
 }
@@ -589,23 +595,30 @@ function viewMap() {
 function computeMapRouteIds() {
   if (!state.fromId || !state.toId) return [];
   const r = state.pf.find(state.fromId, state.toId);
+
+  // Extract station IDs along a segment, handling overnight trains where
+  // fromIdx > toIdx (the stops array wraps at midnight).
+  const seg = (train, aId, bId) => {
+    const ai = train.stops.findIndex(s => s.stationId === aId);
+    const bi = train.stops.findIndex(s => s.stationId === bId);
+    if (ai < 0 || bi < 0) return [];
+    if (ai <= bi) {
+      return train.stops.slice(ai, bi + 1).map(s => s.stationId);
+    }
+    // Overnight: wrap around the end of the array.
+    return [
+      ...train.stops.slice(ai).map(s => s.stationId),
+      ...train.stops.slice(0, bi + 1).map(s => s.stationId),
+    ];
+  };
+
   if (r.kind === "direct" && r.direct[0]) {
-    const train = state.db.train(r.direct[0].trainId);
-    const fromIdx = train.stops.findIndex(s => s.stationId === state.fromId);
-    const toIdx   = train.stops.findIndex(s => s.stationId === state.toId);
-    const [lo, hi] = fromIdx < toIdx ? [fromIdx, toIdx] : [toIdx, fromIdx];
-    return train.stops.slice(lo, hi + 1).map(s => s.stationId);
+    return seg(state.db.train(r.direct[0].trainId), state.fromId, state.toId);
   }
   if (r.kind === "interchange" && r.interchange[0]) {
     const transfer = state.db.transferStationId;
-    const first = state.db.train(r.interchange[0].leg1.trainId);
+    const first  = state.db.train(r.interchange[0].leg1.trainId);
     const second = state.db.train(r.interchange[0].leg2.trainId);
-    const seg = (train, a, b) => {
-      const ai = train.stops.findIndex(s => s.stationId === a);
-      const bi = train.stops.findIndex(s => s.stationId === b);
-      const [lo, hi] = ai < bi ? [ai, bi] : [bi, ai];
-      return train.stops.slice(lo, hi + 1).map(s => s.stationId);
-    };
     return [...seg(first, state.fromId, transfer), ...seg(second, transfer, state.toId).slice(1)];
   }
   return [];
