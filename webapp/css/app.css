@@ -1,0 +1,395 @@
+/* ===========================================================================
+   Monterails Mini App · prototype stylesheet
+   Reads Telegram WebApp theme CSS variables when present, falls back to a
+   warm brand palette otherwise. All layout targets a single-column ~360px
+   mobile viewport.
+   =========================================================================== */
+
+:root {
+  /* Fallbacks — overridden by Telegram.WebApp theme in js/app.js */
+  --tg-bg: #ffffff;
+  --tg-text: #1a1a1a;
+  --tg-muted: #707579;
+  --tg-hint: #929292;
+  --tg-link: #c0392b;
+  --tg-button: #c0392b;
+  --tg-button-text: #ffffff;
+  --tg-secondary-bg: #f5f5f7;
+
+  --brand-red: #c0392b;
+  --brand-gold: #d4a017;
+  --ok: #27ae60;
+  --warn: #e67e22;
+  --err: #c0392b;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  --tab-h: 56px;
+  --header-h: 48px;
+
+  --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--tg-text);
+  background: var(--tg-bg);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+input, select { font: inherit; color: inherit; }
+
+/* ---------- layout ------------------------------------------------------- */
+
+.app {
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--tg-bg);
+  position: relative;
+}
+
+.app-header {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  background: var(--tg-bg);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky; top: 0; z-index: 5;
+}
+.app-title { flex: 1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.app-title .logo { font-size: 18px; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border: 0; background: transparent;
+  border-radius: 50%;
+  font-size: 17px; font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { background: var(--tg-secondary-bg); }
+
+.view-root {
+  flex: 1;
+  padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.tabbar {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  display: flex;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--tg-bg);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 4;
+}
+.tab {
+  flex: 1;
+  background: transparent; border: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  color: var(--tg-hint);
+  font-size: 11px;
+}
+.tab.active { color: var(--brand-red); font-weight: 600; }
+.tab .tab-icon { font-size: 20px; line-height: 1; }
+
+/* ---------- shared primitives ------------------------------------------- */
+
+.card {
+  background: var(--tg-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 14px;
+  margin: 10px 12px;
+}
+
+.section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tg-muted);
+  margin: 18px 16px 6px;
+  font-weight: 600;
+}
+
+.btn-primary {
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--tg-button);
+  color: var(--tg-button-text);
+  padding: 14px;
+  font-size: 16px; font-weight: 600;
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.25);
+}
+.btn-primary:disabled { opacity: 0.5; box-shadow: none; }
+
+.btn-ghost {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--tg-secondary-bg);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--tg-muted);
+}
+.chip.brand { background: rgba(192, 57, 43, 0.12); color: var(--brand-red); }
+.chip.ok    { background: rgba(39, 174, 96, 0.15);  color: var(--ok); }
+.chip.warn  { background: rgba(230, 126, 34, 0.15); color: var(--warn); }
+
+/* ---------- search view ------------------------------------------------- */
+
+.search-card { padding: 6px; }
+.field {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--tg-secondary-bg);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.field + .field { margin-top: 6px; }
+.field .field-icon { font-size: 18px; width: 24px; text-align: center; }
+.field .field-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--tg-muted);
+  display: block;
+}
+.field .field-value { font-size: 15px; font-weight: 500; display: block; }
+.field.empty .field-value { color: var(--tg-hint); font-weight: 400; }
+
+.field-row { display: flex; align-items: center; gap: 4px; }
+.field-row .field { flex: 1; }
+.swap-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: var(--tg-bg);
+  font-size: 16px;
+}
+
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pills button {
+  background: var(--tg-secondary-bg);
+  border: 0; border-radius: 999px;
+  padding: 6px 12px; font-size: 12px;
+}
+
+.cta { padding: 10px 12px; }
+
+/* ---------- results view ------------------------------------------------ */
+
+.route-header {
+  padding: 10px 16px 4px;
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.route-header h2 { margin: 0; font-size: 17px; }
+.route-header .muted { color: var(--tg-muted); font-size: 12px; }
+
+.train-card {
+  background: var(--tg-bg);
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: var(--shadow);
+  margin: 8px 12px;
+  padding: 12px 14px;
+}
+.train-card.interchange { border-left: 3px solid var(--brand-gold); }
+.train-card.direct      { border-left: 3px solid var(--ok); }
+
+.train-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.train-top .train-id {
+  font-family: var(--mono);
+  background: var(--tg-secondary-bg);
+  padding: 2px 8px; border-radius: 6px; font-size: 12px;
+}
+.train-times {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 20px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.train-times .dash { color: var(--tg-hint); font-weight: 400; font-size: 14px; }
+.train-times .dur {
+  font-size: 12px; color: var(--tg-muted); font-weight: 500;
+  background: var(--tg-secondary-bg); padding: 2px 8px; border-radius: 999px;
+}
+.train-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--tg-muted); font-size: 12px; margin-top: 6px;
+}
+.train-meta .price { font-weight: 600; color: var(--brand-red); font-size: 14px; }
+
+.interchange-block {
+  padding: 6px 10px; margin-top: 8px;
+  background: rgba(212, 160, 23, 0.1);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.empty-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--tg-muted);
+}
+.empty-state .big { font-size: 32px; margin-bottom: 8px; }
+
+/* ---------- train details ----------------------------------------------- */
+
+.stop-list {
+  list-style: none; padding: 0; margin: 10px 16px;
+  position: relative;
+}
+.stop-list::before {
+  content: '';
+  position: absolute; left: 12px; top: 10px; bottom: 10px;
+  width: 2px;
+  background: var(--brand-red);
+  opacity: 0.3;
+}
+.stop-list li {
+  padding: 8px 0 8px 32px;
+  position: relative;
+  font-size: 14px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 10px;
+}
+.stop-list li::before {
+  content: ''; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--brand-red);
+  position: absolute; left: 8px; top: 14px;
+  border: 2px solid var(--tg-bg);
+}
+.stop-list li.highlight { font-weight: 600; }
+.stop-list li.highlight::before { width: 14px; height: 14px; left: 6px; top: 12px; }
+.stop-list li .t {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  color: var(--tg-muted); font-size: 12px;
+}
+
+/* ---------- map view ---------------------------------------------------- */
+
+#leaflet-map {
+  position: absolute;
+  top: var(--header-h); bottom: var(--tab-h); left: 0; right: 0;
+}
+.map-legend {
+  position: absolute; top: calc(var(--header-h) + 8px); right: 8px;
+  background: var(--tg-bg);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  font-size: 11px;
+  max-width: 150px;
+  z-index: 400;
+}
+.map-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.leaflet-popup-content { font-family: var(--sans); font-size: 13px; }
+.leaflet-popup-content b { color: var(--brand-red); }
+
+/* ---------- picker sheet ------------------------------------------------ */
+
+.sheet-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 20;
+  animation: fadein 0.15s ease;
+}
+.sheet {
+  position: fixed;
+  left: 50%; transform: translateX(-50%);
+  bottom: 0;
+  width: 100%; max-width: 480px;
+  max-height: 80vh;
+  background: var(--tg-bg);
+  border-radius: var(--radius) var(--radius) 0 0;
+  z-index: 21;
+  display: flex; flex-direction: column;
+  animation: slideup 0.2s ease;
+}
+.sheet-header {
+  display: flex; gap: 6px; padding: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.sheet-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,0,0,0.1);
+  background: var(--tg-secondary-bg);
+  font-size: 15px;
+  outline: none;
+}
+.sheet-input:focus { border-color: var(--brand-red); }
+
+.station-list { list-style: none; margin: 0; padding: 8px 0; overflow-y: auto; flex: 1; }
+.station-list li {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.station-list li:active { background: var(--tg-secondary-bg); }
+.station-list li.blacklisted { opacity: 0.5; }
+.station-list .st-name { font-weight: 500; }
+.station-list .st-cyr { display: block; color: var(--tg-hint); font-size: 12px; }
+.station-list .st-type { font-size: 11px; color: var(--tg-muted); }
+
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideup { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+
+/* ---------- alerts / saved / info --------------------------------------- */
+
+.alert-card { padding: 12px 14px; }
+.alert-card .alert-title { font-weight: 600; margin-bottom: 4px; }
+.alert-card .alert-time  { font-size: 12px; color: var(--tg-muted); }
+.alert-card .alert-route { font-size: 13px; margin-top: 4px; font-family: var(--mono); }
+.alert-card .alert-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+.info-item {
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  text-decoration: none; color: inherit;
+}
+.info-item .info-icon { font-size: 20px; width: 28px; text-align: center; }
+.info-item small { display: block; color: var(--tg-muted); font-size: 12px; }
+.info-item .chev { color: var(--tg-hint); margin-left: auto; }
+
+/* ---------- price breakdown --------------------------------------------- */
+
+.price-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+}
+.price-row:last-child { border-bottom: 0; font-weight: 700; font-size: 16px; padding-top: 12px; }
+.price-row.muted { color: var(--tg-muted); font-size: 12px; border: 0; padding: 2px 0; }

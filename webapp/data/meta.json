@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-04-11T20:38:09Z",
+  "transferStationId": 4,
+  "stationTypes": [
+    {
+      "id": 1,
+      "name": "stanica",
+      "nameEn": "station"
+    },
+    {
+      "id": 2,
+      "name": "stajalište",
+      "nameEn": "stop"
+    },
+    {
+      "id": 3,
+      "name": "ukrsnica",
+      "nameEn": "crossing"
+    },
+    {
+      "id": 4,
+      "name": "glavna stanica",
+      "nameEn": "main station"
+    }
+  ]
+}
