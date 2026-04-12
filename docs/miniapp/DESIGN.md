@@ -424,12 +424,28 @@ This is clean and simple. HTMX shines here because:
   surface for live features only.
 - **Cons**: two deploy targets, CORS setup needed.
 
+### Key tradeoff: offline capability
+
+The static prototype (Option A) loads all JSON once and then works **fully
+offline**. This matters for real users: the Podgorica–Kolašin corridor runs
+through mountains with poor or no mobile signal, and tunnels cut connection
+entirely. A passenger who opened the app at the station can still browse
+timetables mid-journey.
+
+A pure HTMX app (Option B) **cannot work offline at all** — every tap
+fetches an HTML fragment from the server. No server = blank screen.
+
+The hybrid (Option C) preserves offline timetable browsing while adding
+HTMX only for features that inherently need a server (alerts, disruptions,
+live status). This is the key reason to prefer C over B.
+
 ### Recommendation
 
 **Start with Option A** (fully static, current prototype) to validate UX
 and gather user feedback. **Migrate to Option C** (hybrid) when alerts or
-live disruptions become a priority. Option B is viable if the bot server
-needs to serve the mini app anyway.
+live disruptions become a priority. Option B is viable only if offline
+support is not a concern — which, given Montenegro's mountain rail
+corridors, it is.
 
 ---
 
