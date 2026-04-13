@@ -1,31 +1,9 @@
 name: Release
 
-# Triggered by pushing a version tag, e.g.: git tag v1.2.3 && git push origin v1.2.3
-#
-# Pipeline:
-#   1. Build & push Docker image
-#   2. Deploy to test environment (requires manual approval via GitHub Environment protection)
-#   3. Deploy to production
-#
-# TODO: create two environments in Settings → Environments:
-#   "release-test"  — add required reviewers to gate the test env deploy
-#   "production"    — add required reviewers to gate the production deploy
-#
-# TODO: set up these secrets in the repository settings:
-#   GCLOUD_SA_KEY_TEST   — service account JSON key for the test project
-#   GCLOUD_SA_KEY_PROD   — service account JSON key for the production project
-#   DOCKER_REGISTRY      — e.g. gcr.io/my-project or europe-docker.pkg.dev/my-project/my-repo
-#   TELEGRAM_APITOKEN_TEST  — test bot token
 on:
   push:
     tags:
       - 'v*.*.*'
-
-env:
-  # TODO: replace with actual values
-  DOCKER_REGISTRY: "TODO-registry"
-  GCLOUD_REGION: "TODO-region"
-  GCLOUD_SERVICE_NAME: "zpcg"
 
 jobs:
   build:
