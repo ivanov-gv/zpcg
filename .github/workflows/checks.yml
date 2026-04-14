@@ -10,6 +10,11 @@ env:
   TDLIB_COMMIT: 971684a
 
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      commit_sha: ${{ github.sha }}
+      push: false
   test:
     name: Tests
     runs-on: ubuntu-latest
