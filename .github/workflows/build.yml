@@ -94,8 +94,8 @@ jobs:
           echo "# Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Outputs" >> $GITHUB_STEP_SUMMARY
-          echo "- **GCloud Tag**: `${{ steps.check.outputs.image_gcloud_commit_short_sha }}`" >> $GITHUB_STEP_SUMMARY
-          echo "- **All Tags**: `${{ steps.meta.outputs.tags }}`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build SHA**: `${{ inputs.commit_sha }}`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build skipped**: `${JOB_CONTINUE}`" >> $GITHUB_STEP_SUMMARY          
+          echo "- **GCloud Tag**: ${{ steps.check.outputs.image_gcloud_commit_short_sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **All Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build SHA**: ${{ inputs.commit_sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build skipped**: ${JOB_CONTINUE}" >> $GITHUB_STEP_SUMMARY          
           echo "" >> $GITHUB_STEP_SUMMARY
