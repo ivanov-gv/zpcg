@@ -79,7 +79,7 @@ jobs:
             ${{ env.IMAGE_PATH_GHCR }}     
             ${{ env.IMAGE_PATH_GCLOUD }}
           tags: |
-            type=sha,format=short          
+            type=sha,prefix=,format=short          
             type=ref,event=tag
       - name: Build & push
         uses: docker/build-push-action@v6
@@ -87,3 +87,4 @@ jobs:
         with:
           tags: ${{ steps.meta.outputs.tags }}
           push: ${{ inputs.push }}
+          file: deploy/Dockerfile
