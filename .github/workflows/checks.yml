@@ -20,6 +20,8 @@ jobs:
     with:
       commit_sha: ${{ github.sha }}
       push: false
+      gcloud_region: ${{ vars.GCLOUD_REGION }}
+      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
   test:
     name: Tests
     runs-on: ubuntu-latest

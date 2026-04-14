@@ -16,9 +16,13 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    secrets: inherit
     with:
       commit_sha: ${{ github.sha }}
       push: true
+      gcloud_region: ${{ vars.GCLOUD_REGION }}
+      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+
   deploy:
     name: Deploy
     needs: build
@@ -26,7 +30,11 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    secrets: inherit
     with:
       environment: preprod
-      gcloud_image: ${{ needs.build.outputs.gcloud_image }}
-
+      gcloud_image: ${{ needs.build.outputs.gcloud_tag }}
+      env_var_environment: ${{ vars.ENV_VAR_ENVIRONMENT }}
+      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+      gcloud_region: ${{ vars.GCLOUD_REGION }}
+      gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}

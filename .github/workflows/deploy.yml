@@ -11,6 +11,26 @@ on:
         description: An environment to deploy to
         required: true
         type: string
+      gcloud_project_id:
+        required: true
+        type: string
+      gcloud_region:
+        required: true
+        type: string
+      gcloud_run_service:
+        required: true
+        type: string
+      env_var_environment:
+        description: Value for ENVIRONMENT env var in Cloud Run
+        required: true
+        type: string
+    secrets:
+      GCLOUD_IDENTITY_PROVIDER:
+        required: true
+      GCLOUD_SERVICE_ACCOUNT:
+        required: true
+      GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION:
+        required: true
 
 jobs:
   deploy:
@@ -20,20 +40,22 @@ jobs:
     permissions:
       contents: read
       id-token: write
+
     steps:
       - name: Google Cloud authentication
         uses: google-github-actions/auth@v3
         with:
-          project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          project_id: ${{ inputs.gcloud_project_id }}
           workload_identity_provider: ${{ secrets.GCLOUD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
           create_credentials_file: true
+
       - name: Cloud Run deploy
         uses: google-github-actions/deploy-cloudrun@v3
         with:
-          service: ${{ vars.GCLOUD_RUN_SERVICE }}
+          service: ${{ inputs.gcloud_run_service }}
           image: ${{ inputs.gcloud_image }}
-          env_vars: ENVIRONMENT=${{ vars.ENV_VAR_ENVIRONMENT }}
+          env_vars: ENVIRONMENT=${{ inputs.env_var_environment }}
           secrets: TELEGRAM_APITOKEN=${{ secrets.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
-          region: ${{ vars.GCLOUD_REGION }}
-          project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          region: ${{ inputs.gcloud_region }}
+          project_id: ${{ inputs.gcloud_project_id }}
