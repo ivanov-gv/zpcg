@@ -24,12 +24,14 @@ on:
         description: Value for ENVIRONMENT env var in Cloud Run
         required: true
         type: string
+      gcloud_secret_version_telegram_token:
+        description: Version of Telegram Token secret
+        required: true
+        type: string
     secrets:
       GCLOUD_IDENTITY_PROVIDER:
         required: true
       GCLOUD_SERVICE_ACCOUNT:
-        required: true
-      GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION:
         required: true
 
 jobs:
@@ -56,6 +58,6 @@ jobs:
           service: ${{ inputs.gcloud_run_service }}
           image: ${{ inputs.gcloud_image }}
           env_vars: ENVIRONMENT=${{ inputs.env_var_environment }}
-          secrets: TELEGRAM_APITOKEN=${{ secrets.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+          secrets: TELEGRAM_APITOKEN=${{ inputs.gcloud_secret_version_telegram_token }}
           region: ${{ inputs.gcloud_region }}
           project_id: ${{ inputs.gcloud_project_id }}

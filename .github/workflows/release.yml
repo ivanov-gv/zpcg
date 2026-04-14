@@ -35,6 +35,7 @@ jobs:
       gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
       gcloud_region: ${{ vars.GCLOUD_REGION }}
       gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
+      gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
 
   deploy-production:
     name: Deploy to Production
@@ -51,3 +52,4 @@ jobs:
       gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
       gcloud_region: ${{ vars.GCLOUD_REGION }}
       gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
+      gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
