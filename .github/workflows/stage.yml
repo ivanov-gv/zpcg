@@ -1,9 +1,12 @@
-name: Release
+name: Deploy to Stage
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      description:
+        description: "What's being deployed"
+        required: false
+        type: string
 
 jobs:
   build:
@@ -16,9 +19,8 @@ jobs:
     with:
       commit_sha: ${{ github.sha }}
       push: true
-
-  deploy-preprod:
-    name: Deploy to Preprod
+  deploy:
+    name: Deploy
     needs: build
     uses: ./.github/workflows/deploy.yml
     permissions:
@@ -28,13 +30,3 @@ jobs:
       environment: preprod
       gcloud_image: ${{ needs.build.outputs.gcloud_image }}
 
-  deploy-production:
-    name: Deploy to Production
-    needs: [ build, deploy-preprod ]
-    uses: ./.github/workflows/deploy.yml
-    permissions:
-      contents: read
-      id-token: write
-    with:
-      environment: prod
-      gcloud_image: ${{ needs.build.outputs.gcloud_image }}
