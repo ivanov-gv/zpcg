@@ -84,6 +84,8 @@ jobs:
       - name: Build & push
         uses: docker/build-push-action@v6
         if: env.JOB_CONTINUE == 'true'
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           tags: ${{ steps.meta.outputs.tags }}
           push: ${{ inputs.push }}
@@ -97,5 +99,5 @@ jobs:
           echo "- **GCloud Tag**: ${{ steps.check.outputs.image_gcloud_commit_short_sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **All Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Build SHA**: ${{ inputs.commit_sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build skipped**: ${JOB_CONTINUE}" >> $GITHUB_STEP_SUMMARY          
+          echo "- **Build performed, no skips**: ${JOB_CONTINUE}" >> $GITHUB_STEP_SUMMARY          
           echo "" >> $GITHUB_STEP_SUMMARY
