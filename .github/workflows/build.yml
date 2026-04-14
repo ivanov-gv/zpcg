@@ -20,9 +20,9 @@ on:
         type: string
     secrets:
       GCLOUD_IDENTITY_PROVIDER:
-        required: true
+        required: false
       GCLOUD_SERVICE_ACCOUNT:
-        required: true
+        required: false
 
 env:
   IMAGE_PATH_GHCR: ghcr.io/${{ github.repository }}
