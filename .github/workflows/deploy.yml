@@ -1,0 +1,39 @@
+name: "Deploy"
+
+on:
+  workflow_call:
+    inputs:
+      gcloud_image:
+        description: A GCloud registry image to deploy
+        required: true
+        type: string
+      environment:
+        description: An environment to deploy to
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Google Cloud authentication
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCLOUD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+      - name: Cloud Run deploy
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: ${{ vars.GCLOUD_RUN_SERVICE }}
+          image: ${{ inputs.gcloud_image }}
+          env_vars: ENVIRONMENT=${{ vars.ENV_VAR_ENVIRONMENT }}
+          secrets: TELEGRAM_APITOKEN=${{ secrets.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+          region: ${{ vars.GCLOUD_REGION }}
+          project_id: ${{ vars.GCLOUD_PROJECT_ID }}

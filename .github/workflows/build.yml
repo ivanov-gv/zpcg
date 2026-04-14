@@ -16,6 +16,9 @@ env:
   IMAGE_PATH_GCLOUD: ${{ vars.GCLOUD_REGION }}-docker.pkg.dev/${{ vars.GCLOUD_PROJECT_ID }}/${{ github.repository }}
 
 jobs:
+  # 1. Check if ghcr.io already has the image to be built
+  # 2. If exists - return
+  # 3. If not - build and push to BOTH ghcr.io AND pkg.dev
   build:
     runs-on: ubuntu-latest
     env:
