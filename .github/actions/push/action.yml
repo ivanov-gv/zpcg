@@ -1,0 +1,10 @@
+name: push
+author: ivanov_gv
+description: push
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: echo "push action"
+    - uses: "./.github/actions/build"

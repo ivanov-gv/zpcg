@@ -1,0 +1,9 @@
+name: "build"
+description: "Builds (and optionally pushes) a Docker image to GHCR and GCloud"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set image paths
+      shell: bash
+      run: echo "build action"

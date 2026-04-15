@@ -1,3 +1,5 @@
+name: Build
+
 on:
   workflow_call:
     inputs:
@@ -23,6 +25,9 @@ on:
         required: false
       GCLOUD_SERVICE_ACCOUNT:
         required: false
+    outputs:
+      gcloud_tag: ${{ jobs.build.outputs.gcloud_tag }}
+      all_tags: ${{ jobs.build.outputs.all_tags }}
 
 env:
   IMAGE_PATH_GHCR: ghcr.io/${{ github.repository }}
