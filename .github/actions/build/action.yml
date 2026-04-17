@@ -1,9 +1,94 @@
-name: "build"
-description: "Builds (and optionally pushes) a Docker image to GHCR and GCloud"
+name: build and push
+description: Builds and pushes 'ghcr_tag_to_push' or simply tests docker image building if 'ghcr_tag_to_push' is ommited
+
+inputs:
+  ghcr_tag_to_push:
+    description: "Tag used to build and push the image"
+  ghcr_github_token:
+    description: "github.token to authenticate docker in ghcr"
+  dry_run:
+    description: "If true, skip auth/build/push and print all inputs for debugging"
+    default: "false"
+
+outputs:
+  tag:
+    description: "ghcr.io tag that was built. Empty if inputs.ghcr_tag_to_push is not set."
+    value: ${{ steps.check.outputs.tag }}
 
 runs:
   using: "composite"
   steps:
-    - name: Set image paths
+    - name: Input check
+      id: check
       shell: bash
-      run: echo "build action"
+      run: |
+        TAG="${{ inputs.ghcr_tag_to_push }}"
+        EXPECTED_PREFIX="ghcr.io/${{ github.repository }}"
+
+        if [ -z "$TAG" ]; then
+          echo "BUILD_GHCR_PUSH=false" >> "$GITHUB_ENV"
+          echo "tag=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [[ "$TAG" != "$EXPECTED_PREFIX"* ]]; then
+          echo "Error: ghcr_tag_to_push must start with '$EXPECTED_PREFIX', got: '$TAG'"
+          exit 1
+        fi
+
+        echo "BUILD_GHCR_PUSH=true" >> "$GITHUB_ENV"
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+    - name: Dry run
+      if: inputs.dry_run == 'true'
+      shell: bash
+      run: |
+        echo "=== Dry run mode ==="
+        echo "--- Inputs ---"
+        echo "ghcr_tag_to_push:   ${{ inputs.ghcr_tag_to_push }}"
+        echo "ghcr_github_token:  ${{ inputs.ghcr_github_token }}"
+        echo "dry_run:            ${{ inputs.dry_run }}"
+        echo "--- GitHub context ---"
+        echo "github.actor:       ${{ github.actor }}"
+        echo "github.repository:  ${{ github.repository }}"
+        echo "github.sha:         ${{ github.sha }}"
+        echo "github.ref:         ${{ github.ref }}"
+        echo "--- Derived state ---"
+        echo "BUILD_GHCR_PUSH:    ${BUILD_GHCR_PUSH}"
+        echo "--- What would have happened ---"
+        if [ "${BUILD_GHCR_PUSH}" == "true" ]; then
+          echo "Would have authenticated as ${{ github.actor }} and built+pushed ${{ inputs.ghcr_tag_to_push }}"
+        else
+          echo "Would have built a tag: '${{ inputs.ghcr_tag_to_push }}'"
+        fi
+        echo "--- Outputs ---"
+        echo "tag:                ${{ steps.check.outputs.tag }}"
+
+    - name: Login to GHCR
+      if: inputs.dry_run != 'true' && env.BUILD_GHCR_PUSH == 'true'
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.ghcr_github_token }}
+
+    - name: Build & Push
+      if: inputs.dry_run != 'true'
+      uses: docker/build-push-action@v6
+      env:
+        DOCKER_BUILD_RECORD_UPLOAD: false
+      with:
+        tags: ${{ inputs.ghcr_tag_to_push }}
+        push: ${{ env.BUILD_GHCR_PUSH }}
+        file: deploy/Dockerfile
+
+    - name: Job Summary
+      if: always()
+      shell: bash
+      run: |
+        {
+          echo "# Build and Push summary"
+          echo "**GHCR Tag**: ${{ steps.check.outputs.tag }}"
+          echo "**Pushed**: ${BUILD_GHCR_PUSH}"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
