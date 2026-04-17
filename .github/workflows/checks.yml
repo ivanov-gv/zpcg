@@ -6,100 +6,38 @@ on:
   pull_request:
   workflow_dispatch:
 
-# tdlib commit required by github.com/zelenin/go-tdlib v0.7.4
-env:
-  TDLIB_COMMIT: 971684a
-
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Build
         uses: ./.github/actions/build
-        with:
-          ghcr_github_token: ${{ secrets.GITHUB_TOKEN }}
-          # No ghcr_tag_to_push — build only, no push
-          dry_run: ${{ env.ACT == 'true' || github.event_name == 'workflow_dispatch' }}
 
   test:
     name: Tests
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}/ci:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: false  # using vendor, no module cache needed
-
-      - name: Cache tdlib
-        id: cache-tdlib
-        uses: actions/cache@v4
-        with:
-          path: ~/tdlib
-          key: tdlib-${{ env.TDLIB_COMMIT }}-${{ runner.os }}
-
-      - name: Build and install tdlib
-        if: steps.cache-tdlib.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y make git zlib1g-dev libssl-dev gperf php-cli cmake g++
-          git clone https://github.com/tdlib/td.git /tmp/td
-          cd /tmp/td
-          git checkout ${{ env.TDLIB_COMMIT }}
-          mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/tdlib" ..
-          cmake --build . --target install -j$(nproc)
-
-      - name: Configure CGO environment for tdlib
-        run: |
-          echo "CGO_CFLAGS=-I$HOME/tdlib/include" >> "$GITHUB_ENV"
-          echo "CGO_LDFLAGS=-L$HOME/tdlib/lib -ltdjson" >> "$GITHUB_ENV"
-          echo "LD_LIBRARY_PATH=$HOME/tdlib/lib" >> "$GITHUB_ENV"
-
       - name: Run all tests
         run: go test -count=1 -race ./...
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}/ci:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: false
-
-      - name: Cache tdlib
-        id: cache-tdlib
-        uses: actions/cache@v4
-        with:
-          path: ~/tdlib
-          key: tdlib-${{ env.TDLIB_COMMIT }}-${{ runner.os }}
-
-      - name: Build and install tdlib
-        if: steps.cache-tdlib.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y make git zlib1g-dev libssl-dev gperf php-cli cmake g++
-          git clone https://github.com/tdlib/td.git /tmp/td
-          cd /tmp/td
-          git checkout ${{ env.TDLIB_COMMIT }}
-          mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/tdlib" ..
-          cmake --build . --target install -j$(nproc)
-
-      - name: Configure CGO environment for tdlib
-        run: |
-          echo "CGO_CFLAGS=-I$HOME/tdlib/include" >> "$GITHUB_ENV"
-          echo "CGO_LDFLAGS=-L$HOME/tdlib/lib -ltdjson" >> "$GITHUB_ENV"
-
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
