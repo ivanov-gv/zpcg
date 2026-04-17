@@ -18,6 +18,10 @@ inputs:
   gcloud_service_account:
     description: "Service account email"
     required: true
+  dry-run:
+    description: "If 'true', skip all mutating steps and print what would happen"
+    required: false
+    default: 'false'
 
 outputs:
   ghcr_tag:
@@ -81,6 +85,11 @@ runs:
         docker manifest inspect "$GHCR_TAG"   >/dev/null 2>&1 && ghcr_exists=true
         docker manifest inspect "$GCLOUD_TAG" >/dev/null 2>&1 && gcloud_exists=true
 
+        {
+          echo "ghcr_exists=${ghcr_exists}"
+          echo "gcloud_exists=${gcloud_exists}"
+        } >> "$GITHUB_OUTPUT"
+
         if [[ "$ghcr_exists" == "false" ]]; then
           echo "Commit image missing in GHCR → build locally."
           echo "action=build" >> "$GITHUB_OUTPUT"
@@ -102,21 +111,132 @@ runs:
         tags: |
           type=ref,event=tag
 
+    - name: Dry-run debug summary
+      if: inputs.dry-run == 'true'
+      shell: bash
+      env:
+        DRY_RUN: ${{ inputs.dry-run }}
+        IN_PROJECT_ID: ${{ inputs.gcloud_project_id }}
+        IN_REGION: ${{ inputs.gcloud_region }}
+        IN_IDP: ${{ inputs.gcloud_identity_provider }}
+        IN_SA: ${{ inputs.gcloud_service_account }}
+        CTX_REPO: ${{ github.repository }}
+        CTX_ACTOR: ${{ github.actor }}
+        CTX_REF: ${{ github.ref }}
+        CTX_SHA: ${{ github.sha }}
+        CTX_EVENT: ${{ github.event_name }}
+        OUT_GHCR_PATH: ${{ steps.check.outputs.ghcr_path }}
+        OUT_GCLOUD_PATH: ${{ steps.check.outputs.gcloud_path }}
+        OUT_GHCR_TAG: ${{ steps.check.outputs.ghcr_tag }}
+        OUT_GCLOUD_TAG: ${{ steps.check.outputs.gcloud_tag }}
+        OUT_GHCR_EXISTS: ${{ steps.check.outputs.ghcr_exists }}
+        OUT_GCLOUD_EXISTS: ${{ steps.check.outputs.gcloud_exists }}
+        OUT_ACTION: ${{ steps.check.outputs.action }}
+        EXTRA_TAGS: ${{ steps.meta.outputs.tags }}
+      run: |
+        set -euo pipefail
+
+        # Plan describing what the non-dry-run path would execute.
+        case "$OUT_ACTION" in
+          build)
+            read -r -d '' PLAN <<'EOF' || true
+        1. Run ./.github/actions/build with ghcr_tag (load: true, no push).
+        2. docker tag <ghcr_tag> <gcloud_tag>.
+        3. docker tag <ghcr_tag> for each extra tag (listed below).
+        4. docker push --all-tags <ghcr_path>.
+        5. docker push --all-tags <gcloud_path>.
+        EOF
+            ;;
+          pull)
+            read -r -d '' PLAN <<'EOF' || true
+        1. docker pull <ghcr_tag>.
+        2. docker tag <ghcr_tag> <gcloud_tag>.
+        3. docker tag <ghcr_tag> for each extra tag (listed below).
+        4. docker push --all-tags <ghcr_path>.
+        5. docker push --all-tags <gcloud_path>.
+        EOF
+            ;;
+          retag)
+            if [[ -z "$EXTRA_TAGS" ]]; then
+              PLAN="No extra tags produced by metadata-action — action would be a no-op."
+            else
+              read -r -d '' PLAN <<'EOF' || true
+        For each extra tag (listed below):
+          - If it starts with 'ghcr.io/':  docker buildx imagetools create --tag <extra> <ghcr_tag>
+          - Otherwise (GCloud):           docker buildx imagetools create --tag <extra> <gcloud_tag>
+        No docker pull / push is performed.
+        EOF
+            fi
+            ;;
+          *)
+            PLAN="(unknown action: $OUT_ACTION)"
+            ;;
+        esac
+
+        # Write to both stdout (for logs) and the step summary (for UI).
+        {
+          echo "## 🧪 Dry-run mode — no mutating steps will run"
+          echo ""
+          echo "### Inputs"
+          echo "| key | value |"
+          echo "|---|---|"
+          echo "| dry-run | \`${DRY_RUN}\` |"
+          echo "| gcloud_project_id | \`${IN_PROJECT_ID}\` |"
+          echo "| gcloud_region | \`${IN_REGION}\` |"
+          echo "| gcloud_identity_provider | \`${IN_IDP}\` |"
+          echo "| gcloud_service_account | \`${IN_SA}\` |"
+          echo "| github_token | _(redacted)_ |"
+          echo ""
+          echo "### GitHub context"
+          echo "| key | value |"
+          echo "|---|---|"
+          echo "| github.repository | \`${CTX_REPO}\` |"
+          echo "| github.actor | \`${CTX_ACTOR}\` |"
+          echo "| github.ref | \`${CTX_REF}\` |"
+          echo "| github.sha | \`${CTX_SHA}\` |"
+          echo "| github.event_name | \`${CTX_EVENT}\` |"
+          echo ""
+          echo "### Check step outputs"
+          echo "| key | value |"
+          echo "|---|---|"
+          echo "| ghcr_path | \`${OUT_GHCR_PATH}\` |"
+          echo "| gcloud_path | \`${OUT_GCLOUD_PATH}\` |"
+          echo "| ghcr_tag | \`${OUT_GHCR_TAG}\` |"
+          echo "| gcloud_tag | \`${OUT_GCLOUD_TAG}\` |"
+          echo "| ghcr_exists | \`${OUT_GHCR_EXISTS}\` |"
+          echo "| gcloud_exists | \`${OUT_GCLOUD_EXISTS}\` |"
+          echo "| action | \`${OUT_ACTION}\` |"
+          echo ""
+          echo "### Extra tags from docker/metadata-action"
+          if [[ -z "$EXTRA_TAGS" ]]; then
+            echo "_(none)_"
+          else
+            echo '```'
+            echo "$EXTRA_TAGS"
+            echo '```'
+          fi
+          echo ""
+          echo "### Plan (action = \`${OUT_ACTION}\`)"
+          echo '```'
+          echo "$PLAN"
+          echo '```'
+        } | tee -a "$GITHUB_STEP_SUMMARY"
+
     - name: Build locally (no push)
-      if: steps.check.outputs.action == 'build'
+      if: steps.check.outputs.action == 'build' && inputs.dry-run != 'true'
       uses: ./.github/actions/build
       with:
         ghcr_tag: ${{ steps.check.outputs.ghcr_tag }}
 
     - name: Pull from GHCR
-      if: steps.check.outputs.action == 'pull'
+      if: steps.check.outputs.action == 'pull' && inputs.dry-run != 'true'
       shell: bash
       env:
         GHCR_TAG: ${{ steps.check.outputs.ghcr_tag }}
       run: docker pull "$GHCR_TAG"
 
     - name: Tag and push (build or pull branch)
-      if: steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull'
+      if: (steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull') && inputs.dry-run != 'true'
       shell: bash
       env:
         SRC_TAG: ${{ steps.check.outputs.ghcr_tag }}
@@ -135,7 +255,7 @@ runs:
         docker push --all-tags "$GCLOUD_PATH"
 
     - name: Retag only (no pull) — add extra tags in-registry
-      if: steps.check.outputs.action == 'retag' && steps.meta.outputs.tags != ''
+      if: steps.check.outputs.action == 'retag' && steps.meta.outputs.tags != '' && inputs.dry-run != 'true'
       shell: bash
       env:
         EXTRA_TAGS: ${{ steps.meta.outputs.tags }}
