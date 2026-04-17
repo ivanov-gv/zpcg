@@ -20,14 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: build-and-push
-        uses: ./.github/actions/build-and-push/action.yml
+        uses: ./.github/actions/build-and-push
         with:
           gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          github_token: $${{ github.token }}
-      - uses: ./.github/actions/deploy/action.yml
+          github_token: ${{ github.token }}
+      - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
           gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}

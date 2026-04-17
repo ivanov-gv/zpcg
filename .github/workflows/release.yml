@@ -13,16 +13,18 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    outputs:
+      gcloud_tag: ${{ steps.push.outputs.gcloud_tag }}
     steps:
       - uses: actions/checkout@v4
       - id: push
-        uses: ./.github/actions/build-and-push/action.yml
+        uses: ./.github/actions/build-and-push
         with:
           gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          github_token: $${{ github.token }}
+          github_token: ${{ github.token }}
 
   deploy-to-preprod:
     name: Deploy to preprod
@@ -31,15 +33,14 @@ jobs:
     needs: build-and-push
     permissions:
       contents: read
-      packages: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/deploy/action.yml
+      - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
           gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-          gcloud_image: ${{ steps.push.outputs.gcloud_tag }}
+          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
@@ -50,18 +51,17 @@ jobs:
     name: Deploy to prod
     runs-on: ubuntu-latest
     environment: prod
-    needs: deploy-to-preprod
+    needs: [deploy-to-preprod, build-and-push]
     permissions:
       contents: read
-      packages: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/deploy/action.yml
+      - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
           gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-          gcloud_image: ${{ steps.push.outputs.gcloud_tag }}
+          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
