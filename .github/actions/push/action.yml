@@ -2,9 +2,109 @@ name: push
 author: ivanov_gv
 description: push
 
+inputs:
+  github_token:
+    description: "GitHub token to authenticate in ghch.io"
+    required: true
+  gcloud_project_id:
+    description: ""
+    required: true
+  gcloud_identity_provider:
+    description: ""
+    required: true
+  gcloud_service_account:
+    description: ""
+    required: true
+
+outputs:
+  gcloud_tag:
+    description: ""
+    value: ${{ env.ZPCG_IMAGE_TAG_GCLOUD_COMMIT }}
+  ghcr_tag:
+    description: ""
+    value: ${{ env.ZPCG_IMAGE_TAG_GHCR_COMMIT }}
+
 runs:
   using: composite
   steps:
-    - shell: bash
-      run: echo "push action"
-    - uses: "./.github/actions/build"
+    # auth in gcloud and ghcr
+    - name: Login to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.github_token }}
+
+    - name: Google Cloud authentication
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.gcloud_project_id }}
+        workload_identity_provider: ${{ secrets.GCLOUD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
+        create_credentials_file: true
+
+    - name: Check
+      env:
+        ZPCG_IMAGE_PATH_GHCR: ghcr.io/${{ github.repository }}
+        ZPCG_IMAGE_PATH_GCLOUD: ${{ inputs.gcloud_region }}-docker.pkg.dev/${{ inputs.gcloud_project_id }}/${{ github.repository }}
+      run: |
+        set -euo pipefail
+        
+        # export image paths
+        echo "ZPCG_IMAGE_PATH_GHCR=${ZPCG_IMAGE_PATH_GHCR}" >> "$GITHUB_ENV"
+        echo "ZPCG_IMAGE_PATH_GCLOUD=${ZPCG_IMAGE_PATH_GCLOUD}" >> "$GITHUB_ENV"
+        
+        # set commit sha tags
+        COMMIT_SHORT_SHA="$(git rev-parse --short HEAD)"
+        ZPCG_IMAGE_TAG_GHCR_COMMIT="${IMAGE_PATH_GHCR}:${COMMIT_SHORT_SHA}"
+        ZPCG_IMAGE_TAG_GCLOUD_COMMIT="${IMAGE_PATH_GCLOUD}:${COMMIT_SHORT_SHA}"
+        echo "ZPCG_IMAGE_TAG_GHCR_COMMIT=${ZPCG_IMAGE_TAG_GHCR_COMMIT}" >> "$GITHUB_ENV"
+        echo "ZPCG_IMAGE_TAG_GHCR_COMMIT=${ZPCG_IMAGE_TAG_GHCR_COMMIT}" >> "$GITHUB_ENV"
+        
+        if docker manifest inspect "$ZPCG_IMAGE_TAG_GHCR_COMMIT" >/dev/null 2>&1; then # TODO: if NOT exists
+          echo "Image ${IMAGE_GHCR_COMMIT_SHORT_SHA} does not exist. Build it."
+          echo "ZPCG_BUILD_IMAGE=true" >> "$GITHUB_ENV"
+          exit 0
+        fi        
+        
+        if docker manifest inspect "$ZPCG_IMAGE_TAG_GHCR_COMMIT" >/dev/null 2>&1; then # TODO: if NOT exists
+          echo "Image ${IMAGE_GHCR_COMMIT_SHORT_SHA} does not exist. Pull it from GHCR and push to GCloud."
+          echo "ZPCG_PUSH_IMAGE_TO_GCLOUD=true" >> "$GITHUB_ENV"
+          exit 0
+        fi    
+        
+        echo "Image exists in both registries. Add tags, if needed"
+        echo "ZPCG_UPDATE_TAGS=true" >> $GITHUB_ENV
+
+    - name: Build
+      uses: "./.github/actions/build"
+      if: ZPCG_BUILD_IMAGE == true
+      with:
+        ghcr_tag: ${{ env.ZPCG_IMAGE_TAG_GHCR_COMMIT }}
+
+    - name: Pull from GHCR
+      if: ZPCG_PUSH_IMAGE_TO_GCLOUD==true
+      run: docker pull $ZPCG_IMAGE_TAG_GHCR_COMMIT
+
+    - name: Docker meta (includes git tags)
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ env.ZPCG_IMAGE_PATH_GHCR }}
+          ${{ env.ZPCG_IMAGE_PATH_GCLOUD }}
+        tags: |
+          type=sha,prefix=,format=short          
+          type=ref,event=tag
+
+    - name: Push
+      if: ZPCG_BUILD_IMAGE == true || ZPCG_PUSH_IMAGE_TO_GCLOUD==true
+      run: |
+        docker tag ${{ env.ZPCG_IMAGE_TAG_GHCR_COMMIT }} ${{ steps.meta.outputs.tags }}
+        docker push ${{ steps.meta.outputs.tags }}
+
+    - name: Update tags
+      if: ZPCG_UPDATE_TAGS == true
+      run: |
+        # in ghcr.io to env.ZPCG_IMAGE_TAG_GHCR_COMMIT tag add steps.meta.outputs.tags
+        # in gcloud to env.ZPCG_IMAGE_TAG_GCLOUD_COMMIT tag add steps.meta.outputs.tags
