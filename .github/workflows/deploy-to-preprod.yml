@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy-to-preprod:
-    name: Build
+    name: Deploy to preprod
     runs-on: ubuntu-latest
     environment: preprod
     permissions:
