@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
 
 # tdlib commit required by github.com/zelenin/go-tdlib v0.7.4
 env:
@@ -12,16 +13,17 @@ env:
 jobs:
   build:
     name: Build
-    uses: ./.github/workflows/build.yml
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-    with:
-      commit_sha: ${{ github.sha }}
-      push: false
-      gcloud_region: ${{ vars.GCLOUD_REGION }}
-      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          ghcr_github_token: ${{ secrets.GITHUB_TOKEN }}
+          # No ghcr_tag_to_push — build only, no push
+          dry_run: ${{ env.ACT == 'true' || github.event_name == 'workflow_dispatch' }}
+
   test:
     name: Tests
     runs-on: ubuntu-latest
