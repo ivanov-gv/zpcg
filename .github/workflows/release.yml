@@ -6,50 +6,64 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build:
-    name: Build
-    uses: ./.github/workflows/build.yml
+  build-and-push:
+    name: Build and push
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
-    secrets: inherit
-    with:
-      commit_sha: ${{ github.sha }}
-      push: true
-      gcloud_region: ${{ vars.GCLOUD_REGION }}
-      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: push
+        uses: ./.github/actions/build-and-push/action.yml
+        with:
+          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+          github_token: $${{ github.token }}
 
-  deploy-preprod:
-    name: Deploy to Preprod
-    needs: build
-    uses: ./.github/workflows/deploy.yml
+  deploy-to-preprod:
+    name: Deploy to preprod
+    runs-on: ubuntu-latest
+    environment: preprod
+    needs: build-and-push
     permissions:
       contents: read
+      packages: write
       id-token: write
-    secrets: inherit
-    with:
-      environment: preprod
-      gcloud_image: ${{ needs.build.outputs.gcloud_tag }}
-      env_var_environment: ${{ vars.ENV_VAR_ENVIRONMENT }}
-      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
-      gcloud_region: ${{ vars.GCLOUD_REGION }}
-      gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
-      gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy/action.yml
+        with:
+          env_var_environment: ${{ vars.ENVIRONMENT }}
+          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+          gcloud_image: ${{ steps.push.outputs.gcloud_tag }}
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
+          gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
 
-  deploy-production:
-    name: Deploy to Production
-    needs: [ build, deploy-preprod ]
-    uses: ./.github/workflows/deploy.yml
+  deploy-to-prod:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: deploy-to-preprod
     permissions:
       contents: read
+      packages: write
       id-token: write
-    secrets: inherit
-    with:
-      environment: prod
-      gcloud_image: ${{ needs.build.outputs.gcloud_tag }}
-      env_var_environment: ${{ vars.ENV_VAR_ENVIRONMENT }}
-      gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
-      gcloud_region: ${{ vars.GCLOUD_REGION }}
-      gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
-      gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy/action.yml
+        with:
+          env_var_environment: ${{ vars.ENVIRONMENT }}
+          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+          gcloud_image: ${{ steps.push.outputs.gcloud_tag }}
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
+          gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}

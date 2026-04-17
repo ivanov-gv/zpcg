@@ -1,4 +1,4 @@
-name: push
+name: build-and-push
 author: ivanov_gv
 description: Build (if needed) and publish image to GHCR + GCloud Artifact Registry
 
