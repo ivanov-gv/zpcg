@@ -1,33 +1,35 @@
 name: push
 author: ivanov_gv
-description: push
+description: Build (if needed) and publish image to GHCR + GCloud Artifact Registry
 
 inputs:
   github_token:
-    description: "GitHub token to authenticate in ghch.io"
+    description: "Token to authenticate against ghcr.io"
     required: true
   gcloud_project_id:
-    description: ""
+    description: "GCP project ID"
+    required: true
+  gcloud_region:
+    description: "GCP region for Artifact Registry (e.g. europe-west1)"
     required: true
   gcloud_identity_provider:
-    description: ""
+    description: "Workload identity provider resource name"
     required: true
   gcloud_service_account:
-    description: ""
+    description: "Service account email"
     required: true
 
 outputs:
-  gcloud_tag:
-    description: ""
-    value: ${{ env.ZPCG_IMAGE_TAG_GCLOUD_COMMIT }}
   ghcr_tag:
-    description: ""
-    value: ${{ env.ZPCG_IMAGE_TAG_GHCR_COMMIT }}
+    description: "Full GHCR image ref with commit SHA tag"
+    value: ${{ steps.check.outputs.ghcr_tag }}
+  gcloud_tag:
+    description: "Full GCloud image ref with commit SHA tag"
+    value: ${{ steps.check.outputs.gcloud_tag }}
 
 runs:
   using: composite
   steps:
-    # auth in gcloud and ghcr
     - name: Login to GHCR
       uses: docker/login-action@v3
       with:
@@ -35,76 +37,117 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.github_token }}
 
-    - name: Google Cloud authentication
+    - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v3
       with:
         project_id: ${{ inputs.gcloud_project_id }}
-        workload_identity_provider: ${{ secrets.GCLOUD_IDENTITY_PROVIDER }}
-        service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
+        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
+        service_account: ${{ inputs.gcloud_service_account }}
         create_credentials_file: true
 
-    - name: Check
+    - name: Configure Docker for Artifact Registry
+      shell: bash
       env:
-        ZPCG_IMAGE_PATH_GHCR: ghcr.io/${{ github.repository }}
-        ZPCG_IMAGE_PATH_GCLOUD: ${{ inputs.gcloud_region }}-docker.pkg.dev/${{ inputs.gcloud_project_id }}/${{ github.repository }}
+        GCLOUD_REGION: ${{ inputs.gcloud_region }}
+      run: gcloud auth configure-docker "${GCLOUD_REGION}-docker.pkg.dev" --quiet
+
+    - name: Determine what needs to happen
+      id: check
+      shell: bash
+      env:
+        GH_REPOSITORY: ${{ github.repository }}
+        GCLOUD_REGION: ${{ inputs.gcloud_region }}
+        GCLOUD_PROJECT_ID: ${{ inputs.gcloud_project_id }}
       run: |
         set -euo pipefail
-        
-        # export image paths
-        echo "ZPCG_IMAGE_PATH_GHCR=${ZPCG_IMAGE_PATH_GHCR}" >> "$GITHUB_ENV"
-        echo "ZPCG_IMAGE_PATH_GCLOUD=${ZPCG_IMAGE_PATH_GCLOUD}" >> "$GITHUB_ENV"
-        
-        # set commit sha tags
+
+        REPO_LOWER="$(echo "$GH_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+        IMAGE_PATH_GHCR="ghcr.io/${REPO_LOWER}"
+        IMAGE_PATH_GCLOUD="${GCLOUD_REGION}-docker.pkg.dev/${GCLOUD_PROJECT_ID}/${REPO_LOWER}"
+
         COMMIT_SHORT_SHA="$(git rev-parse --short HEAD)"
-        ZPCG_IMAGE_TAG_GHCR_COMMIT="${IMAGE_PATH_GHCR}:${COMMIT_SHORT_SHA}"
-        ZPCG_IMAGE_TAG_GCLOUD_COMMIT="${IMAGE_PATH_GCLOUD}:${COMMIT_SHORT_SHA}"
-        echo "ZPCG_IMAGE_TAG_GHCR_COMMIT=${ZPCG_IMAGE_TAG_GHCR_COMMIT}" >> "$GITHUB_ENV"
-        echo "ZPCG_IMAGE_TAG_GHCR_COMMIT=${ZPCG_IMAGE_TAG_GHCR_COMMIT}" >> "$GITHUB_ENV"
-        
-        if docker manifest inspect "$ZPCG_IMAGE_TAG_GHCR_COMMIT" >/dev/null 2>&1; then # TODO: if NOT exists
-          echo "Image ${IMAGE_GHCR_COMMIT_SHORT_SHA} does not exist. Build it."
-          echo "ZPCG_BUILD_IMAGE=true" >> "$GITHUB_ENV"
-          exit 0
-        fi        
-        
-        if docker manifest inspect "$ZPCG_IMAGE_TAG_GHCR_COMMIT" >/dev/null 2>&1; then # TODO: if NOT exists
-          echo "Image ${IMAGE_GHCR_COMMIT_SHORT_SHA} does not exist. Pull it from GHCR and push to GCloud."
-          echo "ZPCG_PUSH_IMAGE_TO_GCLOUD=true" >> "$GITHUB_ENV"
-          exit 0
-        fi    
-        
-        echo "Image exists in both registries. Add tags, if needed"
-        echo "ZPCG_UPDATE_TAGS=true" >> $GITHUB_ENV
+        GHCR_TAG="${IMAGE_PATH_GHCR}:${COMMIT_SHORT_SHA}"
+        GCLOUD_TAG="${IMAGE_PATH_GCLOUD}:${COMMIT_SHORT_SHA}"
 
-    - name: Build
-      uses: "./.github/actions/build"
-      if: ZPCG_BUILD_IMAGE == true
-      with:
-        ghcr_tag: ${{ env.ZPCG_IMAGE_TAG_GHCR_COMMIT }}
+        {
+          echo "ghcr_path=${IMAGE_PATH_GHCR}"
+          echo "gcloud_path=${IMAGE_PATH_GCLOUD}"
+          echo "ghcr_tag=${GHCR_TAG}"
+          echo "gcloud_tag=${GCLOUD_TAG}"
+        } >> "$GITHUB_OUTPUT"
 
-    - name: Pull from GHCR
-      if: ZPCG_PUSH_IMAGE_TO_GCLOUD==true
-      run: docker pull $ZPCG_IMAGE_TAG_GHCR_COMMIT
+        ghcr_exists=false
+        gcloud_exists=false
+        docker manifest inspect "$GHCR_TAG"   >/dev/null 2>&1 && ghcr_exists=true
+        docker manifest inspect "$GCLOUD_TAG" >/dev/null 2>&1 && gcloud_exists=true
 
-    - name: Docker meta (includes git tags)
+        if [[ "$ghcr_exists" == "false" ]]; then
+          echo "Commit image missing in GHCR → build locally."
+          echo "action=build" >> "$GITHUB_OUTPUT"
+        elif [[ "$gcloud_exists" == "false" ]]; then
+          echo "Commit image in GHCR but not in GCloud → pull from GHCR."
+          echo "action=pull" >> "$GITHUB_OUTPUT"
+        else
+          echo "Commit image in both registries → retag only, no local image needed."
+          echo "action=retag" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Docker metadata (extra tags for both registries)
       id: meta
       uses: docker/metadata-action@v5
       with:
         images: |
-          ${{ env.ZPCG_IMAGE_PATH_GHCR }}
-          ${{ env.ZPCG_IMAGE_PATH_GCLOUD }}
+          ${{ steps.check.outputs.ghcr_path }}
+          ${{ steps.check.outputs.gcloud_path }}
         tags: |
-          type=sha,prefix=,format=short          
           type=ref,event=tag
 
-    - name: Push
-      if: ZPCG_BUILD_IMAGE == true || ZPCG_PUSH_IMAGE_TO_GCLOUD==true
-      run: |
-        docker tag ${{ env.ZPCG_IMAGE_TAG_GHCR_COMMIT }} ${{ steps.meta.outputs.tags }}
-        docker push ${{ steps.meta.outputs.tags }}
+    - name: Build locally (no push)
+      if: steps.check.outputs.action == 'build'
+      uses: ./.github/actions/build
+      with:
+        ghcr_tag: ${{ steps.check.outputs.ghcr_tag }}
 
-    - name: Update tags
-      if: ZPCG_UPDATE_TAGS == true
+    - name: Pull from GHCR
+      if: steps.check.outputs.action == 'pull'
+      shell: bash
+      env:
+        GHCR_TAG: ${{ steps.check.outputs.ghcr_tag }}
+      run: docker pull "$GHCR_TAG"
+
+    - name: Tag and push (build or pull branch)
+      if: steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull'
+      shell: bash
+      env:
+        SRC_TAG: ${{ steps.check.outputs.ghcr_tag }}
+        GCLOUD_TAG: ${{ steps.check.outputs.gcloud_tag }}
+        EXTRA_TAGS: ${{ steps.meta.outputs.tags }}
+        GHCR_PATH: ${{ steps.check.outputs.ghcr_path }}
+        GCLOUD_PATH: ${{ steps.check.outputs.gcloud_path }}
       run: |
-        # in ghcr.io to env.ZPCG_IMAGE_TAG_GHCR_COMMIT tag add steps.meta.outputs.tags
-        # in gcloud to env.ZPCG_IMAGE_TAG_GCLOUD_COMMIT tag add steps.meta.outputs.tags
+        set -euo pipefail
+        docker tag "$SRC_TAG" "$GCLOUD_TAG"
+        while IFS= read -r tag; do
+          [ -z "$tag" ] && continue
+          docker tag "$SRC_TAG" "$tag"
+        done <<< "$EXTRA_TAGS"
+        docker push --all-tags "$GHCR_PATH"
+        docker push --all-tags "$GCLOUD_PATH"
+
+    - name: Retag only (no pull) — add extra tags in-registry
+      if: steps.check.outputs.action == 'retag' && steps.meta.outputs.tags != ''
+      shell: bash
+      env:
+        EXTRA_TAGS: ${{ steps.meta.outputs.tags }}
+        SRC_GHCR: ${{ steps.check.outputs.ghcr_tag }}
+        SRC_GCLOUD: ${{ steps.check.outputs.gcloud_tag }}
+      run: |
+        set -euo pipefail
+        while IFS= read -r tag; do
+          [ -z "$tag" ] && continue
+          if [[ "$tag" == ghcr.io/* ]]; then
+            docker buildx imagetools create --tag "$tag" "$SRC_GHCR"
+          else
+            docker buildx imagetools create --tag "$tag" "$SRC_GCLOUD"
+          fi
+        done <<< "$EXTRA_TAGS"
