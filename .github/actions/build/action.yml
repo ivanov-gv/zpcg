@@ -4,14 +4,14 @@ description: Builds docker image to be deployed further. Requires 'actions/check
 
 inputs:
   ghcr_tag:
-    description: "Docker image tag for ghcr.io"
+    description: Docker image tag for ghcr.io
 
 outputs:
   imageid:
-    description: "Docker image id"
+    description: Docker image id
     value: ${{ steps.build.outputs.imageid }}
   digest:
-    description: "Docker image digest"
+    description: Docker image digest
     value: ${{ steps.build.outputs.digest }}
 
 runs:

@@ -4,22 +4,22 @@ description: Build (if needed) and publish image to GHCR + GCloud Artifact Regis
 
 inputs:
   github_token:
-    description: "Token to authenticate against ghcr.io"
+    description: Token to authenticate against ghcr.io
     required: true
   gcloud_project_id:
-    description: "GCP project ID"
+    description: GCP project ID
     required: true
   gcloud_region:
-    description: "GCP region for Artifact Registry (e.g. europe-west1)"
+    description: GCP region for Artifact Registry (e.g. europe-west1)
     required: true
   gcloud_identity_provider:
-    description: "Workload identity provider resource name"
+    description: Workload identity provider resource name
     required: true
   gcloud_service_account:
-    description: "Service account email"
+    description: Service account email
     required: true
   dry-run:
-    description: "If 'true', skip all mutating steps and print what would happen"
+    description: If 'true', skip all mutating steps and print what would happen
     required: false
     default: 'false'
 

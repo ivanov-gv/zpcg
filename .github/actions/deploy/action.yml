@@ -1,0 +1,49 @@
+name: deploy
+description: Authenticate with GCloud and deploy to Cloud Run
+
+inputs:
+  gcloud_image:
+    description: A GCloud registry image to deploy
+    required: true
+  gcloud_project_id:
+    required: true
+    description: GCP project ID
+  gcloud_region:
+    required: true
+    description: GCP region for Artifact Registry (e.g. europe-west1)
+  gcloud_run_service:
+    required: true
+    description: GCP Cloud Run service
+  env_var_environment:
+    description: Value for ENVIRONMENT env var in Cloud Run
+    required: true
+  gcloud_secret_version_telegram_token:
+    description: Version of Telegram Token secret
+    required: true
+  gcloud_identity_provider:
+    description: Workload identity provider (pass a secret from the caller)
+    required: true
+  gcloud_service_account:
+    description: Service account email (pass a secret from the caller)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Google Cloud authentication
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.gcloud_project_id }}
+        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
+        service_account: ${{ inputs.gcloud_service_account }}
+        create_credentials_file: true
+
+    - name: Cloud Run deploy
+      uses: google-github-actions/deploy-cloudrun@v3
+      with:
+        service: ${{ inputs.gcloud_run_service }}
+        image: ${{ inputs.gcloud_image }}
+        env_vars: ENVIRONMENT=${{ inputs.env_var_environment }}
+        secrets: TELEGRAM_APITOKEN=${{ inputs.gcloud_secret_version_telegram_token }}
+        region: ${{ inputs.gcloud_region }}
+        project_id: ${{ inputs.gcloud_project_id }}

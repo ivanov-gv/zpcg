@@ -1,0 +1,39 @@
+name: Deploy to preprod
+
+on:
+  workflow_dispatch:
+    inputs:
+      description:
+        description: "What's being deployed"
+        required: false
+        type: string
+
+jobs:
+  deploy-to-preprod:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: preprod
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: push
+        uses: ./.github/actions/push/action.yml
+        with:
+          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+          github_token: $${{ github.token }}
+      - uses: ./.github/actions/deploy/action.yml
+        with:
+          env_var_environment: ${{ vars.ENVIRONMENT }}
+          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+          gcloud_image: ${{ steps.push.outputs.gcloud_tag }}
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
+          gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
