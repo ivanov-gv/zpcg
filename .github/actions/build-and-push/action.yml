@@ -31,7 +31,7 @@ inputs:
   gcloud_service_account:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
-  dry-run:
+  dry_run:
     description: >
       If 'true', skip only remote-write steps (push, retag). Authentication,
       image build, and pull still run. Prints an execution plan to the job summary.
@@ -52,7 +52,10 @@ runs:
     - id: dry_run
       uses: ./.github/actions/dry-run
       with:
-        dry_run: ${{ inputs.dry-run }}
+        dry_run: ${{ inputs.dry_run }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Login to GHCR
       uses: docker/login-action@v3
@@ -89,7 +92,7 @@ runs:
         IMAGE_PATH_GHCR="ghcr.io/${REPO_LOWER}"
         IMAGE_PATH_GCLOUD="${GCLOUD_REGION}-docker.pkg.dev/${GCLOUD_PROJECT_ID}/${REPO_LOWER}"
 
-        COMMIT_SHORT_SHA="$(git rev-parse --short HEAD)"
+        COMMIT_SHORT_SHA="$(git rev-parse --short=7 HEAD)"
         GHCR_TAG="${IMAGE_PATH_GHCR}:${COMMIT_SHORT_SHA}"
         GCLOUD_TAG="${IMAGE_PATH_GCLOUD}:${COMMIT_SHORT_SHA}"
 
@@ -135,7 +138,7 @@ runs:
       if: steps.dry_run.outputs.dry_run == 'true'
       shell: bash
       env:
-        DRY_RUN: ${{ inputs.dry-run }}
+        DRY_RUN: ${{ inputs.dry_run }}
         IN_PROJECT_ID: ${{ inputs.gcloud_project_id }}
         IN_REGION: ${{ inputs.gcloud_region }}
         IN_IDP: ${{ inputs.gcloud_identity_provider }}
@@ -198,7 +201,7 @@ runs:
           echo "### Inputs"
           echo "| key | value |"
           echo "|---|---|"
-          echo "| dry-run | \`${DRY_RUN}\` |"
+          echo "| dry_run | \`${DRY_RUN}\` |"
           echo "| gcloud_project_id | \`${IN_PROJECT_ID}\` |"
           echo "| gcloud_region | \`${IN_REGION}\` |"
           echo "| gcloud_identity_provider | \`${IN_IDP}\` |"

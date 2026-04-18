@@ -95,6 +95,7 @@ test-ci-checks: # run checks workflow locally via act; dry_run=true skips test/l
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/checks.yml \
 		--secret-file .github/act/checks.env \
+		--var-file .github/act/checks.env \
 		--input dry_run=true
 
 .PHONY: test-ci-ci-image
@@ -102,6 +103,7 @@ test-ci-ci-image: # run ci-image workflow locally via act (dry-run: build and pu
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/ci-image.yml \
 		--secret-file .github/act/ci-image.env \
+		--var-file .github/act/ci-image.env \
 		--input dry_run=true
 
 .PHONY: test-ci-deploy-to-preprod

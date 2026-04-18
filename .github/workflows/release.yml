@@ -12,6 +12,10 @@ on:
         type: boolean
         default: true
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     name: Build and push
@@ -38,7 +42,7 @@ jobs:
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
           github_token: ${{ github.token }}
-          dry-run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: ${{ steps.dry_run.outputs.dry_run }}
 
   deploy-to-preprod:
     name: Deploy to preprod
@@ -66,7 +70,7 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry-run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: ${{ steps.dry_run.outputs.dry_run }}
 
   deploy-to-prod:
     name: Deploy to prod
@@ -94,4 +98,4 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry-run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: ${{ steps.dry_run.outputs.dry_run }}

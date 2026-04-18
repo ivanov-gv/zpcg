@@ -105,7 +105,7 @@ pass directly to the `deploy` action.
 | `gcloud_region` | Yes | Artifact Registry region (e.g. `europe-west1`) |
 | `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
 | `gcloud_service_account` | Yes | Service account email |
-| `dry-run` | No | If `true`, skip remote-write steps (push, retag) only. Auth, build, and pull still run. Prints an execution plan to the job summary. Default: `false`. |
+| `dry_run` | No | If `true`, skip remote-write steps (push, retag) only. Auth, build, and pull still run. Prints an execution plan to the job summary. Default: `false`. |
 
 **Usage**
 
@@ -128,7 +128,7 @@ pass directly to the `deploy` action.
     gcloud_region: ${{ vars.GCLOUD_REGION }}
     gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
     gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-    dry-run: 'true'
+    dry_run: 'true'
 ```
 
 **Dry-run mode** prints a full execution plan to the job summary — resolved image paths,
@@ -155,7 +155,7 @@ from Secret Manager by version reference.
 | `gcloud_secret_version_telegram_token` | Yes | Secret Manager version ref for the Telegram API token |
 | `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
 | `gcloud_service_account` | Yes | Service account email |
-| `dry-run` | No | If `true`, skip Cloud Run deployment only. Authentication still runs. Prints a plan summary to the job summary. Default: `false`. |
+| `dry_run` | No | If `true`, skip Cloud Run deployment only. Authentication still runs. Prints a plan summary to the job summary. Default: `false`. |
 
 **Usage**
 
