@@ -1,34 +1,47 @@
 name: build-and-push
-author: ivanov_gv
-description: Build (if needed) and publish image to GHCR + GCloud Artifact Registry
+description: >
+  Builds (if needed) and publishes the application image to both GHCR and
+  Google Cloud Artifact Registry. Before building, inspects both registries
+  for the commit-SHA tag and takes the cheapest available path:
+
+    - Image absent from GHCR         → build locally → push to both
+    - Image in GHCR, absent in GCloud → pull from GHCR → push to GCloud
+    - Image in both registries        → in-registry retag only, no data transfer
+
+  On a v*.*.* tag push, docker/metadata-action appends a semantic version tag
+  to both registries alongside the commit-SHA tag. For workflow_dispatch,
+  only the commit-SHA tag is used.
 
 inputs:
   github_token:
-    description: Token to authenticate against ghcr.io
+    description: >
+      github.token from the caller, scoped to packages: write.
+      Passed explicitly because composite actions cannot read the caller's
+      github.token directly.
     required: true
   gcloud_project_id:
-    description: GCP project ID
+    description: GCP project ID.
     required: true
   gcloud_region:
-    description: GCP region for Artifact Registry (e.g. europe-west1)
+    description: Artifact Registry region (e.g. europe-west1).
     required: true
   gcloud_identity_provider:
-    description: Workload identity provider resource name
+    description: Workload Identity Provider resource name.
     required: true
   gcloud_service_account:
-    description: Service account email
+    description: Service account email authorized for the Workload Identity Provider.
     required: true
   dry-run:
-    description: If 'true', skip all mutating steps and print what would happen
+    description: If 'true', print the execution plan without running any mutating steps.
     required: false
     default: 'false'
 
 outputs:
   ghcr_tag:
-    description: "Full GHCR image ref with commit SHA tag"
+    description: Full GHCR image ref with commit-SHA tag (e.g. ghcr.io/org/repo:abc1234).
     value: ${{ steps.check.outputs.ghcr_tag }}
   gcloud_tag:
-    description: "Full GCloud image ref with commit SHA tag"
+    description: Full GCloud Artifact Registry image ref with commit-SHA tag.
     value: ${{ steps.check.outputs.gcloud_tag }}
 
 runs:
@@ -55,7 +68,7 @@ runs:
         GCLOUD_REGION: ${{ inputs.gcloud_region }}
       run: gcloud auth configure-docker "${GCLOUD_REGION}-docker.pkg.dev" --quiet
 
-    - name: Determine what needs to happen
+    - name: Determine action needed
       id: check
       shell: bash
       env:
@@ -91,17 +104,17 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
         if [[ "$ghcr_exists" == "false" ]]; then
-          echo "Commit image missing in GHCR → build locally."
+          echo "Commit image missing from GHCR — building locally."
           echo "action=build" >> "$GITHUB_OUTPUT"
         elif [[ "$gcloud_exists" == "false" ]]; then
-          echo "Commit image in GHCR but not in GCloud → pull from GHCR."
+          echo "Commit image in GHCR but not in GCloud — pulling from GHCR."
           echo "action=pull" >> "$GITHUB_OUTPUT"
         else
-          echo "Commit image in both registries → retag only, no local image needed."
+          echo "Commit image in both registries — retagging in-registry, no pull needed."
           echo "action=retag" >> "$GITHUB_OUTPUT"
         fi
 
-    - name: Docker metadata (extra tags for both registries)
+    - name: Resolve extra tags
       id: meta
       uses: docker/metadata-action@v5
       with:
@@ -111,7 +124,7 @@ runs:
         tags: |
           type=ref,event=tag
 
-    - name: Dry-run debug summary
+    - name: Dry-run summary
       if: inputs.dry-run == 'true'
       shell: bash
       env:
@@ -136,7 +149,6 @@ runs:
       run: |
         set -euo pipefail
 
-        # Plan describing what the non-dry-run path would execute.
         case "$OUT_ACTION" in
           build)
             read -r -d '' PLAN <<'EOF' || true
@@ -173,9 +185,8 @@ runs:
             ;;
         esac
 
-        # Write to both stdout (for logs) and the step summary (for UI).
         {
-          echo "## 🧪 Dry-run mode — no mutating steps will run"
+          echo "## Dry-run mode — no mutating steps will run"
           echo ""
           echo "### Inputs"
           echo "| key | value |"
@@ -196,7 +207,7 @@ runs:
           echo "| github.sha | \`${CTX_SHA}\` |"
           echo "| github.event_name | \`${CTX_EVENT}\` |"
           echo ""
-          echo "### Check step outputs"
+          echo "### Resolved image paths"
           echo "| key | value |"
           echo "|---|---|"
           echo "| ghcr_path | \`${OUT_GHCR_PATH}\` |"
@@ -222,7 +233,7 @@ runs:
           echo '```'
         } | tee -a "$GITHUB_STEP_SUMMARY"
 
-    - name: Build locally (no push)
+    - name: Build locally
       if: steps.check.outputs.action == 'build' && inputs.dry-run != 'true'
       uses: ./.github/actions/build
       with:
@@ -235,7 +246,7 @@ runs:
         GHCR_TAG: ${{ steps.check.outputs.ghcr_tag }}
       run: docker pull "$GHCR_TAG"
 
-    - name: Tag and push (build or pull branch)
+    - name: Tag and push
       if: (steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull') && inputs.dry-run != 'true'
       shell: bash
       env:
@@ -254,7 +265,7 @@ runs:
         docker push --all-tags "$GHCR_PATH"
         docker push --all-tags "$GCLOUD_PATH"
 
-    - name: Retag only (no pull) — add extra tags in-registry
+    - name: Retag in-registry
       if: steps.check.outputs.action == 'retag' && steps.meta.outputs.tags != '' && inputs.dry-run != 'true'
       shell: bash
       env:
