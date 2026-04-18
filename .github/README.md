@@ -1,6 +1,6 @@
 # CI/CD
 
-Three composable actions cover the full delivery lifecycle; four workflows wire them together.
+Four composable actions cover the full delivery lifecycle; four workflows wire them together.
 
 ```
 [checks]            push / PR gate   → build check + go test -race + golangci-lint
