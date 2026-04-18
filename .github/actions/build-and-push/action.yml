@@ -32,7 +32,9 @@ inputs:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
   dry-run:
-    description: If 'true', print the execution plan without running any mutating steps.
+    description: >
+      If 'true', skip only remote-write steps (push, retag). Authentication,
+      image build, and pull still run. Prints an execution plan to the job summary.
     required: false
     default: 'false'
 
@@ -47,6 +49,11 @@ outputs:
 runs:
   using: composite
   steps:
+    - id: dry_run
+      uses: ./.github/actions/dry-run
+      with:
+        dry_run: ${{ inputs.dry-run }}
+
     - name: Login to GHCR
       uses: docker/login-action@v3
       with:
@@ -125,7 +132,7 @@ runs:
           type=ref,event=tag
 
     - name: Dry-run summary
-      if: inputs.dry-run == 'true'
+      if: steps.dry_run.outputs.dry_run == 'true'
       shell: bash
       env:
         DRY_RUN: ${{ inputs.dry-run }}
@@ -234,20 +241,22 @@ runs:
         } | tee -a "$GITHUB_STEP_SUMMARY"
 
     - name: Build locally
-      if: steps.check.outputs.action == 'build' && inputs.dry-run != 'true'
+      if: steps.check.outputs.action == 'build'
       uses: ./.github/actions/build
       with:
         ghcr_tag: ${{ steps.check.outputs.ghcr_tag }}
 
     - name: Pull from GHCR
-      if: steps.check.outputs.action == 'pull' && inputs.dry-run != 'true'
+      if: steps.check.outputs.action == 'pull'
       shell: bash
       env:
         GHCR_TAG: ${{ steps.check.outputs.ghcr_tag }}
       run: docker pull "$GHCR_TAG"
 
     - name: Tag and push
-      if: (steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull') && inputs.dry-run != 'true'
+      if: >-
+        (steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull')
+        && steps.dry_run.outputs.dry_run != 'true'
       shell: bash
       env:
         SRC_TAG: ${{ steps.check.outputs.ghcr_tag }}
@@ -266,7 +275,10 @@ runs:
         docker push --all-tags "$GCLOUD_PATH"
 
     - name: Retag in-registry
-      if: steps.check.outputs.action == 'retag' && steps.meta.outputs.tags != '' && inputs.dry-run != 'true'
+      if: >-
+        steps.check.outputs.action == 'retag'
+        && steps.meta.outputs.tags != ''
+        && steps.dry_run.outputs.dry_run != 'true'
       shell: bash
       env:
         EXTRA_TAGS: ${{ steps.meta.outputs.tags }}

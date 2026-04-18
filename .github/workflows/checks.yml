@@ -5,6 +5,12 @@ on:
     branches: [ main ]
   pull_request:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no-op for checks — all jobs are read-only; kept for convention)"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:

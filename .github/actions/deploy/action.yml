@@ -6,6 +6,9 @@ description: >
   No long-lived credentials are stored — the GitHub OIDC token is exchanged
   for a short-lived GCP access token at runtime.
 
+  Dry-run mode (inputs.dry-run='true' or local act run): skips deployment only;
+  authentication still runs. Prints a plan summary to the job summary instead.
+
 inputs:
   gcloud_image:
     description: Full GCloud Artifact Registry image ref to deploy (use the gcloud_tag output from build-and-push).
@@ -31,10 +34,21 @@ inputs:
   gcloud_service_account:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
+  dry-run:
+    description: >
+      If 'true', skip Cloud Run deployment only. Authentication still runs.
+      Prints a plan summary to the job summary.
+    required: false
+    default: 'false'
 
 runs:
   using: composite
   steps:
+    - id: dry_run
+      uses: ./.github/actions/dry-run
+      with:
+        dry_run: ${{ inputs.dry-run }}
+
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v3
       with:
@@ -44,6 +58,7 @@ runs:
         create_credentials_file: true
 
     - name: Deploy to Cloud Run
+      if: steps.dry_run.outputs.dry_run != 'true'
       uses: google-github-actions/deploy-cloudrun@v3
       with:
         service: ${{ inputs.gcloud_run_service }}
@@ -52,3 +67,19 @@ runs:
         secrets: TELEGRAM_APITOKEN=${{ inputs.gcloud_secret_version_telegram_token }}
         region: ${{ inputs.gcloud_region }}
         project_id: ${{ inputs.gcloud_project_id }}
+
+    - name: Dry-run summary
+      if: steps.dry_run.outputs.dry_run == 'true'
+      shell: bash
+      run: |
+        {
+          echo "## Dry-run mode — deployment skipped"
+          echo ""
+          echo "| key | value |"
+          echo "|---|---|"
+          echo "| gcloud_image | \`${{ inputs.gcloud_image }}\` |"
+          echo "| gcloud_run_service | \`${{ inputs.gcloud_run_service }}\` |"
+          echo "| gcloud_project_id | \`${{ inputs.gcloud_project_id }}\` |"
+          echo "| gcloud_region | \`${{ inputs.gcloud_region }}\` |"
+          echo "| env_var_environment | \`${{ inputs.env_var_environment }}\` |"
+        } | tee -a "$GITHUB_STEP_SUMMARY"
