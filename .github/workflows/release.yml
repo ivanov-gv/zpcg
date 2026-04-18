@@ -24,6 +24,20 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect local act run
+        id: detect
+        run: |
+          dry_run="${{ inputs.dry_run }}"
+          if [[ "${ACT:-}" == "true" ]]; then
+            dry_run="true"
+            echo "::notice::Running in act (local) — dry-run mode enforced"
+          elif [[ -z "$dry_run" ]]; then
+            # Not triggered via workflow_dispatch (e.g. tag push) — default to not dry-run
+            dry_run="false"
+          fi
+          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+
       - id: push
         uses: ./.github/actions/build-and-push
         with:
@@ -32,7 +46,7 @@ jobs:
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
           github_token: ${{ github.token }}
-          dry-run: ${{ inputs.dry_run == 'true' }}
+          dry-run: ${{ steps.detect.outputs.dry_run }}
 
   deploy-to-preprod:
     name: Deploy to preprod
@@ -44,6 +58,19 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect local act run
+        id: detect
+        run: |
+          dry_run="${{ inputs.dry_run }}"
+          if [[ "${ACT:-}" == "true" ]]; then
+            dry_run="true"
+            echo "::notice::Running in act (local) — dry-run mode enforced"
+          elif [[ -z "$dry_run" ]]; then
+            dry_run="false"
+          fi
+          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
@@ -54,7 +81,7 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry-run: ${{ inputs.dry_run == 'true' }}
+          dry-run: ${{ steps.detect.outputs.dry_run }}
 
   deploy-to-prod:
     name: Deploy to prod
@@ -66,6 +93,19 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect local act run
+        id: detect
+        run: |
+          dry_run="${{ inputs.dry_run }}"
+          if [[ "${ACT:-}" == "true" ]]; then
+            dry_run="true"
+            echo "::notice::Running in act (local) — dry-run mode enforced"
+          elif [[ -z "$dry_run" ]]; then
+            dry_run="false"
+          fi
+          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
@@ -76,4 +116,4 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry-run: ${{ inputs.dry_run == 'true' }}
+          dry-run: ${{ steps.detect.outputs.dry_run }}

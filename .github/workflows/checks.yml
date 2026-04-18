@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Dry run: skip test and lint jobs (build only, no container pull needed)"
+        description: "Dry run (no-op for checks — all jobs are read-only; kept for convention)"
         required: false
         type: boolean
         default: true
@@ -25,7 +25,6 @@ jobs:
 
   test:
     name: Tests
-    if: inputs.dry_run != 'true' && env.ACT != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,7 +41,6 @@ jobs:
 
   lint:
     name: Lint
-    if: inputs.dry_run != 'true' && env.ACT != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

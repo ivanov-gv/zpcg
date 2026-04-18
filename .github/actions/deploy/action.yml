@@ -6,8 +6,13 @@ description: >
   No long-lived credentials are stored — the GitHub OIDC token is exchanged
   for a short-lived GCP access token at runtime.
 
-  When dry-run is 'true' or the ACT environment variable is 'true' (local act run),
-  authentication and deployment are skipped and a summary is printed instead.
+  Dry-run mode: always authenticates to Google Cloud (read-only verification),
+  but skips the Cloud Run deployment and prints a plan summary instead.
+
+  Local act runs: Google Cloud authentication is skipped because Workload
+  Identity Federation requires real GitHub OIDC tokens that act does not issue.
+  Callers should use the "Detect local act run" step pattern to enforce dry-run
+  mode before invoking this action.
 
 inputs:
   gcloud_image:
@@ -35,15 +40,37 @@ inputs:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
   dry-run:
-    description: If 'true', print the deployment plan without authenticating or deploying.
+    description: >
+      If 'true', authenticate to Google Cloud but skip the Cloud Run deployment
+      and print a plan summary instead.
     required: false
     default: 'false'
 
 runs:
   using: composite
   steps:
+    - name: Authenticate to Google Cloud
+      if: env.ACT != 'true'
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.gcloud_project_id }}
+        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
+        service_account: ${{ inputs.gcloud_service_account }}
+        create_credentials_file: true
+
+    - name: Deploy to Cloud Run
+      if: inputs.dry-run != 'true'
+      uses: google-github-actions/deploy-cloudrun@v3
+      with:
+        service: ${{ inputs.gcloud_run_service }}
+        image: ${{ inputs.gcloud_image }}
+        env_vars: ENVIRONMENT=${{ inputs.env_var_environment }}
+        secrets: TELEGRAM_APITOKEN=${{ inputs.gcloud_secret_version_telegram_token }}
+        region: ${{ inputs.gcloud_region }}
+        project_id: ${{ inputs.gcloud_project_id }}
+
     - name: Dry-run summary
-      if: inputs.dry-run == 'true' || env.ACT == 'true'
+      if: inputs.dry-run == 'true'
       shell: bash
       run: |
         {
@@ -56,25 +83,4 @@ runs:
           echo "| gcloud_project_id | \`${{ inputs.gcloud_project_id }}\` |"
           echo "| gcloud_region | \`${{ inputs.gcloud_region }}\` |"
           echo "| env_var_environment | \`${{ inputs.env_var_environment }}\` |"
-          echo "| act | \`${{ env.ACT }}\` |"
         } | tee -a "$GITHUB_STEP_SUMMARY"
-
-    - name: Authenticate to Google Cloud
-      if: inputs.dry-run != 'true' && env.ACT != 'true'
-      uses: google-github-actions/auth@v3
-      with:
-        project_id: ${{ inputs.gcloud_project_id }}
-        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
-        service_account: ${{ inputs.gcloud_service_account }}
-        create_credentials_file: true
-
-    - name: Deploy to Cloud Run
-      if: inputs.dry-run != 'true' && env.ACT != 'true'
-      uses: google-github-actions/deploy-cloudrun@v3
-      with:
-        service: ${{ inputs.gcloud_run_service }}
-        image: ${{ inputs.gcloud_image }}
-        env_vars: ENVIRONMENT=${{ inputs.env_var_environment }}
-        secrets: TELEGRAM_APITOKEN=${{ inputs.gcloud_secret_version_telegram_token }}
-        region: ${{ inputs.gcloud_region }}
-        project_id: ${{ inputs.gcloud_project_id }}

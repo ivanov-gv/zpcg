@@ -24,6 +24,17 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect local act run
+        id: detect
+        run: |
+          dry_run="${{ inputs.dry_run }}"
+          if [[ "${ACT:-}" == "true" ]]; then
+            dry_run="true"
+            echo "::notice::Running in act (local) — dry-run mode enforced"
+          fi
+          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+
       - id: build-and-push
         uses: ./.github/actions/build-and-push
         with:
@@ -32,7 +43,8 @@ jobs:
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
           github_token: ${{ github.token }}
-          dry-run: ${{ inputs.dry_run }}
+          dry-run: ${{ steps.detect.outputs.dry_run }}
+
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
@@ -43,4 +55,4 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry-run: ${{ inputs.dry_run }}
+          dry-run: ${{ steps.detect.outputs.dry_run }}
