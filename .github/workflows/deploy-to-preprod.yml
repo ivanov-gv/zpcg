@@ -7,6 +7,11 @@ on:
         description: "What's being deployed"
         required: false
         type: string
+      dry_run:
+        description: "Dry run: skip registry push and deployment (default: true for safety)"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   deploy-to-preprod:
@@ -27,6 +32,7 @@ jobs:
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
           github_token: ${{ github.token }}
+          dry-run: ${{ inputs.dry_run }}
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
@@ -37,3 +43,4 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+          dry-run: ${{ inputs.dry_run }}

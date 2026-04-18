@@ -83,3 +83,39 @@ get_en_commands:
   -H 'Content-Type: application/json' \
   -d '{"language_code":"en"}' \
   https://api.telegram.org/bot${TG_TOKEN}/getMyCommands
+
+# ci testing with act
+# Install act standalone:    https://github.com/nektos/act#installation
+# Install act as gh extension: gh extension install nektos/gh-act
+# Override the executable:   ACT='gh act' make test-ci-checks
+ACT ?= act
+
+.PHONY: test-ci-checks
+test-ci-checks: # run checks workflow locally via act; dry_run=true skips test/lint (no container pull needed). copy .github/act/checks.env.example → checks.env first
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/checks.yml \
+		--secret-file .github/act/checks.env \
+		--input dry_run=true
+
+.PHONY: test-ci-ci-image
+test-ci-ci-image: # run ci-image workflow locally via act (dry-run: build and push are skipped). copy .github/act/ci-image.env.example → ci-image.env first
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/ci-image.yml \
+		--secret-file .github/act/ci-image.env \
+		--input dry_run=true
+
+.PHONY: test-ci-deploy-to-preprod
+test-ci-deploy-to-preprod: # run deploy-to-preprod workflow locally via act (dry-run: no registry writes or deployments). copy .github/act/deploy-to-preprod.env.example → deploy-to-preprod.env first
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/deploy-to-preprod.yml \
+		--secret-file .github/act/deploy-to-preprod.env \
+		--var-file .github/act/deploy-to-preprod.env \
+		--input dry_run=true
+
+.PHONY: test-ci-release
+test-ci-release: # run release workflow locally via act (dry-run: no registry writes or deployments). copy .github/act/release.env.example → release.env first
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/release.yml \
+		--secret-file .github/act/release.env \
+		--var-file .github/act/release.env \
+		--input dry_run=true

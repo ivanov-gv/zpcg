@@ -5,6 +5,12 @@ on:
     branches: [ main ]
   pull_request:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: skip test and lint jobs (build only, no container pull needed)"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -19,6 +25,7 @@ jobs:
 
   test:
     name: Tests
+    if: inputs.dry_run != 'true' && env.ACT != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,6 +42,7 @@ jobs:
 
   lint:
     name: Lint
+    if: inputs.dry_run != 'true' && env.ACT != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
