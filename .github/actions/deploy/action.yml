@@ -6,13 +6,8 @@ description: >
   No long-lived credentials are stored — the GitHub OIDC token is exchanged
   for a short-lived GCP access token at runtime.
 
-  Dry-run mode: always authenticates to Google Cloud (read-only verification),
-  but skips the Cloud Run deployment and prints a plan summary instead.
-
-  Local act runs: Google Cloud authentication is skipped because Workload
-  Identity Federation requires real GitHub OIDC tokens that act does not issue.
-  Callers should use the "Detect local act run" step pattern to enforce dry-run
-  mode before invoking this action.
+  Dry-run mode (inputs.dry-run='true' or local act run): skips authentication
+  and deployment; prints a plan summary to the job summary instead.
 
 inputs:
   gcloud_image:
@@ -40,17 +35,20 @@ inputs:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
   dry-run:
-    description: >
-      If 'true', authenticate to Google Cloud but skip the Cloud Run deployment
-      and print a plan summary instead.
+    description: If 'true', skip authentication and deployment; print a plan summary instead.
     required: false
     default: 'false'
 
 runs:
   using: composite
   steps:
+    - id: detect
+      uses: ./.github/actions/dry-run
+      with:
+        dry_run: ${{ inputs.dry-run }}
+
     - name: Authenticate to Google Cloud
-      if: env.CI_IS_ACT != 'true'
+      if: steps.detect.outputs.dry_run != 'true'
       uses: google-github-actions/auth@v3
       with:
         project_id: ${{ inputs.gcloud_project_id }}
@@ -59,7 +57,7 @@ runs:
         create_credentials_file: true
 
     - name: Deploy to Cloud Run
-      if: inputs.dry-run != 'true'
+      if: steps.detect.outputs.dry_run != 'true'
       uses: google-github-actions/deploy-cloudrun@v3
       with:
         service: ${{ inputs.gcloud_run_service }}
@@ -70,7 +68,7 @@ runs:
         project_id: ${{ inputs.gcloud_project_id }}
 
     - name: Dry-run summary
-      if: inputs.dry-run == 'true'
+      if: steps.detect.outputs.dry_run == 'true'
       shell: bash
       run: |
         {

@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: detect
-        uses: ./.github/actions/detect-run-context
+        uses: ./.github/actions/dry-run
         with:
           dry_run: ${{ inputs.dry_run }}
 
