@@ -16,9 +16,8 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
-# Keep in sync with .github/workflows/ci-image.yml
 env:
-  TDLIB_COMMIT: 971684a
+  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
 
 jobs:
   build:

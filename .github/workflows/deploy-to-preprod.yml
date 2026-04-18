@@ -42,7 +42,7 @@ jobs:
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
           github_token: ${{ github.token }}
-          dry-run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: ${{ steps.dry_run.outputs.dry_run }}
 
       - uses: ./.github/actions/deploy
         with:
@@ -54,4 +54,4 @@ jobs:
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry-run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: ${{ steps.dry_run.outputs.dry_run }}

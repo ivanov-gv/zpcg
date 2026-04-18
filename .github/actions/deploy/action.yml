@@ -6,7 +6,7 @@ description: >
   No long-lived credentials are stored — the GitHub OIDC token is exchanged
   for a short-lived GCP access token at runtime.
 
-  Dry-run mode (inputs.dry-run='true' or local act run): skips deployment only;
+  Dry-run mode (inputs.dry_run='true' or local act run): skips deployment only;
   authentication still runs. Prints a plan summary to the job summary instead.
 
 inputs:
@@ -34,7 +34,7 @@ inputs:
   gcloud_service_account:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
-  dry-run:
+  dry_run:
     description: >
       If 'true', skip Cloud Run deployment only. Authentication still runs.
       Prints a plan summary to the job summary.
@@ -47,7 +47,7 @@ runs:
     - id: dry_run
       uses: ./.github/actions/dry-run
       with:
-        dry_run: ${{ inputs.dry-run }}
+        dry_run: ${{ inputs.dry_run }}
 
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v3

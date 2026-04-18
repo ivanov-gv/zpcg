@@ -10,7 +10,7 @@ on:
         default: true
 
 env:
-  TDLIB_COMMIT: 971684a
+  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
 
 jobs:
   publish:

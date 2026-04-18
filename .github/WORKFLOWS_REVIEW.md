@@ -35,7 +35,10 @@ Legend: **DO** = apply in this iteration; **SKIP** = intentionally deferred;
 | M6 | MEDIUM | **DO** | Change `git rev-parse --short HEAD` to `git rev-parse --short=7 HEAD` |
 | M7 | MEDIUM | SKIP | Nested `dry-run` banner duplication — deferred |
 | M8 | MEDIUM | SKIP | `release` dispatch UX polish — deferred |
-| L1–L9 | LOW | **DO NOT TOUCH** | Out of scope for this iteration |
+| L1 | LOW | **DO** | Standardize all composite-action inputs on `dry_run` (underscore) |
+| L2 | LOW | **N/A (rechecked)** | See recheck note below — not a real issue |
+| L5 | LOW | **DO** (repo var) | Move `TDLIB_COMMIT` to a repository variable |
+| L3, L4, L6, L7, L8, L9 | LOW | **DO NOT TOUCH** | Out of scope |
 
 ---
 
@@ -89,6 +92,51 @@ Legend: **DO** = apply in this iteration; **SKIP** = intentionally deferred;
 - Change `COMMIT_SHORT_SHA="$(git rev-parse --short HEAD)"` to
   `COMMIT_SHORT_SHA="$(git rev-parse --short=7 HEAD)"`.
 
+### L1 — standardize on `dry_run` (underscore)
+- Files: `.github/actions/build-and-push/action.yml`,
+  `.github/actions/deploy/action.yml`,
+  `.github/workflows/release.yml`,
+  `.github/workflows/deploy-to-preprod.yml`,
+  `.github/README.md`
+- Rename the composite-action input `dry-run` → `dry_run` in `build-and-push`
+  and `deploy`. Update every caller (`with: dry-run:` → `with: dry_run:`).
+  Update README tables and usage examples. The input on workflows was already
+  `dry_run`; the directory name for the composite stays `dry-run` (action
+  *name*, not input name).
+
+### L5 — `TDLIB_COMMIT` via repository variable
+- Files: `.github/workflows/checks.yml`, `.github/workflows/ci-image.yml`,
+  `Makefile`, `.github/act/checks.env.example`,
+  `.github/act/ci-image.env.example`
+- Replace the hardcoded `TDLIB_COMMIT: 971684a` in both workflows with
+  `TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}`. Add `--var-file` to
+  `test-ci-checks` and `test-ci-ci-image` Makefile targets so `act` picks up
+  the variable from the env-example files. Add a `TDLIB_COMMIT=971684a` line
+  to both env-example files, mirroring the pattern already used for
+  deploy-to-preprod / release.
+
+---
+
+## Recheck — L2 (`packages: write` on `deploy-to-preprod.yml`)
+
+User interpretation confirmed: `build-and-push` probes both registries and
+picks the cheapest path (build / pull / retag), so re-dispatching
+`deploy-to-preprod` for an already-published commit does not rebuild. On a
+`workflow_dispatch` re-run where the image is in both registries, the
+retag path is reached *and* `docker/metadata-action` produces an empty tag
+set (there is no `type=ref,event=tag` match outside a tag push), so the
+`Retag in-registry` step is skipped entirely by its
+`steps.meta.outputs.tags != ''` guard. Net effect: **zero GHCR writes on a
+repeat preprod dispatch.**
+
+`packages: write` is still requested upfront because GitHub Actions does not
+support conditional job permissions; dropping it would mean splitting
+`deploy-to-preprod` into two jobs (build-and-push with packages:write vs a
+pure deploy job with id-token only). That's extra pipeline complexity for a
+permission that goes unused in a cold-path scenario — not a real issue.
+
+**Verdict**: L2 is not a real issue. No change to make.
+
 ---
 
 ## Out of scope for this iteration
@@ -98,19 +146,38 @@ Legend: **DO** = apply in this iteration; **SKIP** = intentionally deferred;
   auth step gated on `env.ACT != 'true'`. Treated as a design decision to
   implement separately, not as a bug in the current workflow code.
 - **M4, M5, M7, M8**: deferred.
-- **All LOW (L1–L9)**: explicitly not touched.
+- **L3, L4, L6, L7, L8, L9**: explicitly not touched.
+
+---
+
+## Pre-merge action required (PR description warning)
+
+Before merging this branch, add a **repository variable** in GitHub so the
+workflows can resolve `vars.TDLIB_COMMIT`:
+
+> ⚠️ **Before merging**: add a repository variable `TDLIB_COMMIT` with value
+> `971684a` under **Settings → Secrets and variables → Actions →
+> Variables → New repository variable**. Without it, `checks.yml` pulls an
+> invalid `ci:tdlib-` tag and `ci-image.yml` builds with an empty TDLib
+> commit arg.
+>
+> To bump the TDLib version later, update this repository variable and run
+> the `CI Image` workflow — no code change required.
 
 ---
 
 ## Files touched in this iteration
 
-- `.github/actions/build-and-push/action.yml` — H3, M6
+- `.github/actions/build-and-push/action.yml` — H3, M6, L1
 - `.github/actions/build/action.yml` — M1 (+ buildx setup so it runs standalone)
-- `.github/workflows/checks.yml` — M2, M3
-- `.github/workflows/release.yml` — M2
-- `.github/workflows/deploy-to-preprod.yml` — M2
-
-No other workflow, action, doc, Makefile, or env-example file is modified.
+- `.github/actions/deploy/action.yml` — L1
+- `.github/workflows/checks.yml` — M2, M3, L5
+- `.github/workflows/ci-image.yml` — L5
+- `.github/workflows/release.yml` — M2, L1
+- `.github/workflows/deploy-to-preprod.yml` — M2, L1
+- `.github/README.md` — L1
+- `Makefile` — L5 (act `--var-file` for checks / ci-image targets)
+- `.github/act/checks.env.example`, `.github/act/ci-image.env.example` — L5
 
 ---
 
