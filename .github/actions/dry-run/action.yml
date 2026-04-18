@@ -1,0 +1,52 @@
+name: dry-run
+description: >
+  Single source of truth for dry-run mode. This is the only place in the
+  repository that reads the act-internal ACT environment variable.
+
+  Computes the effective dry_run value: forced to 'true' when running locally
+  via act, otherwise equal to the input. All composite actions and workflows
+  check only steps.dry_run.outputs.dry_run — no direct ACT references anywhere.
+
+inputs:
+  dry_run:
+    description: >
+      Requested dry_run value. Pass the workflow_dispatch input directly, or
+      an empty string for non-dispatch events (e.g. tag push) to default to
+      dry_run=false.
+    required: false
+    default: 'false'
+
+outputs:
+  dry_run:
+    description: >
+      Effective dry_run value. 'true' when the input is 'true' or when running
+      locally via act.
+    value: ${{ steps.dry_run.outputs.dry_run }}
+
+runs:
+  using: composite
+  steps:
+    - name: Compute effective dry_run
+      id: dry_run
+      shell: bash
+      run: |
+        dry_run="${{ inputs.dry_run }}"
+
+        if [[ "${ACT:-}" == "true" ]]; then
+          dry_run="true"
+          echo "::notice::Running in act (local) — dry-run mode enforced"
+        elif [[ -z "$dry_run" ]]; then
+          dry_run="false"
+        fi
+
+        echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+
+    - name: Dry-run warning
+      if: steps.dry_run.outputs.dry_run == 'true'
+      shell: bash
+      run: |
+        {
+          echo "> [!WARNING]"
+          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) are skipped."
+          echo "> Read-only operations (authentication, image pull, local build) run normally."
+        } | tee -a "$GITHUB_STEP_SUMMARY"
