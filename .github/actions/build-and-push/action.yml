@@ -47,7 +47,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - id: detect
+    - id: dry_run
       uses: ./.github/actions/dry-run
       with:
         dry_run: ${{ inputs.dry-run }}
@@ -60,7 +60,6 @@ runs:
         password: ${{ inputs.github_token }}
 
     - name: Authenticate to Google Cloud
-      if: steps.detect.outputs.dry_run != 'true'
       uses: google-github-actions/auth@v3
       with:
         project_id: ${{ inputs.gcloud_project_id }}
@@ -69,7 +68,6 @@ runs:
         create_credentials_file: true
 
     - name: Configure Docker for Artifact Registry
-      if: steps.detect.outputs.dry_run != 'true'
       shell: bash
       env:
         GCLOUD_REGION: ${{ inputs.gcloud_region }}
@@ -132,7 +130,7 @@ runs:
           type=ref,event=tag
 
     - name: Dry-run summary
-      if: steps.detect.outputs.dry_run == 'true'
+      if: steps.dry_run.outputs.dry_run == 'true'
       shell: bash
       env:
         DRY_RUN: ${{ inputs.dry-run }}
@@ -241,17 +239,13 @@ runs:
         } | tee -a "$GITHUB_STEP_SUMMARY"
 
     - name: Build locally
-      if: >-
-        steps.check.outputs.action == 'build'
-        && steps.detect.outputs.dry_run != 'true'
+      if: steps.check.outputs.action == 'build'
       uses: ./.github/actions/build
       with:
         ghcr_tag: ${{ steps.check.outputs.ghcr_tag }}
 
     - name: Pull from GHCR
-      if: >-
-        steps.check.outputs.action == 'pull'
-        && steps.detect.outputs.dry_run != 'true'
+      if: steps.check.outputs.action == 'pull'
       shell: bash
       env:
         GHCR_TAG: ${{ steps.check.outputs.ghcr_tag }}
@@ -260,7 +254,7 @@ runs:
     - name: Tag and push
       if: >-
         (steps.check.outputs.action == 'build' || steps.check.outputs.action == 'pull')
-        && steps.detect.outputs.dry_run != 'true'
+        && steps.dry_run.outputs.dry_run != 'true'
       shell: bash
       env:
         SRC_TAG: ${{ steps.check.outputs.ghcr_tag }}
@@ -282,7 +276,7 @@ runs:
       if: >-
         steps.check.outputs.action == 'retag'
         && steps.meta.outputs.tags != ''
-        && steps.detect.outputs.dry_run != 'true'
+        && steps.dry_run.outputs.dry_run != 'true'
       shell: bash
       env:
         EXTRA_TAGS: ${{ steps.meta.outputs.tags }}

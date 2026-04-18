@@ -29,13 +29,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: detect
+      - id: dry_run
         uses: ./.github/actions/dry-run
         with:
           dry_run: ${{ inputs.dry_run }}
 
       - name: Build and push
-        if: steps.detect.outputs.dry_run != 'true'
+        if: steps.dry_run.outputs.dry_run != 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -47,7 +47,7 @@ jobs:
             ghcr.io/${{ github.repository }}/ci:latest
 
       - name: Build without push (dry-run)
-        if: steps.detect.outputs.dry_run == 'true'
+        if: steps.dry_run.outputs.dry_run == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -58,7 +58,7 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
 
       - name: Dry-run summary
-        if: steps.detect.outputs.dry_run == 'true'
+        if: steps.dry_run.outputs.dry_run == 'true'
         run: |
           {
             echo "## Dry-run mode — push skipped"
