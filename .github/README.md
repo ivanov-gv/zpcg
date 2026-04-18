@@ -3,10 +3,10 @@
 Three composable actions cover the full delivery lifecycle; four workflows wire them together.
 
 ```
-[checks]           push / PR gate   → build check + go test -race + golangci-lint
-[ci-image]         manual, rare     → build & publish the CI base image
-[deploy-to-preprod] manual          → build-and-push → deploy to preprod
-[release]          v*.*.* tag       → build-and-push → deploy preprod → deploy prod
+[checks]            push / PR gate   → build check + go test -race + golangci-lint
+[ci-image]          manual, rare     → build & publish the CI base image
+[deploy-to-preprod] manual           → build-and-push → deploy to preprod
+[release]           v*.*.* tag       → build-and-push → deploy preprod → deploy prod
 ```
 
 All Google Cloud authentication uses **Workload Identity Federation** — no service account
@@ -15,6 +15,29 @@ key files are generated or stored anywhere.
 ---
 
 ## Actions
+
+### [`dry-run`](actions/dry-run)
+
+Single source of truth for dry-run mode. This is the **only** place in the repository that
+reads the `act`-internal `ACT` environment variable.
+
+Computes the effective `dry_run` value and exposes it as a step output. All composite actions
+and workflows gate their write-only steps on `steps.dry_run.outputs.dry_run` — no direct `ACT`
+references anywhere.
+
+| Condition | Effective `dry_run` |
+|---|---|
+| `inputs.dry_run == 'true'` | `true` |
+| Running locally via `act` (`ACT=true`) | `true` (enforced, regardless of input) |
+| `inputs.dry_run == 'false'` or empty (e.g. tag push) | `false` |
+
+When dry-run is active, a `> [!WARNING]` notice is written to the job summary explaining that
+write operations are skipped but read-only operations run normally.
+
+**Inputs**: `dry_run` (optional, default `'false'`) — pass the `workflow_dispatch` input directly.
+**Outputs**: `dry_run` — effective value after act detection.
+
+---
 
 ### [`build`](actions/build)
 
@@ -82,7 +105,7 @@ pass directly to the `deploy` action.
 | `gcloud_region` | Yes | Artifact Registry region (e.g. `europe-west1`) |
 | `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
 | `gcloud_service_account` | Yes | Service account email |
-| `dry-run` | No | If `true`, print the execution plan without running any mutating steps. Default: `false`. |
+| `dry-run` | No | If `true`, skip remote-write steps (push, retag) only. Auth, build, and pull still run. Prints an execution plan to the job summary. Default: `false`. |
 
 **Usage**
 
@@ -109,17 +132,8 @@ pass directly to the `deploy` action.
 ```
 
 **Dry-run mode** prints a full execution plan to the job summary — resolved image paths,
-registry existence checks, and which steps would run — without touching any registry.
-Useful for validating variable configuration before a real deployment, or for local testing
-with [`act`](https://github.com/nektos/act):
-
-```bash
-act workflow_dispatch -W .github/workflows/deploy-to-preprod.yml \
-  --var GCLOUD_PROJECT_ID=my-project \
-  --var GCLOUD_REGION=europe-west1 \
-  --var GCLOUD_IDENTITY_PROVIDER=projects/... \
-  --var GCLOUD_SERVICE_ACCOUNT=sa@my-project.iam.gserviceaccount.com
-```
+registry existence checks, and which steps would run. Authentication, local build, and image
+pull all execute normally; only the registry push and in-registry retag are skipped.
 
 ---
 
@@ -141,6 +155,7 @@ from Secret Manager by version reference.
 | `gcloud_secret_version_telegram_token` | Yes | Secret Manager version ref for the Telegram API token |
 | `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
 | `gcloud_service_account` | Yes | Service account email |
+| `dry-run` | No | If `true`, skip Cloud Run deployment only. Authentication still runs. Prints a plan summary to the job summary. Default: `false`. |
 
 **Usage**
 
@@ -250,6 +265,48 @@ The `prod` environment can be configured with a required manual approval in GitH
 | `deploy-to-prod` | read | — | write |
 
 Deploy jobs do not push images, so they do not request `packages: write`.
+
+---
+
+## Local testing with `act`
+
+All workflows can be run locally using [`act`](https://github.com/nektos/act). Makefile
+targets handle the flags; `act` automatically enforces dry-run mode by setting `ACT=true`,
+which the [`dry-run`](#dry-run) action detects.
+
+```bash
+make test-ci-checks            # run checks workflow locally
+make test-ci-ci-image          # build CI image locally (no push)
+make test-ci-deploy-to-preprod # run deploy-to-preprod locally (no push, no deploy)
+make test-ci-release           # run release workflow locally (no push, no deploy)
+```
+
+Override the `act` binary if needed (e.g. when installed as a `gh` extension):
+
+```bash
+make test-ci-deploy-to-preprod ACT='gh act'
+```
+
+**What dry-run mode means per step type:**
+
+| Step type | Dry-run behaviour |
+|---|---|
+| Authentication (GCloud WIF, GHCR login) | Runs normally |
+| Image build (local) | Runs normally |
+| Image pull (from GHCR) | Runs normally |
+| Registry push / in-registry retag | **Skipped** |
+| Cloud Run deployment | **Skipped** |
+
+**Setup**: each workflow has a corresponding `.env.example` template under `.github/act/`.
+Copy and fill in real values before running:
+
+```bash
+cp .github/act/deploy-to-preprod.env.example .github/act/deploy-to-preprod.env
+# edit .github/act/deploy-to-preprod.env with real variable values
+make test-ci-deploy-to-preprod
+```
+
+The `*.env` files are gitignored — only the `*.env.example` templates are committed.
 
 ---
 

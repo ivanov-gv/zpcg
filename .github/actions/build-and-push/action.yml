@@ -32,7 +32,9 @@ inputs:
     description: Service account email authorized for the Workload Identity Provider.
     required: true
   dry-run:
-    description: If 'true', print the execution plan without running any mutating steps.
+    description: >
+      If 'true', skip only remote-write steps (push, retag). Authentication,
+      image build, and pull still run. Prints an execution plan to the job summary.
     required: false
     default: 'false'
 
