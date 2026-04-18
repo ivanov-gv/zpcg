@@ -50,7 +50,7 @@ runs:
   using: composite
   steps:
     - name: Authenticate to Google Cloud
-      if: env.ACT != 'true'
+      if: env.CI_IS_ACT != 'true'
       uses: google-github-actions/auth@v3
       with:
         project_id: ${{ inputs.gcloud_project_id }}

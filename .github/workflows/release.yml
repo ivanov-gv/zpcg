@@ -25,18 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect local act run
-        id: detect
-        run: |
-          dry_run="${{ inputs.dry_run }}"
-          if [[ "${ACT:-}" == "true" ]]; then
-            dry_run="true"
-            echo "::notice::Running in act (local) — dry-run mode enforced"
-          elif [[ -z "$dry_run" ]]; then
-            # Not triggered via workflow_dispatch (e.g. tag push) — default to not dry-run
-            dry_run="false"
-          fi
-          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+      - id: detect
+        uses: ./.github/actions/detect-run-context
+        with:
+          dry_run: ${{ inputs.dry_run }}
 
       - id: push
         uses: ./.github/actions/build-and-push
@@ -59,17 +51,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect local act run
-        id: detect
-        run: |
-          dry_run="${{ inputs.dry_run }}"
-          if [[ "${ACT:-}" == "true" ]]; then
-            dry_run="true"
-            echo "::notice::Running in act (local) — dry-run mode enforced"
-          elif [[ -z "$dry_run" ]]; then
-            dry_run="false"
-          fi
-          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+      - id: detect
+        uses: ./.github/actions/detect-run-context
+        with:
+          dry_run: ${{ inputs.dry_run }}
 
       - uses: ./.github/actions/deploy
         with:
@@ -94,17 +79,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect local act run
-        id: detect
-        run: |
-          dry_run="${{ inputs.dry_run }}"
-          if [[ "${ACT:-}" == "true" ]]; then
-            dry_run="true"
-            echo "::notice::Running in act (local) — dry-run mode enforced"
-          elif [[ -z "$dry_run" ]]; then
-            dry_run="false"
-          fi
-          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+      - id: detect
+        uses: ./.github/actions/detect-run-context
+        with:
+          dry_run: ${{ inputs.dry_run }}
 
       - uses: ./.github/actions/deploy
         with:

@@ -29,15 +29,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Detect local act run
-        id: detect
-        run: |
-          dry_run="${{ inputs.dry_run }}"
-          if [[ "${ACT:-}" == "true" ]]; then
-            dry_run="true"
-            echo "::notice::Running in act (local) — dry-run mode enforced"
-          fi
-          echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+      - id: detect
+        uses: ./.github/actions/detect-run-context
+        with:
+          dry_run: ${{ inputs.dry_run }}
 
       - name: Build and push
         if: steps.detect.outputs.dry_run != 'true'
