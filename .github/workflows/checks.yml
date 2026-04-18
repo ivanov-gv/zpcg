@@ -12,6 +12,14 @@ on:
         type: boolean
         default: true
 
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+# Keep in sync with .github/workflows/ci-image.yml
+env:
+  TDLIB_COMMIT: 971684a
+
 jobs:
   build:
     name: Build
@@ -30,7 +38,7 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ghcr.io/${{ github.repository }}/ci:latest
+      image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -46,7 +54,7 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ghcr.io/${{ github.repository }}/ci:latest
+      image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}

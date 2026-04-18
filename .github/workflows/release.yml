@@ -12,6 +12,10 @@ on:
         type: boolean
         default: true
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     name: Build and push
