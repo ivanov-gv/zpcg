@@ -9,12 +9,12 @@ jobs:
   build-and-push:
     name: Build and push
     runs-on: ubuntu-latest
+    outputs:
+      gcloud_tag: ${{ steps.push.outputs.gcloud_tag }}
     permissions:
       contents: read
       packages: write
       id-token: write
-    outputs:
-      gcloud_tag: ${{ steps.push.outputs.gcloud_tag }}
     steps:
       - uses: actions/checkout@v4
       - id: push

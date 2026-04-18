@@ -1,21 +1,26 @@
 name: build
-author: ivanov_gv
-description: Builds docker image to be deployed further. Requires 'actions/checkout@v4' to be performed.
+description: >
+  Builds deploy/Dockerfile into a local Docker image (load: true, no push).
+  Callers decide whether to push, retag, or just verify the image compiles.
+  Requires actions/checkout to run before this action.
 
 inputs:
   ghcr_tag:
-    description: Docker image tag for ghcr.io
+    description: >
+      Tag applied to the built image (e.g. ghcr.io/org/repo:abc1234).
+      Optional — omit when only verifying the image builds successfully.
+    required: false
 
 outputs:
   imageid:
-    description: Docker image id
+    description: Docker image ID of the built image
     value: ${{ steps.build.outputs.imageid }}
   digest:
-    description: Docker image digest
+    description: Content-addressable digest of the built image
     value: ${{ steps.build.outputs.digest }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Build
       id: build
@@ -23,17 +28,17 @@ runs:
       env:
         DOCKER_BUILD_RECORD_UPLOAD: false
       with:
+        context: .
+        file: deploy/Dockerfile
         load: 'true'
         tags: ${{ inputs.ghcr_tag }}
-        file: deploy/Dockerfile
 
-    - name: Job Summary
+    - name: Summary
       if: always()
       shell: bash
       run: |
         {
-          echo "**GHCR tag**: ${{ inputs.ghcr_tag }}"
-          echo "**Docker image id**: ${{ steps.build.outputs.imageid }}"
-          echo "**Docker image digest**: ${{ steps.build.outputs.digest }}"
-          echo ""
+          echo "**Tag**: \`${{ inputs.ghcr_tag }}\`"
+          echo "**Image ID**: \`${{ steps.build.outputs.imageid }}\`"
+          echo "**Digest**: \`${{ steps.build.outputs.digest }}\`"
         } >> "$GITHUB_STEP_SUMMARY"
