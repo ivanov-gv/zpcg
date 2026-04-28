@@ -95,7 +95,8 @@ test-ci-checks: # run checks workflow locally via act (build + test + lint). tes
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/checks.yml \
 		--secret-file .github/act/checks.env \
-		--var-file .github/act/checks.env
+		--var-file .github/act/checks.env \
+   		--input dry_run=true
 
 .PHONY: test-ci-ci-image
 test-ci-ci-image: # run ci-image workflow locally via act (dry-run: builds the CI image locally but skips the push). WARNING: compiles TDLib from source (~15 min). copy .github/act/ci-image.env.example → ci-image.env first
