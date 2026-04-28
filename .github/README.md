@@ -81,7 +81,7 @@ cheapest available path:
 | Image in GHCR | Image in GCloud | Action taken |
 |---|---|---|
 | No | — | Build locally → tag → push to both |
-| Yes | No | Pull from GHCR → tag → push to GCloud only |
+| Yes | No | Pull from GHCR → tag → push to both (commit-SHA already in GHCR; extra tags added there too) |
 | Yes | Yes | **In-registry retag** (`buildx imagetools create`) — zero data transfer |
 
 This means re-running a pipeline for the same commit is essentially free, and the `release`
