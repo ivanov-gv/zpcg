@@ -87,7 +87,7 @@ get_en_commands:
 # ci testing with act
 # Install act standalone:    https://github.com/nektos/act#installation
 # Install act as gh extension: gh extension install nektos/gh-act
-# Override the executable:   ACT='gh act' make test-ci-checks
+# Override the executable:   ACT=act make test-ci-checks
 ACT ?= gh act
 
 .PHONY: test-ci-checks

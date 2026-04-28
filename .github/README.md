@@ -281,10 +281,10 @@ make test-ci-deploy-to-preprod # run deploy-to-preprod locally (no registry writ
 make test-ci-release           # run release workflow locally (no registry writes or deployments)
 ```
 
-Override the `act` binary if needed (e.g. when installed as a `gh` extension):
+Override the `act` binary if needed (e.g. when using standalone `act` instead of the `gh` extension):
 
 ```bash
-make test-ci-deploy-to-preprod ACT='gh act'
+make test-ci-deploy-to-preprod ACT=act
 ```
 
 **What dry-run mode means per step type:**
