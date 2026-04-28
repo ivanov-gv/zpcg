@@ -6,8 +6,8 @@ description: >
   No long-lived credentials are stored — the GitHub OIDC token is exchanged
   for a short-lived GCP access token at runtime.
 
-  Dry-run mode (inputs.dry_run='true' or local act run): skips deployment only;
-  authentication still runs. Prints a plan summary to the job summary instead.
+  Dry-run mode (inputs.dry_run='true' or local act run): skips both authentication
+  and deployment. Prints a plan summary to the job summary instead.
 
 inputs:
   gcloud_image:
