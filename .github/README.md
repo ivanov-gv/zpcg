@@ -105,7 +105,7 @@ pass directly to the `deploy` action.
 | `gcloud_region` | Yes | Artifact Registry region (e.g. `europe-west1`) |
 | `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
 | `gcloud_service_account` | Yes | Service account email |
-| `dry_run` | No | If `true`, skip remote-write steps (push, retag) only. Auth, build, and pull still run. Prints an execution plan to the job summary. Default: `false`. |
+| `dry_run` | No | If `true`, skip authentication and remote-write steps (push, retag). Build and pull run normally. Prints an execution plan to the job summary. Default: `false`. |
 
 **Usage**
 
@@ -292,7 +292,7 @@ make test-ci-deploy-to-preprod ACT='gh act'
 | Step type | Dry-run behaviour |
 |---|---|
 | Authentication (GCloud WIF, GHCR login) | **Skipped** |
-| Configure Docker for Artifact Registry | **Skipped** |
+| Configure Docker for Artifact Registry | Runs normally (no-op if `gcloud` absent) |
 | Registry existence check (`docker manifest inspect`) | Runs normally (failures silently ignored) |
 | Image build (local, `deploy/Dockerfile`) | Runs normally |
 | Image pull (from GHCR) | Runs normally |

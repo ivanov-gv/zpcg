@@ -36,7 +36,7 @@ inputs:
     required: true
   dry_run:
     description: >
-      If 'true', skip Cloud Run deployment only. Authentication still runs.
+      If 'true', skip authentication and Cloud Run deployment.
       Prints a plan summary to the job summary.
     required: false
     default: 'false'

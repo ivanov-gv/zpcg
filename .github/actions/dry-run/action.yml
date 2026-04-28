@@ -47,6 +47,6 @@ runs:
       run: |
         {
           echo "> [!WARNING]"
-          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) are skipped."
-          echo "> Read-only operations (authentication, image pull, local build) run normally."
+          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) and authentication are skipped."
+          echo "> Read-only operations (image pull, local build, registry existence checks) run normally."
         } | tee -a "$GITHUB_STEP_SUMMARY"
