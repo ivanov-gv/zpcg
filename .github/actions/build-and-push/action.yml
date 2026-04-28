@@ -75,6 +75,7 @@ runs:
         create_credentials_file: true
 
     - name: Configure Docker for Artifact Registry
+      if: steps.dry_run.outputs.dry_run != 'true'
       shell: bash
       env:
         GCLOUD_REGION: ${{ inputs.gcloud_region }}

@@ -91,15 +91,14 @@ get_en_commands:
 ACT ?= gh act
 
 .PHONY: test-ci-checks
-test-ci-checks: # run checks workflow locally via act; dry_run=true skips test/lint (no container pull needed). copy .github/act/checks.env.example → checks.env first
+test-ci-checks: # run checks workflow locally via act (build + test + lint). test and lint run inside the CI container — set GITHUB_TOKEN=<read:packages token> in checks.env. copy .github/act/checks.env.example → checks.env first
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/checks.yml \
 		--secret-file .github/act/checks.env \
-		--var-file .github/act/checks.env \
-		--input dry_run=true
+		--var-file .github/act/checks.env
 
 .PHONY: test-ci-ci-image
-test-ci-ci-image: # run ci-image workflow locally via act (dry-run: build and push are skipped). copy .github/act/ci-image.env.example → ci-image.env first
+test-ci-ci-image: # run ci-image workflow locally via act (dry-run: builds the CI image locally but skips the push). WARNING: compiles TDLib from source (~15 min). copy .github/act/ci-image.env.example → ci-image.env first
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/ci-image.yml \
 		--secret-file .github/act/ci-image.env \

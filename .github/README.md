@@ -275,10 +275,10 @@ targets handle the flags; `act` automatically enforces dry-run mode by setting `
 which the [`dry-run`](#dry-run) action detects.
 
 ```bash
-make test-ci-checks            # run checks workflow locally
-make test-ci-ci-image          # build CI image locally (no push)
-make test-ci-deploy-to-preprod # run deploy-to-preprod locally (no push, no deploy)
-make test-ci-release           # run release workflow locally (no push, no deploy)
+make test-ci-checks            # run checks workflow locally (build + test + lint); set GITHUB_TOKEN in checks.env to pull the CI container
+make test-ci-ci-image          # build CI image locally without pushing (WARNING: ~15 min TDLib compile)
+make test-ci-deploy-to-preprod # run deploy-to-preprod locally (no registry writes or deployment)
+make test-ci-release           # run release workflow locally (no registry writes or deployments)
 ```
 
 Override the `act` binary if needed (e.g. when installed as a `gh` extension):
@@ -292,7 +292,9 @@ make test-ci-deploy-to-preprod ACT='gh act'
 | Step type | Dry-run behaviour |
 |---|---|
 | Authentication (GCloud WIF, GHCR login) | **Skipped** |
-| Image build (local) | Runs normally |
+| Configure Docker for Artifact Registry | **Skipped** |
+| Registry existence check (`docker manifest inspect`) | Runs normally (failures silently ignored) |
+| Image build (local, `deploy/Dockerfile`) | Runs normally |
 | Image pull (from GHCR) | Runs normally |
 | Registry push / in-registry retag | **Skipped** |
 | Cloud Run deployment | **Skipped** |

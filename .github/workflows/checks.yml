@@ -16,9 +16,6 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
-
 jobs:
   build:
     name: Build
@@ -37,7 +34,7 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
+      image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ vars.TDLIB_COMMIT }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -53,7 +50,7 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
+      image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ vars.TDLIB_COMMIT }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
