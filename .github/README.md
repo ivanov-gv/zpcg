@@ -32,7 +32,7 @@ references anywhere.
 | `inputs.dry_run == 'false'` or empty (e.g. tag push) | `false` |
 
 When dry-run is active, a `> [!WARNING]` notice is written to the job summary explaining that
-write operations are skipped but read-only operations run normally.
+write operations and authentication are skipped; read-only operations run normally.
 
 **Inputs**: `dry_run` (optional, default `'false'`) — pass the `workflow_dispatch` input directly.
 **Outputs**: `dry_run` — effective value after act detection.
