@@ -132,8 +132,8 @@ pass directly to the `deploy` action.
 ```
 
 **Dry-run mode** prints a full execution plan to the job summary — resolved image paths,
-registry existence checks, and which steps would run. Authentication, local build, and image
-pull all execute normally; only the registry push and in-registry retag are skipped.
+registry existence checks, and which steps would run. Local build and image pull execute
+normally; authentication, registry push, and in-registry retag are skipped.
 
 ---
 
@@ -155,7 +155,7 @@ from Secret Manager by version reference.
 | `gcloud_secret_version_telegram_token` | Yes | Secret Manager version ref for the Telegram API token |
 | `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
 | `gcloud_service_account` | Yes | Service account email |
-| `dry_run` | No | If `true`, skip Cloud Run deployment only. Authentication still runs. Prints a plan summary to the job summary. Default: `false`. |
+| `dry_run` | No | If `true`, skip authentication and Cloud Run deployment. Prints a plan summary to the job summary. Default: `false`. |
 
 **Usage**
 
@@ -291,7 +291,7 @@ make test-ci-deploy-to-preprod ACT='gh act'
 
 | Step type | Dry-run behaviour |
 |---|---|
-| Authentication (GCloud WIF, GHCR login) | Runs normally |
+| Authentication (GCloud WIF, GHCR login) | **Skipped** |
 | Image build (local) | Runs normally |
 | Image pull (from GHCR) | Runs normally |
 | Registry push / in-registry retag | **Skipped** |
@@ -317,6 +317,7 @@ committed to the repository.
 
 | Variable | Environments | Description |
 |---|---|---|
+| `TDLIB_COMMIT` | repository | TDLib commit SHA used to build and pull the CI container image |
 | `GCLOUD_PROJECT_ID` | preprod, prod | GCP project ID |
 | `GCLOUD_REGION` | preprod, prod | GCP region for Cloud Run and Artifact Registry |
 | `GCLOUD_IDENTITY_PROVIDER` | preprod, prod | Workload Identity Provider resource name |
