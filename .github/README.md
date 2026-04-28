@@ -210,8 +210,8 @@ Builds `deploy/ci.dockerfile` with a pinned TDLib commit and pushes to GHCR:
 | `ci:tdlib-<commit>` | Immutable, content-addressable reference used by `checks` jobs |
 | `ci:latest` | Floating convenience tag |
 
-**When to run**: after modifying `deploy/ci.dockerfile` or bumping `TDLIB_COMMIT` in the
-workflow file. This is intentionally a manual step — the CI image changes rarely and
+**When to run**: after modifying `deploy/ci.dockerfile` or bumping the `TDLIB_COMMIT`
+repository variable (GitHub Settings → Variables). This is intentionally a manual step — the CI image changes rarely and
 building it on every push would waste significant compute.
 
 ---
