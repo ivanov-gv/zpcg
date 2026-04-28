@@ -88,7 +88,7 @@ get_en_commands:
 # Install act standalone:    https://github.com/nektos/act#installation
 # Install act as gh extension: gh extension install nektos/gh-act
 # Override the executable:   ACT='gh act' make test-ci-checks
-ACT ?= act
+ACT ?= gh act
 
 .PHONY: test-ci-checks
 test-ci-checks: # run checks workflow locally via act; dry_run=true skips test/lint (no container pull needed). copy .github/act/checks.env.example → checks.env first

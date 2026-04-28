@@ -50,6 +50,7 @@ runs:
         dry_run: ${{ inputs.dry_run }}
 
     - name: Authenticate to Google Cloud
+      if: steps.dry_run.outputs.dry_run != 'true'
       uses: google-github-actions/auth@v3
       with:
         project_id: ${{ inputs.gcloud_project_id }}
