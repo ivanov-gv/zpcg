@@ -22,6 +22,11 @@ outputs:
       Effective dry_run value. 'true' when the input is 'true' or when running
       locally via act.
     value: ${{ steps.dry_run.outputs.dry_run }}
+  local_run:
+    description: >
+      'true' when running locally via act. Exposed so other actions can support
+      local execution without reading ACT directly.
+    value: ${{ steps.dry_run.outputs.local_run }}
 
 runs:
   using: composite
@@ -31,15 +36,18 @@ runs:
       shell: bash
       run: |
         dry_run="${{ inputs.dry_run }}"
+        local_run="false"
 
         if [[ "${ACT:-}" == "true" ]]; then
           dry_run="true"
+          local_run="true"
           echo "::notice::Running in act (local) — dry-run mode enforced"
         elif [[ -z "$dry_run" ]]; then
           dry_run="false"
         fi
 
         echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
+        echo "local_run=${local_run}" >> "$GITHUB_OUTPUT"
 
     - name: Dry-run warning
       if: steps.dry_run.outputs.dry_run == 'true'
@@ -47,6 +55,7 @@ runs:
       run: |
         {
           echo "> [!WARNING]"
-          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) and authentication are skipped."
+          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) are skipped."
+          echo "> Authentication may still run when later read-only steps need private registry or Google Cloud access."
           echo "> Read-only operations (image pull, local build, registry existence checks) run normally."
         } | tee -a "$GITHUB_STEP_SUMMARY"

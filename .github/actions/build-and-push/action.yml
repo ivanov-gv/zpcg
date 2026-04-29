@@ -12,29 +12,20 @@ description: >
   to both registries alongside the commit-SHA tag. For workflow_dispatch,
   only the commit-SHA tag is used.
 
+  Requires the caller workflow to run ./.github/actions/auth first when private
+  registry reads or remote writes are needed.
+
 inputs:
-  github_token:
-    description: >
-      github.token from the caller, scoped to packages: write.
-      Passed explicitly because composite actions cannot read the caller's
-      github.token directly.
-    required: true
   gcloud_project_id:
     description: GCP project ID.
     required: true
   gcloud_region:
     description: Artifact Registry region (e.g. europe-west1).
     required: true
-  gcloud_identity_provider:
-    description: Workload Identity Provider resource name.
-    required: true
-  gcloud_service_account:
-    description: Service account email authorized for the Workload Identity Provider.
-    required: true
   dry_run:
     description: >
-      If 'true', skip authentication and remote-write steps (push, retag).
-      Image build and pull still run. Prints an execution plan to the job summary.
+      If 'true', skip remote-write steps (push, retag). Image build and pull
+      still run. Prints an execution plan to the job summary.
     required: false
     default: 'false'
 
@@ -56,29 +47,6 @@ runs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-
-    - name: Login to GHCR
-      if: steps.dry_run.outputs.dry_run != 'true'
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ inputs.github_token }}
-
-    - name: Authenticate to Google Cloud
-      if: steps.dry_run.outputs.dry_run != 'true'
-      uses: google-github-actions/auth@v3
-      with:
-        project_id: ${{ inputs.gcloud_project_id }}
-        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
-        service_account: ${{ inputs.gcloud_service_account }}
-        create_credentials_file: true
-
-    - name: Configure Docker for Artifact Registry
-      shell: bash
-      env:
-        GCLOUD_REGION: ${{ inputs.gcloud_region }}
-      run: gcloud auth configure-docker "${GCLOUD_REGION}-docker.pkg.dev" --quiet || true
 
     - name: Determine action needed
       id: check
@@ -143,8 +111,6 @@ runs:
         DRY_RUN: ${{ inputs.dry_run }}
         IN_PROJECT_ID: ${{ inputs.gcloud_project_id }}
         IN_REGION: ${{ inputs.gcloud_region }}
-        IN_IDP: ${{ inputs.gcloud_identity_provider }}
-        IN_SA: ${{ inputs.gcloud_service_account }}
         CTX_REPO: ${{ github.repository }}
         CTX_ACTOR: ${{ github.actor }}
         CTX_REF: ${{ github.ref }}
@@ -206,9 +172,6 @@ runs:
           echo "| dry_run | \`${DRY_RUN}\` |"
           echo "| gcloud_project_id | \`${IN_PROJECT_ID}\` |"
           echo "| gcloud_region | \`${IN_REGION}\` |"
-          echo "| gcloud_identity_provider | \`${IN_IDP}\` |"
-          echo "| gcloud_service_account | \`${IN_SA}\` |"
-          echo "| github_token | _(redacted)_ |"
           echo ""
           echo "### GitHub context"
           echo "| key | value |"

@@ -37,7 +37,7 @@ jobs:
       image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ vars.TDLIB_COMMIT }}
       credentials:
         username: ${{ github.actor }}
-        password: ${{ github.token }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Run all tests
@@ -53,7 +53,7 @@ jobs:
       image: ghcr.io/${{ github.repository }}/ci:tdlib-${{ vars.TDLIB_COMMIT }}
       credentials:
         username: ${{ github.actor }}
-        password: ${{ github.token }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Run golangci-lint

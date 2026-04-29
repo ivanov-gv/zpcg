@@ -1,4 +1,5 @@
+.git
 .idea
-*.makefile
+.codex
 *.env
 gha-creds-*.json

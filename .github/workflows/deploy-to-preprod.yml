@@ -34,24 +34,36 @@ jobs:
         with:
           dry_run: ${{ inputs.dry_run }}
 
-      - id: build-and-push
-        uses: ./.github/actions/build-and-push
+      - name: Authenticate
+        uses: ./.github/actions/auth
         with:
+          dry_run: ${{ steps.dry_run.outputs.dry_run }}
+          local_run: ${{ steps.dry_run.outputs.local_run }}
+          authenticate_github: 'true'
+          authenticate_ghcr: 'true'
+          authenticate_gcloud: 'true'
+          configure_docker: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gcloud_credentials_json: ${{ secrets.GCLOUD_CREDENTIALS_JSON }}
+          gcloud_access_token: ${{ secrets.GCLOUD_ACCESS_TOKEN }}
           gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          github_token: ${{ github.token }}
+
+      - id: build-and-push
+        uses: ./.github/actions/build-and-push
+        with:
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
           dry_run: ${{ steps.dry_run.outputs.dry_run }}
 
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
-          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
           gcloud_image: ${{ steps.build-and-push.outputs.gcloud_tag }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
-          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
           dry_run: ${{ steps.dry_run.outputs.dry_run }}

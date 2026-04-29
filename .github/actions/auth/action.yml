@@ -1,0 +1,225 @@
+name: auth
+description: >
+  Centralized authentication for workflows. Exports GitHub tokens for GitHub
+  tooling, logs Docker into GHCR, authenticates to Google Cloud via GitHub WIF
+  or service account JSON, and logs Docker into Artifact Registry when needed.
+
+inputs:
+  dry_run:
+    description: Effective dry-run value from ./.github/actions/dry-run.
+    required: false
+    default: 'false'
+  local_run:
+    description: local_run output from ./.github/actions/dry-run.
+    required: false
+    default: 'false'
+  authenticate_github:
+    description: Export GH_TOKEN and GITHUB_TOKEN for later GitHub CLI/API steps.
+    required: false
+    default: 'true'
+  authenticate_ghcr:
+    description: Log Docker into ghcr.io with github_token.
+    required: false
+    default: 'false'
+  authenticate_gcloud:
+    description: Authenticate to Google Cloud.
+    required: false
+    default: 'false'
+  configure_docker:
+    description: Log Docker into Google Artifact Registry.
+    required: false
+    default: 'false'
+  github_token:
+    description: GitHub token or PAT. For local act runs, pass secrets.GITHUB_TOKEN.
+    required: false
+    default: ''
+  gcloud_project_id:
+    description: GCP project ID.
+    required: false
+    default: ''
+  gcloud_region:
+    description: GCP region used for Artifact Registry, e.g. europe-west1.
+    required: false
+    default: ''
+  gcloud_identity_provider:
+    description: Workload Identity Provider resource name for GitHub-hosted runs.
+    required: false
+    default: ''
+  gcloud_service_account:
+    description: Service account email authorized for the Workload Identity Provider.
+    required: false
+    default: ''
+  gcloud_credentials_json:
+    description: >
+      Optional service account JSON for local act runs or fallback GitHub runs.
+      Prefer Workload Identity Federation in GitHub-hosted CI.
+    required: false
+    default: ''
+  gcloud_access_token:
+    description: >
+      Optional short-lived access token for local Artifact Registry Docker auth.
+      This only configures Docker; it does not create Google credentials for
+      deploy-cloudrun.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Validate GitHub auth inputs
+      if: >-
+        (inputs.authenticate_github == 'true' || inputs.authenticate_ghcr == 'true')
+        && inputs.github_token == ''
+        && inputs.dry_run != 'true'
+      shell: bash
+      run: |
+        echo "::error::github_token is required when GitHub or GHCR authentication is enabled outside dry-run mode."
+        exit 1
+
+    - name: Export GitHub token
+      if: inputs.authenticate_github == 'true' && inputs.github_token != ''
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.github_token }}
+      run: |
+        {
+          echo "GH_TOKEN=${TOKEN}"
+          echo "GITHUB_TOKEN=${TOKEN}"
+        } >> "$GITHUB_ENV"
+
+    - name: Log in to GHCR
+      if: inputs.authenticate_ghcr == 'true' && inputs.github_token != ''
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.github_token }}
+
+    - name: Validate Google auth inputs
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.dry_run != 'true'
+        && inputs.local_run != 'true'
+        && inputs.gcloud_credentials_json == ''
+        && (inputs.gcloud_identity_provider == '' || inputs.gcloud_service_account == '')
+      shell: bash
+      run: |
+        echo "::error::gcloud_identity_provider and gcloud_service_account are required for GitHub-hosted Google Cloud authentication."
+        exit 1
+
+    - name: GitHub-hosted Google auth notice
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.dry_run == 'true'
+        && inputs.local_run != 'true'
+        && inputs.gcloud_credentials_json == ''
+        && (inputs.gcloud_identity_provider == '' || inputs.gcloud_service_account == '')
+      shell: bash
+      run: |
+        echo "::notice::Dry-run has no Google WIF inputs; Artifact Registry checks may run unauthenticated."
+
+    - name: Validate local Google auth inputs
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.local_run == 'true'
+        && inputs.gcloud_credentials_json == ''
+        && inputs.gcloud_access_token == ''
+        && inputs.dry_run != 'true'
+      shell: bash
+      run: |
+        echo "::error::Local non-dry-run Google Cloud auth requires gcloud_credentials_json or gcloud_access_token."
+        exit 1
+
+    - name: Local Google auth notice
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.local_run == 'true'
+        && inputs.gcloud_credentials_json == ''
+        && inputs.gcloud_access_token == ''
+        && inputs.dry_run == 'true'
+      shell: bash
+      run: |
+        echo "::notice::Local dry-run has no Google credentials; Artifact Registry checks may run unauthenticated."
+
+    - name: Authenticate to Google Cloud with service account JSON
+      id: gcloud_json
+      if: inputs.authenticate_gcloud == 'true' && inputs.gcloud_credentials_json != ''
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.gcloud_project_id }}
+        credentials_json: ${{ inputs.gcloud_credentials_json }}
+        create_credentials_file: true
+
+    - name: Authenticate to Google Cloud with Workload Identity Federation
+      id: gcloud_wif
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.gcloud_credentials_json == ''
+        && inputs.local_run != 'true'
+        && inputs.gcloud_identity_provider != ''
+        && inputs.gcloud_service_account != ''
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.gcloud_project_id }}
+        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
+        service_account: ${{ inputs.gcloud_service_account }}
+        token_format: access_token
+        create_credentials_file: true
+
+    - name: Log in Docker to Artifact Registry with service account JSON
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.configure_docker == 'true'
+        && inputs.gcloud_region != ''
+        && inputs.gcloud_credentials_json != ''
+      shell: bash
+      env:
+        REGISTRY: ${{ inputs.gcloud_region }}-docker.pkg.dev
+        GCLOUD_CREDENTIALS_JSON: ${{ inputs.gcloud_credentials_json }}
+      run: |
+        set -euo pipefail
+        echo "$GCLOUD_CREDENTIALS_JSON" | docker login -u _json_key --password-stdin "$REGISTRY"
+
+    - name: Log in Docker to Artifact Registry with access token
+      if: >-
+        inputs.authenticate_gcloud == 'true'
+        && inputs.configure_docker == 'true'
+        && inputs.gcloud_region != ''
+        && (inputs.gcloud_access_token != '' || steps.gcloud_wif.outputs.access_token != '')
+      shell: bash
+      env:
+        REGISTRY: ${{ inputs.gcloud_region }}-docker.pkg.dev
+        ACCESS_TOKEN: ${{ steps.gcloud_wif.outputs.access_token || inputs.gcloud_access_token }}
+      run: |
+        set -euo pipefail
+        echo "$ACCESS_TOKEN" | docker login -u oauth2accesstoken --password-stdin "$REGISTRY"
+
+    - name: Authentication summary
+      if: always()
+      shell: bash
+      env:
+        DRY_RUN: ${{ inputs.dry_run }}
+        LOCAL_RUN: ${{ inputs.local_run }}
+        AUTH_GITHUB: ${{ inputs.authenticate_github }}
+        AUTH_GHCR: ${{ inputs.authenticate_ghcr }}
+        AUTH_GCLOUD: ${{ inputs.authenticate_gcloud }}
+        CONFIGURE_DOCKER: ${{ inputs.configure_docker }}
+        HAS_GITHUB_TOKEN: ${{ inputs.github_token != '' }}
+        HAS_GCLOUD_JSON: ${{ inputs.gcloud_credentials_json != '' }}
+        HAS_GCLOUD_ACCESS_TOKEN: ${{ inputs.gcloud_access_token != '' }}
+      run: |
+        {
+          echo "## Authentication"
+          echo ""
+          echo "| key | value |"
+          echo "|---|---|"
+          echo "| dry_run | \`${DRY_RUN}\` |"
+          echo "| local_run | \`${LOCAL_RUN}\` |"
+          echo "| github | \`${AUTH_GITHUB}\` |"
+          echo "| ghcr | \`${AUTH_GHCR}\` |"
+          echo "| gcloud | \`${AUTH_GCLOUD}\` |"
+          echo "| artifact_registry_docker | \`${CONFIGURE_DOCKER}\` |"
+          echo "| github_token | \`${HAS_GITHUB_TOKEN}\` |"
+          echo "| gcloud_credentials_json | \`${HAS_GCLOUD_JSON}\` |"
+          echo "| gcloud_access_token | \`${HAS_GCLOUD_ACCESS_TOKEN}\` |"
+        } >> "$GITHUB_STEP_SUMMARY"
