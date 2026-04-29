@@ -1,13 +1,14 @@
 name: deploy
 description: >
-  Authenticates to Google Cloud via Workload Identity Federation and deploys
-  a container image to Cloud Run. Injects ENVIRONMENT as an env var and mounts
-  the Telegram API token from Secret Manager by version reference.
-  No long-lived credentials are stored — the GitHub OIDC token is exchanged
-  for a short-lived GCP access token at runtime.
+  Deploys a container image to Cloud Run. Injects ENVIRONMENT as an env var and
+  mounts the Telegram API token from Secret Manager by version reference.
 
-  Dry-run mode (inputs.dry_run='true' or local act run): skips both authentication
-  and deployment. Prints a plan summary to the job summary instead.
+  Authentication is the workflow's responsibility — call the `auth` action
+  before this one with the gcloud_* inputs so that GCloud Workload Identity
+  Federation is set up. No long-lived credentials are stored anywhere.
+
+  Dry-run mode (inputs.dry_run='true' or local act run): skips the Cloud Run
+  deployment and prints a plan summary instead.
 
 inputs:
   gcloud_image:
@@ -17,7 +18,7 @@ inputs:
     description: GCP project ID.
     required: true
   gcloud_region:
-    description: Cloud Run and Artifact Registry region (e.g. europe-west1).
+    description: Cloud Run region (e.g. europe-west1).
     required: true
   gcloud_run_service:
     description: Cloud Run service name.
@@ -28,15 +29,9 @@ inputs:
   gcloud_secret_version_telegram_token:
     description: Secret Manager version reference for the Telegram API token (e.g. projects/my-project/secrets/telegram-token/versions/latest).
     required: true
-  gcloud_identity_provider:
-    description: Workload Identity Provider resource name.
-    required: true
-  gcloud_service_account:
-    description: Service account email authorized for the Workload Identity Provider.
-    required: true
   dry_run:
     description: >
-      If 'true', skip authentication and Cloud Run deployment.
+      If 'true', skip the Cloud Run deployment.
       Prints a plan summary to the job summary.
     required: false
     default: 'false'
@@ -48,15 +43,6 @@ runs:
       uses: ./.github/actions/dry-run
       with:
         dry_run: ${{ inputs.dry_run }}
-
-    - name: Authenticate to Google Cloud
-      if: steps.dry_run.outputs.dry_run != 'true'
-      uses: google-github-actions/auth@v3
-      with:
-        project_id: ${{ inputs.gcloud_project_id }}
-        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
-        service_account: ${{ inputs.gcloud_service_account }}
-        create_credentials_file: true
 
     - name: Deploy to Cloud Run
       if: steps.dry_run.outputs.dry_run != 'true'

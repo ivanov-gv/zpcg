@@ -1,0 +1,83 @@
+name: auth
+description: >
+  Centralized authentication for GHCR (ghcr.io) and Google Cloud (Workload
+  Identity Federation + Docker credential helper for Artifact Registry).
+
+  All inputs are optional — only the auth flavors whose inputs are populated
+  run. Pass exactly what the calling workflow needs.
+
+  Supports both GitHub-hosted runners and local act runs:
+    - On GitHub: docker/login-action for GHCR, google-github-actions/auth for
+      GCloud WIF, gcloud auth configure-docker for Artifact Registry.
+    - Under act (is_local='true'): GHCR login still runs against the PAT in
+      GITHUB_TOKEN. WIF and configure-docker are skipped — there is no OIDC
+      token locally and gcloud is not in the act runner image. Mutating
+      GCloud operations in callers are gated on dry_run, so skipping local
+      GCloud auth is safe (act enforces dry_run=true via the dry-run action).
+
+inputs:
+  is_local:
+    description: >
+      Pass dry_run.outputs.is_local from a prior dry-run step. When 'true',
+      GitHub-only auth flows (WIF, gcloud configure-docker) are skipped.
+    required: false
+    default: 'false'
+  github_token:
+    description: >
+      Token used to log in to ghcr.io. Pass `${{ github.token }}` for GitHub
+      runs; in act runs this comes from GITHUB_TOKEN in the secret file.
+      When empty, GHCR login is skipped.
+    required: false
+  gcloud_project_id:
+    description: GCP project ID. Required to trigger GCloud WIF auth.
+    required: false
+  gcloud_identity_provider:
+    description: Workload Identity Provider resource name. Required for GCloud auth.
+    required: false
+  gcloud_service_account:
+    description: Service account email authorized for the Workload Identity Provider. Required for GCloud auth.
+    required: false
+  gcloud_region:
+    description: >
+      Artifact Registry region (e.g. europe-west1). When set, Docker is
+      configured to push/pull images via `<region>-docker.pkg.dev` using
+      the gcloud credential helper. Pass only when the workflow needs to
+      push or pull from Artifact Registry directly.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Login to GHCR
+      if: inputs.github_token != ''
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.github_token }}
+
+    - name: Authenticate to Google Cloud
+      if: >-
+        inputs.is_local != 'true'
+        && inputs.gcloud_project_id != ''
+        && inputs.gcloud_identity_provider != ''
+        && inputs.gcloud_service_account != ''
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.gcloud_project_id }}
+        workload_identity_provider: ${{ inputs.gcloud_identity_provider }}
+        service_account: ${{ inputs.gcloud_service_account }}
+        create_credentials_file: true
+
+    - name: Notice — GCloud auth skipped locally
+      if: inputs.is_local == 'true' && inputs.gcloud_project_id != ''
+      shell: bash
+      run: |
+        echo "::notice::Running locally via act — GCloud Workload Identity Federation skipped (no OIDC token available). Mutating GCloud operations are gated on dry-run."
+
+    - name: Configure Docker for Artifact Registry
+      if: inputs.is_local != 'true' && inputs.gcloud_region != ''
+      shell: bash
+      env:
+        GCLOUD_REGION: ${{ inputs.gcloud_region }}
+      run: gcloud auth configure-docker "${GCLOUD_REGION}-docker.pkg.dev" --quiet

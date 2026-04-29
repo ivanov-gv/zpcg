@@ -27,13 +27,10 @@ jobs:
         with:
           dry_run: ${{ inputs.dry_run }}
 
-      - name: Log in to GHCR
-        if: steps.dry_run.outputs.dry_run != 'true'
-        uses: docker/login-action@v3
+      - uses: ./.github/actions/auth
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          is_local: ${{ steps.dry_run.outputs.is_local }}
+          github_token: ${{ github.token }}
 
       - name: Build and push
         if: steps.dry_run.outputs.dry_run != 'true'

@@ -1,16 +1,18 @@
 # CI/CD
 
-Four composable actions cover the full delivery lifecycle; four workflows wire them together.
+Five composable actions cover the full delivery lifecycle; four workflows wire them together.
 
 ```
 [checks]            push / PR gate   → build check + go test -race + golangci-lint
 [ci-image]          manual, rare     → build & publish the CI base image
-[deploy-to-preprod] manual           → build-and-push → deploy to preprod
-[release]           v*.*.* tag       → build-and-push → deploy preprod → deploy prod
+[deploy-to-preprod] manual           → auth → build-and-push → deploy to preprod
+[release]           v*.*.* tag       → auth → build-and-push → auth → deploy preprod → auth → deploy prod
 ```
 
-All Google Cloud authentication uses **Workload Identity Federation** — no service account
-key files are generated or stored anywhere.
+**Authentication is centralized.** Each workflow calls the [`auth`](#auth) action exactly once
+per job before any step that needs credentials; the `build-and-push` and `deploy` actions are
+pure logic and never auth themselves. All Google Cloud authentication uses **Workload Identity
+Federation** — no service account key files are generated or stored anywhere.
 
 ---
 
@@ -18,24 +20,84 @@ key files are generated or stored anywhere.
 
 ### [`dry-run`](actions/dry-run)
 
-Single source of truth for dry-run mode. This is the **only** place in the repository that
-reads the `act`-internal `ACT` environment variable.
+Single source of truth for dry-run mode and act detection. This is the **only** place in the
+repository that reads the `act`-internal `ACT` environment variable.
 
-Computes the effective `dry_run` value and exposes it as a step output. All composite actions
-and workflows gate their write-only steps on `steps.dry_run.outputs.dry_run` — no direct `ACT`
-references anywhere.
+Computes the effective `dry_run` value and exposes both `dry_run` and `is_local` as step
+outputs. All composite actions and workflows consume these outputs — no direct `ACT`
+references anywhere. The [`auth`](#auth) action takes `is_local` as input to choose between
+GitHub-only and local-friendly auth flows.
 
-| Condition | Effective `dry_run` |
-|---|---|
-| `inputs.dry_run == 'true'` | `true` |
-| Running locally via `act` (`ACT=true`) | `true` (enforced, regardless of input) |
-| `inputs.dry_run == 'false'` or empty (e.g. tag push) | `false` |
+| Condition | Effective `dry_run` | `is_local` |
+|---|---|---|
+| `inputs.dry_run == 'true'` | `true` | `false` |
+| Running locally via `act` (`ACT=true`) | `true` (enforced, regardless of input) | `true` |
+| `inputs.dry_run == 'false'` or empty (e.g. tag push) | `false` | `false` |
 
 When dry-run is active, a `> [!WARNING]` notice is written to the job summary explaining that
-write operations and authentication are skipped; read-only operations run normally.
+mutating operations are skipped; authentication and read-only operations run normally.
 
 **Inputs**: `dry_run` (optional, default `'false'`) — pass the `workflow_dispatch` input directly.
-**Outputs**: `dry_run` — effective value after act detection.
+**Outputs**:
+- `dry_run` — effective value after act detection.
+- `is_local` — `'true'` under act, `'false'` on GitHub-hosted runners.
+
+---
+
+### [`auth`](actions/auth)
+
+Centralized authentication for GHCR (`ghcr.io`) and Google Cloud (Workload Identity
+Federation + Docker credential helper for Artifact Registry). Workflows call this action
+once per job before any step that needs credentials. The `build-and-push` and `deploy`
+actions never auth themselves.
+
+All inputs are optional — only the auth flavors whose inputs are populated run. Pass
+exactly what the calling workflow needs.
+
+**Local vs GitHub**
+
+| Auth | GitHub runner | Under `act` (`is_local='true'`) |
+|---|---|---|
+| GHCR login | `docker/login-action` with `${{ github.token }}` | `docker/login-action` with `GITHUB_TOKEN` from secret file |
+| GCloud WIF | `google-github-actions/auth` (OIDC → WIF → access token) | **Skipped** — no OIDC token; a `::notice::` is emitted. Mutating GCloud ops are gated on dry-run, which act enforces. |
+| Docker for Artifact Registry | `gcloud auth configure-docker` for `<region>-docker.pkg.dev` | **Skipped** — `gcloud` not installed in the act runner image. |
+
+**Inputs**
+
+| Name | Required | Description |
+|---|---|---|
+| `is_local` | No | Pass `steps.dry_run.outputs.is_local`. Default `'false'`. |
+| `github_token` | No | Token used for GHCR login. Pass `${{ github.token }}`. Empty → GHCR login skipped. |
+| `gcloud_project_id` | No | GCP project ID. Required to trigger WIF. |
+| `gcloud_identity_provider` | No | Workload Identity Provider resource name. Required to trigger WIF. |
+| `gcloud_service_account` | No | Service account email. Required to trigger WIF. |
+| `gcloud_region` | No | Artifact Registry region. When set, Docker is configured for `<region>-docker.pkg.dev`. Pass only when the workflow pushes/pulls to AR directly. |
+
+**Usage**
+
+```yaml
+# Workflow that pushes to both GHCR and Artifact Registry (e.g. build-and-push)
+- id: dry_run
+  uses: ./.github/actions/dry-run
+  with:
+    dry_run: ${{ inputs.dry_run }}
+- uses: ./.github/actions/auth
+  with:
+    is_local: ${{ steps.dry_run.outputs.is_local }}
+    github_token: ${{ github.token }}
+    gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+    gcloud_region: ${{ vars.GCLOUD_REGION }}
+
+# Workflow that only deploys to Cloud Run (no Docker pushes)
+- uses: ./.github/actions/auth
+  with:
+    is_local: ${{ steps.dry_run.outputs.is_local }}
+    gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+```
 
 ---
 
@@ -87,6 +149,10 @@ cheapest available path:
 This means re-running a pipeline for the same commit is essentially free, and the `release`
 workflow never rebuilds what `deploy-to-preprod` already pushed.
 
+**Authentication is the caller's responsibility** — invoke [`auth`](#auth) before this
+action with `github_token`, the `gcloud_*` inputs, and `gcloud_region` so that GHCR,
+GCloud WIF, and the Docker AR credential helper are all set up.
+
 **Tagging**
 
 Every published image carries a **commit-SHA tag** (`repo:abc1234`) for traceability.
@@ -100,48 +166,44 @@ pass directly to the `deploy` action.
 
 | Name | Required | Description |
 |---|---|---|
-| `github_token` | Yes | `github.token` from the caller (requires `packages: write`). Passed explicitly because composite actions cannot read the caller's token directly. |
-| `gcloud_project_id` | Yes | GCP project ID |
-| `gcloud_region` | Yes | Artifact Registry region (e.g. `europe-west1`) |
-| `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
-| `gcloud_service_account` | Yes | Service account email |
-| `dry_run` | No | If `true`, skip authentication and remote-write steps (push, retag). Build and pull run normally. Prints an execution plan to the job summary. Default: `false`. |
+| `gcloud_project_id` | Yes | GCP project ID — used to construct the AR image path |
+| `gcloud_region` | Yes | Artifact Registry region (e.g. `europe-west1`) — used to construct the AR image path |
+| `dry_run` | No | If `true`, skip remote-write steps (push, retag). Build and pull run normally. Prints an execution plan to the job summary. Default: `false`. |
 
 **Usage**
 
 ```yaml
-# Standard deployment
+# Standard deployment (auth must run first in the same job)
+- uses: ./.github/actions/auth
+  with:
+    is_local: ${{ steps.dry_run.outputs.is_local }}
+    github_token: ${{ github.token }}
+    gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+    gcloud_region: ${{ vars.GCLOUD_REGION }}
 - id: push
   uses: ./.github/actions/build-and-push
   with:
-    github_token: ${{ github.token }}
     gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
     gcloud_region: ${{ vars.GCLOUD_REGION }}
-    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-
-# Validate pipeline config without pushing anything
-- uses: ./.github/actions/build-and-push
-  with:
-    github_token: ${{ github.token }}
-    gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
-    gcloud_region: ${{ vars.GCLOUD_REGION }}
-    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-    dry_run: 'true'
+    dry_run: ${{ steps.dry_run.outputs.dry_run }}
 ```
 
 **Dry-run mode** prints a full execution plan to the job summary — resolved image paths,
 registry existence checks, and which steps would run. Local build and image pull execute
-normally; authentication, registry push, and in-registry retag are skipped.
+normally; registry push and in-registry retag are skipped. Authentication still runs
+(via the `auth` action) so existence checks and pulls work against private registries.
 
 ---
 
 ### [`deploy`](actions/deploy)
 
-Authenticates to Google Cloud via Workload Identity Federation and deploys a container
-image to Cloud Run. Sets `ENVIRONMENT` as an env var and mounts the Telegram API token
-from Secret Manager by version reference.
+Deploys a container image to Cloud Run. Sets `ENVIRONMENT` as an env var and mounts the
+Telegram API token from Secret Manager by version reference.
+
+**Authentication is the caller's responsibility** — invoke [`auth`](#auth) before this
+action with the `gcloud_*` WIF inputs.
 
 **Inputs**
 
@@ -153,13 +215,17 @@ from Secret Manager by version reference.
 | `gcloud_run_service` | Yes | Cloud Run service name |
 | `env_var_environment` | Yes | Value injected as the `ENVIRONMENT` env var into the service |
 | `gcloud_secret_version_telegram_token` | Yes | Secret Manager version ref for the Telegram API token |
-| `gcloud_identity_provider` | Yes | Workload Identity Provider resource name |
-| `gcloud_service_account` | Yes | Service account email |
-| `dry_run` | No | If `true`, skip authentication and Cloud Run deployment. Prints a plan summary to the job summary. Default: `false`. |
+| `dry_run` | No | If `true`, skip the Cloud Run deployment. Prints a plan summary to the job summary. Default: `false`. |
 
 **Usage**
 
 ```yaml
+- uses: ./.github/actions/auth
+  with:
+    is_local: ${{ steps.dry_run.outputs.is_local }}
+    gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
 - uses: ./.github/actions/deploy
   with:
     gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag }}
@@ -168,8 +234,6 @@ from Secret Manager by version reference.
     gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
     env_var_environment: ${{ vars.ENVIRONMENT }}
     gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
-    gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-    gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
 ```
 
 ---
@@ -289,15 +353,20 @@ make test-ci-deploy-to-preprod ACT=act
 
 **What dry-run mode means per step type:**
 
-| Step type | Dry-run behaviour |
-|---|---|
-| Authentication (GCloud WIF, GHCR login) | **Skipped** |
-| Configure Docker for Artifact Registry | Runs normally (no-op if `gcloud` absent) |
-| Registry existence check (`docker manifest inspect`) | Runs normally (failures silently ignored) |
-| Image build (local, `deploy/Dockerfile`) | Runs normally |
-| Image pull (from GHCR) | Runs normally |
-| Registry push / in-registry retag | **Skipped** |
-| Cloud Run deployment | **Skipped** |
+| Step type | GitHub dry-run | Local act run (`is_local=true`) |
+|---|---|---|
+| GHCR login | Runs normally | Runs with `GITHUB_TOKEN` from secret file (skipped if empty) |
+| GCloud WIF auth | Runs normally | **Skipped** (no OIDC token available) |
+| Configure Docker for Artifact Registry | Runs normally | **Skipped** (`gcloud` not installed in act runner) |
+| Registry existence check (`docker manifest inspect`) | Runs normally | Runs normally (failures silently ignored) |
+| Image build (local, `deploy/Dockerfile`) | Runs normally | Runs normally |
+| Image pull (from GHCR) | Runs normally | Runs normally |
+| Registry push / in-registry retag | **Skipped** | **Skipped** |
+| Cloud Run deployment | **Skipped** | **Skipped** |
+
+Authentication runs in dry-run mode so that read-only operations against private
+registries (existence checks, image pulls) work correctly. Only mutating operations are
+gated on `dry_run`.
 
 **Setup**: each workflow has a corresponding `.env.example` template under `.github/act/`.
 Copy and fill in real values before running:
