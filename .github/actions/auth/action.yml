@@ -3,34 +3,18 @@ description: >
   Authenticates to GHCR and Google Cloud, or fails.
 
   GHCR: uses github.token from the calling job's context (packages: read or write
-  is determined by the job's permissions: block).
-  Google Cloud: uses Workload Identity Federation. The calling job must export
-  GCLOUD_PROJECT_ID, GCLOUD_IDENTITY_PROVIDER, GCLOUD_SERVICE_ACCOUNT, and
-  GCLOUD_REGION as environment variables.
-
-  Local act runs (ACT=true) skip all authentication steps. The caller is
-  responsible for supplying credentials through locally configured tools.
+  is determined by the job's permissions: block). Runs in both remote and local act
+  runs — act supplies github.token from the local env file.
+  Google Cloud: uses Workload Identity Federation on remote runs. Local act runs
+  cannot use WIF/OIDC, so the action verifies that gcloud is already authenticated
+  via locally configured credentials. The calling job must export GCLOUD_PROJECT_ID,
+  GCLOUD_IDENTITY_PROVIDER, GCLOUD_SERVICE_ACCOUNT, and GCLOUD_REGION as environment
+  variables (used by remote runs only).
 
 runs:
   using: composite
   steps:
-    - name: Verify local credentials (local act run)
-      if: env.ACT == 'true'
-      shell: bash
-      run: |
-        set -euo pipefail
-        if ! grep -q 'ghcr.io' "${DOCKER_CONFIG:-$HOME/.docker}/config.json" 2>/dev/null; then
-          echo "::error::Not logged in to GHCR. Run 'docker login ghcr.io' first."
-          exit 1
-        fi
-        if ! gcloud auth print-access-token > /dev/null 2>&1; then
-          echo "::error::Not authenticated to Google Cloud. Run 'gcloud auth login --update-adc' first."
-          exit 1
-        fi
-        echo "::notice::Running in act — local credentials verified"
-
     - name: Login to GHCR
-      if: env.ACT != 'true'
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
@@ -50,3 +34,14 @@ runs:
       if: env.ACT != 'true'
       shell: bash
       run: gcloud auth configure-docker "${{ env.GCLOUD_REGION }}-docker.pkg.dev" --quiet
+
+    - name: Verify local Google Cloud credentials (local act run)
+      if: env.ACT == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if ! gcloud auth print-access-token > /dev/null 2>&1; then
+          echo "::error::Not authenticated to Google Cloud. Run 'gcloud auth login --update-adc' first."
+          exit 1
+        fi
+        echo "::notice::Running in act — local Google Cloud credentials verified"
