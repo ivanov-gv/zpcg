@@ -39,20 +39,18 @@ jobs:
   publish-dry-run:
     name: Build CI image (dry-run)
     needs: decide
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run == 'true'
+    if: needs.decide.outputs.dry_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
       id-token: write
-    env:
+    env: &gcloud-env
       GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
       GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
       GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
-    steps:
+    steps: &publish-steps
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/auth
@@ -72,32 +70,11 @@ jobs:
   publish:
     name: Build and push CI image
     needs: decide
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run != 'true'
+    if: needs.decide.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
-    env:
-      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
-      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/auth
-
-      - name: Build CI image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: deploy/ci.dockerfile
-          build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
-          push: ${{ needs.decide.outputs.dry_run != 'true' }}
-          load: ${{ needs.decide.outputs.dry_run == 'true' }}
-          tags: |
-            ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
-            ghcr.io/${{ github.repository }}/ci:latest
+    env: *gcloud-env
+    steps: *publish-steps

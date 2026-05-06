@@ -43,22 +43,20 @@ jobs:
   build-and-push-dry-run:
     name: Build and push (dry-run)
     needs: decide
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run == 'true'
+    if: needs.decide.outputs.dry_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
       id-token: write
-    env:
+    env: &gcloud-env
       GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
       GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
       GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     outputs:
       gcloud_tag: ${{ steps.build-and-push.outputs.gcloud_tag }}
-    steps:
+    steps: &build-and-push-steps
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/auth
@@ -73,51 +71,28 @@ jobs:
   build-and-push:
     name: Build and push
     needs: decide
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run != 'true'
+    if: needs.decide.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
-    env:
-      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
-      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
+    env: *gcloud-env
     outputs:
       gcloud_tag: ${{ steps.build-and-push.outputs.gcloud_tag }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/auth
-
-      - id: build-and-push
-        uses: ./.github/actions/build-and-push
-        with:
-          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
-          gcloud_region: ${{ vars.GCLOUD_REGION }}
-          dry_run: ${{ needs.decide.outputs.dry_run }}
+    steps: *build-and-push-steps
 
   deploy-to-preprod-dry-run:
     name: Deploy to preprod (dry-run)
-    needs: [decide, build-and-push, build-and-push-dry-run]
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run == 'true' &&
-      needs.build-and-push-dry-run.result == 'success'
+    needs: [decide, build-and-push-dry-run]
+    if: needs.decide.outputs.dry_run == 'true'
     runs-on: ubuntu-latest
     environment: preprod
     permissions:
       contents: read
       id-token: write
-    env:
-      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
-      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
-    steps:
+    env: *gcloud-env
+    steps: &deploy-dry-run-steps
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/auth
@@ -125,7 +100,7 @@ jobs:
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
-          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag || needs.build-and-push-dry-run.outputs.gcloud_tag }}
+          gcloud_image: ${{ needs.build-and-push-dry-run.outputs.gcloud_tag }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
@@ -134,22 +109,15 @@ jobs:
 
   deploy-to-preprod:
     name: Deploy to preprod
-    needs: [decide, build-and-push, build-and-push-dry-run]
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run != 'true' &&
-      needs.build-and-push.result == 'success'
+    needs: [decide, build-and-push]
+    if: needs.decide.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     environment: preprod
     permissions:
       contents: read
       id-token: write
-    env:
-      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
-      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
-    steps:
+    env: *gcloud-env
+    steps: &deploy-default-steps
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/auth
@@ -157,7 +125,7 @@ jobs:
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
-          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag || needs.build-and-push-dry-run.outputs.gcloud_tag }}
+          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
@@ -166,66 +134,24 @@ jobs:
 
   deploy-to-prod-dry-run:
     name: Deploy to prod (dry-run)
-    needs: [decide, build-and-push, build-and-push-dry-run, deploy-to-preprod, deploy-to-preprod-dry-run]
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run == 'true' &&
-      needs.build-and-push-dry-run.result == 'success' &&
-      needs.deploy-to-preprod-dry-run.result == 'success'
+    needs: [decide, build-and-push-dry-run, deploy-to-preprod-dry-run]
+    if: needs.decide.outputs.dry_run == 'true'
     runs-on: ubuntu-latest
     environment: prod
     permissions:
       contents: read
       id-token: write
-    env:
-      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
-      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/auth
-
-      - uses: ./.github/actions/deploy
-        with:
-          env_var_environment: ${{ vars.ENVIRONMENT }}
-          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag || needs.build-and-push-dry-run.outputs.gcloud_tag }}
-          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
-          gcloud_region: ${{ vars.GCLOUD_REGION }}
-          gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
-          gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
-          dry_run: ${{ needs.decide.outputs.dry_run }}
+    env: *gcloud-env
+    steps: *deploy-dry-run-steps
 
   deploy-to-prod:
     name: Deploy to prod
-    needs: [decide, build-and-push, build-and-push-dry-run, deploy-to-preprod, deploy-to-preprod-dry-run]
-    if: >-
-      !cancelled() &&
-      needs.decide.outputs.dry_run != 'true' &&
-      needs.build-and-push.result == 'success' &&
-      needs.deploy-to-preprod.result == 'success'
+    needs: [decide, build-and-push, deploy-to-preprod]
+    if: needs.decide.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     environment: prod
     permissions:
       contents: read
       id-token: write
-    env:
-      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
-      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
-      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/auth
-
-      - uses: ./.github/actions/deploy
-        with:
-          env_var_environment: ${{ vars.ENVIRONMENT }}
-          gcloud_image: ${{ needs.build-and-push.outputs.gcloud_tag || needs.build-and-push-dry-run.outputs.gcloud_tag }}
-          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
-          gcloud_region: ${{ vars.GCLOUD_REGION }}
-          gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
-          gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
-          dry_run: ${{ needs.decide.outputs.dry_run }}
+    env: *gcloud-env
+    steps: *deploy-default-steps
