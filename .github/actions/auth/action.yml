@@ -9,7 +9,8 @@ description: >
   cannot use WIF/OIDC, so the action verifies that gcloud is already authenticated
   via locally configured credentials. The calling job must export GCLOUD_PROJECT_ID,
   GCLOUD_IDENTITY_PROVIDER, GCLOUD_SERVICE_ACCOUNT, and GCLOUD_REGION as environment
-  variables (used by remote runs only).
+  variables. GCLOUD_REGION is required in both modes (used by configure-docker).
+  The remaining three are required for remote runs only (WIF).
 
 runs:
   using: composite
