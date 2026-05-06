@@ -13,9 +13,29 @@ env:
   TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
 
 jobs:
+  decide:
+    name: Decide mode
+    runs-on: ubuntu-latest
+    outputs:
+      dry_run: ${{ steps.compute.outputs.dry_run }}
+    steps:
+      - id: compute
+        shell: bash
+        env:
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          if [[ "$INPUT_DRY_RUN" == "true" ]]; then
+            echo "dry_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   publish-dry-run:
     name: Build CI image (dry-run)
-    if: inputs.dry_run == true
+    needs: decide
+    if: >-
+      !cancelled() &&
+      needs.decide.outputs.dry_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,35 +51,28 @@ jobs:
 
       - uses: ./.github/actions/dry-run
         with:
-          dry_run: 'true'
+          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 
-      - name: Build without push (dry-run)
+      - name: Build CI image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: deploy/ci.dockerfile
           build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
-          push: false
-          load: true
-          tags: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
-
-      - name: Dry-run summary
-        run: |
-          {
-            echo "## Dry-run mode — push skipped"
-            echo ""
-            echo "| key | value |"
-            echo "|---|---|"
-            echo "| TDLIB_COMMIT | \`${{ env.TDLIB_COMMIT }}\` |"
-            echo "| ghcr_tag (tdlib) | \`ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}\` |"
-            echo "| ghcr_tag (latest) | \`ghcr.io/${{ github.repository }}/ci:latest\` |"
-          } >> "$GITHUB_STEP_SUMMARY"
+          push: ${{ needs.decide.outputs.dry_run != 'true' }}
+          load: ${{ needs.decide.outputs.dry_run == 'true' }}
+          tags: |
+            ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
+            ghcr.io/${{ github.repository }}/ci:latest
 
   publish:
     name: Build and push CI image
-    if: inputs.dry_run != true
+    needs: decide
+    if: >-
+      !cancelled() &&
+      needs.decide.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -73,15 +86,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: ./.github/actions/dry-run
+        with:
+          dry_run: ${{ needs.decide.outputs.dry_run }}
+
       - uses: ./.github/actions/auth
 
-      - name: Build and push
+      - name: Build CI image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: deploy/ci.dockerfile
           build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
-          push: true
+          push: ${{ needs.decide.outputs.dry_run != 'true' }}
+          load: ${{ needs.decide.outputs.dry_run == 'true' }}
           tags: |
             ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
             ghcr.io/${{ github.repository }}/ci:latest
