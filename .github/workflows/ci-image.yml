@@ -13,42 +13,29 @@ env:
   TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
 
 jobs:
-  publish:
-    name: Build and push CI image
+  publish-dry-run:
+    name: Build CI image (dry-run)
+    if: inputs.dry_run == true
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: read
+      id-token: write
+    env:
+      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
+      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
 
-      - id: dry_run
-        uses: ./.github/actions/dry-run
+      - uses: ./.github/actions/dry-run
         with:
-          dry_run: ${{ inputs.dry_run }}
+          dry_run: 'true'
 
-      - name: Log in to GHCR
-        if: steps.dry_run.outputs.dry_run != 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push
-        if: steps.dry_run.outputs.dry_run != 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: deploy/ci.dockerfile
-          build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
-            ghcr.io/${{ github.repository }}/ci:latest
+      - uses: ./.github/actions/auth
 
       - name: Build without push (dry-run)
-        if: steps.dry_run.outputs.dry_run == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -59,7 +46,6 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
 
       - name: Dry-run summary
-        if: steps.dry_run.outputs.dry_run == 'true'
         run: |
           {
             echo "## Dry-run mode — push skipped"
@@ -70,3 +56,32 @@ jobs:
             echo "| ghcr_tag (tdlib) | \`ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}\` |"
             echo "| ghcr_tag (latest) | \`ghcr.io/${{ github.repository }}/ci:latest\` |"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Build and push CI image
+    if: inputs.dry_run != true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
+      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/auth
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/ci.dockerfile
+          build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/ci:tdlib-${{ env.TDLIB_COMMIT }}
+            ghcr.io/${{ github.repository }}/ci:latest

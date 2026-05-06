@@ -1,52 +1,35 @@
 name: dry-run
 description: >
-  Single source of truth for dry-run mode. This is the only place in the
-  repository that reads the act-internal ACT environment variable.
+  Marker step for dry-run jobs. Emits a job-summary warning when the calling
+  workflow has selected its dry-run job variant. Workflows now decide between
+  dry-run and default execution at the job level (via `if: inputs.dry_run ==
+  true`), so this action no longer overrides the value based on ACT.
 
-  Computes the effective dry_run value: forced to 'true' when running locally
-  via act, otherwise equal to the input. All composite actions and workflows
-  check only steps.dry_run.outputs.dry_run — no direct ACT references anywhere.
+  Local act runs honour the user-supplied `dry_run` input. To run in dry-run
+  mode locally, pass `dry_run=true` explicitly to the workflow.
 
 inputs:
   dry_run:
     description: >
-      Requested dry_run value. Pass the workflow_dispatch input directly, or
-      an empty string for non-dispatch events (e.g. tag push) to default to
-      dry_run=false.
+      Effective dry_run value chosen by the caller. Pass 'true' from a dry-run
+      job; the warning is emitted only in that case.
     required: false
     default: 'false'
 
 outputs:
   dry_run:
-    description: >
-      Effective dry_run value. 'true' when the input is 'true' or when running
-      locally via act.
-    value: ${{ steps.dry_run.outputs.dry_run }}
+    description: Echoes back the input for callers that want a single source to read.
+    value: ${{ inputs.dry_run }}
 
 runs:
   using: composite
   steps:
-    - name: Compute effective dry_run
-      id: dry_run
-      shell: bash
-      run: |
-        dry_run="${{ inputs.dry_run }}"
-
-        if [[ "${ACT:-}" == "true" ]]; then
-          dry_run="true"
-          echo "::notice::Running in act (local) — dry-run mode enforced"
-        elif [[ -z "$dry_run" ]]; then
-          dry_run="false"
-        fi
-
-        echo "dry_run=${dry_run}" >> "$GITHUB_OUTPUT"
-
     - name: Dry-run warning
-      if: steps.dry_run.outputs.dry_run == 'true'
+      if: inputs.dry_run == 'true'
       shell: bash
       run: |
         {
           echo "> [!WARNING]"
-          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) and authentication are skipped."
+          echo "> **Dry-run mode is active.** Write operations (registry push, Cloud Run deploy) are skipped."
           echo "> Read-only operations (image pull, local build, registry existence checks) run normally."
         } | tee -a "$GITHUB_STEP_SUMMARY"

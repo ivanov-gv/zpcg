@@ -18,40 +18,78 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  deploy-to-preprod-dry-run:
+    name: Deploy to preprod (dry-run)
+    if: inputs.dry_run == true
+    runs-on: ubuntu-latest
+    environment: preprod
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env:
+      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
+      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/dry-run
+        with:
+          dry_run: 'true'
+
+      - uses: ./.github/actions/auth
+
+      - id: build-and-push
+        uses: ./.github/actions/build-and-push
+        with:
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          dry_run: 'true'
+
+      - uses: ./.github/actions/deploy
+        with:
+          env_var_environment: ${{ vars.ENVIRONMENT }}
+          gcloud_image: ${{ steps.build-and-push.outputs.gcloud_tag }}
+          gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
+          gcloud_region: ${{ vars.GCLOUD_REGION }}
+          gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
+          gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
+          dry_run: 'true'
+
   deploy-to-preprod:
     name: Deploy to preprod
+    if: inputs.dry_run != true
     runs-on: ubuntu-latest
     environment: preprod
     permissions:
       contents: read
       packages: write
       id-token: write
+    env:
+      GCLOUD_PROJECT_ID: ${{ vars.GCLOUD_PROJECT_ID }}
+      GCLOUD_IDENTITY_PROVIDER: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
+      GCLOUD_SERVICE_ACCOUNT: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
+      GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
 
-      - id: dry_run
-        uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ inputs.dry_run }}
+      - uses: ./.github/actions/auth
 
       - id: build-and-push
         uses: ./.github/actions/build-and-push
         with:
-          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
-          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          github_token: ${{ github.token }}
-          dry_run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: 'false'
 
       - uses: ./.github/actions/deploy
         with:
           env_var_environment: ${{ vars.ENVIRONMENT }}
-          gcloud_identity_provider: ${{ vars.GCLOUD_IDENTITY_PROVIDER }}
           gcloud_image: ${{ steps.build-and-push.outputs.gcloud_tag }}
           gcloud_project_id: ${{ vars.GCLOUD_PROJECT_ID }}
           gcloud_region: ${{ vars.GCLOUD_REGION }}
           gcloud_run_service: ${{ vars.GCLOUD_RUN_SERVICE }}
           gcloud_secret_version_telegram_token: ${{ vars.GCLOUD_SECRET_TELEGRAM_APITOKEN_VERSION }}
-          gcloud_service_account: ${{ vars.GCLOUD_SERVICE_ACCOUNT }}
-          dry_run: ${{ steps.dry_run.outputs.dry_run }}
+          dry_run: 'false'
