@@ -30,11 +30,6 @@ runs:
         service_account: ${{ env.GCLOUD_SERVICE_ACCOUNT }}
         create_credentials_file: true
 
-    - name: Configure Docker for Artifact Registry
-      if: env.ACT != 'true'
-      shell: bash
-      run: gcloud auth configure-docker "${{ env.GCLOUD_REGION }}-docker.pkg.dev" --quiet
-
     - name: Verify local Google Cloud credentials (local act run)
       if: env.ACT == 'true'
       shell: bash
@@ -45,3 +40,7 @@ runs:
           exit 1
         fi
         echo "::notice::Running in act — local Google Cloud credentials verified"
+
+    - name: Configure Docker for Artifact Registry
+      shell: bash
+      run: gcloud auth configure-docker "${{ env.GCLOUD_REGION }}-docker.pkg.dev" --quiet
