@@ -14,10 +14,20 @@ description: >
 runs:
   using: composite
   steps:
-    - name: Skip auth (local act run)
+    - name: Verify local credentials (local act run)
       if: env.ACT == 'true'
       shell: bash
-      run: echo "::notice::Running in act — authentication skipped (relies on locally configured tools)"
+      run: |
+        set -euo pipefail
+        if ! grep -q 'ghcr.io' "${DOCKER_CONFIG:-$HOME/.docker}/config.json" 2>/dev/null; then
+          echo "::error::Not logged in to GHCR. Run 'docker login ghcr.io' first."
+          exit 1
+        fi
+        if ! gcloud auth print-access-token > /dev/null 2>&1; then
+          echo "::error::Not authenticated to Google Cloud. Run 'gcloud auth login --update-adc' first."
+          exit 1
+        fi
+        echo "::notice::Running in act — local credentials verified"
 
     - name: Login to GHCR
       if: env.ACT != 'true'
