@@ -1,0 +1,42 @@
+name: auth
+description: >
+  Authenticates to GHCR and Google Cloud, or fails.
+
+  GHCR: uses github.token from the calling job's context (packages: read or write
+  is determined by the job's permissions: block).
+  Google Cloud: uses Workload Identity Federation. The calling job must export
+  GCLOUD_PROJECT_ID, GCLOUD_IDENTITY_PROVIDER, GCLOUD_SERVICE_ACCOUNT, and
+  GCLOUD_REGION as environment variables.
+
+  Local act runs (ACT=true) skip all authentication steps. The caller is
+  responsible for supplying credentials through locally configured tools.
+
+runs:
+  using: composite
+  steps:
+    - name: Skip auth (local act run)
+      if: env.ACT == 'true'
+      shell: bash
+      run: echo "::notice::Running in act — authentication skipped (relies on locally configured tools)"
+
+    - name: Login to GHCR
+      if: env.ACT != 'true'
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+
+    - name: Authenticate to Google Cloud
+      if: env.ACT != 'true'
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ env.GCLOUD_PROJECT_ID }}
+        workload_identity_provider: ${{ env.GCLOUD_IDENTITY_PROVIDER }}
+        service_account: ${{ env.GCLOUD_SERVICE_ACCOUNT }}
+        create_credentials_file: true
+
+    - name: Configure Docker for Artifact Registry
+      if: env.ACT != 'true'
+      shell: bash
+      run: gcloud auth configure-docker "${{ env.GCLOUD_REGION }}-docker.pkg.dev" --quiet
