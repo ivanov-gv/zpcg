@@ -44,4 +44,6 @@ runs:
 
     - name: Configure Docker for Artifact Registry
       shell: bash
-      run: gcloud auth configure-docker "${{ env.GCLOUD_REGION }}-docker.pkg.dev" --quiet
+      env:
+        GCLOUD_REGION: ${{ env.GCLOUD_REGION }}
+      run: gcloud auth configure-docker "${GCLOUD_REGION}-docker.pkg.dev" --quiet
