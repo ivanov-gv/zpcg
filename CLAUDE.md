@@ -32,3 +32,8 @@ cost-effective, running on minimal cloud resources (1vCPU, 128MB RAM) with zero 
 - `cmd/tg-server` and `cmd/tg-init` handle Telegram bot operations
 - Tests require race detection: `go test -race`; integration tests require TDLib
 - CI testing: use `act` locally to test workflows before pushing (see Makefile targets)
+
+## Guidelines
+
+For relevant guidelines before any code change, use `/find-guidelines`. Guidelines are available at:
+https://github.com/ivanov-gv/claude-code-setup/tree/main/.claude/shared/guidelines
