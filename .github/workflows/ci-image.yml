@@ -19,6 +19,8 @@ jobs:
     outputs:
       dry_run: ${{ steps.compute.outputs.dry_run }}
     steps:
+      - uses: actions/checkout@v4
+
       - id: compute
         shell: bash
         env:
@@ -29,6 +31,10 @@ jobs:
           else
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - uses: ./.github/actions/dry-run
+        with:
+          dry_run: ${{ steps.compute.outputs.dry_run }}
 
   publish-dry-run:
     name: Build CI image (dry-run)
@@ -48,10 +54,6 @@ jobs:
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 
@@ -85,10 +87,6 @@ jobs:
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 

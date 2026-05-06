@@ -23,6 +23,8 @@ jobs:
     outputs:
       dry_run: ${{ steps.compute.outputs.dry_run }}
     steps:
+      - uses: actions/checkout@v4
+
       - id: compute
         shell: bash
         env:
@@ -33,6 +35,10 @@ jobs:
           else
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - uses: ./.github/actions/dry-run
+        with:
+          dry_run: ${{ steps.compute.outputs.dry_run }}
 
   build-and-push-dry-run:
     name: Build and push (dry-run)
@@ -54,10 +60,6 @@ jobs:
       gcloud_tag: ${{ steps.build-and-push.outputs.gcloud_tag }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 
@@ -89,10 +91,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
-
       - uses: ./.github/actions/auth
 
       - id: build-and-push
@@ -121,10 +119,6 @@ jobs:
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 
@@ -157,10 +151,6 @@ jobs:
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 
@@ -195,10 +185,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
-
       - uses: ./.github/actions/auth
 
       - uses: ./.github/actions/deploy
@@ -231,10 +217,6 @@ jobs:
       GCLOUD_REGION: ${{ vars.GCLOUD_REGION }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/dry-run
-        with:
-          dry_run: ${{ needs.decide.outputs.dry_run }}
 
       - uses: ./.github/actions/auth
 
