@@ -38,7 +38,7 @@ jobs:
       packages: write
       id-token: write
     env: &publish-env
-      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
+      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT }}
     steps: &publish-steps
       - uses: actions/checkout@v4
 
