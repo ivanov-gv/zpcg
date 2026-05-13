@@ -1,0 +1,76 @@
+name: golang-tdlib image build
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "build without pushing to GHCR"
+        required: false
+        type: boolean
+
+env:
+  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
+
+jobs:
+  switch:
+    name: Dry-run switch
+    runs-on: ubuntu-latest
+    outputs:
+      dry_run: ${{ steps.dry_run.outputs.dry_run }}
+    steps:
+      - id: dry_run
+        shell: bash
+        env:
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          # Determine if dry-run mode is active
+          dry_run=$([[ "$ACT" == "true" || "$INPUT_DRY_RUN" == "true" ]] && echo true || echo false)
+          echo "dry_run=$dry_run" >> "$GITHUB_OUTPUT"
+          echo "dry_run=$dry_run" >> "$GITHUB_STEP_SUMMARY"
+
+  build-and-push:
+    name: Build and push CI image
+    needs: switch
+    if: needs.switch.outputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env: &publish-env
+      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
+    steps: &publish-steps
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build CI image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/tdlib.dockerfile
+          build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
+          load: 'true'
+          tags: |
+            ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
+
+      - name: Push
+        if: ${{ needs.switch.outputs.dry_run != 'true' }}
+        run: docker push ${{ env.IMAGE_TAG }}
+
+  build-and-push-dry-run:
+    name: Build CI image (dry-run)
+    needs: switch
+    if: needs.switch.outputs.dry_run == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env: *publish-env
+    steps: *publish-steps
