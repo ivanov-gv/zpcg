@@ -4,7 +4,7 @@ ARG TDLIB_COMMIT=971684a
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        zlib1g-dev libssl-dev gperf php-cli cmake g++ && \
+        zlib1g-dev libssl-dev gperf php-cli cmake g++ libstdc++-dev && \
     git clone https://github.com/tdlib/td.git /tmp/td && \
     cd /tmp/td && git checkout ${TDLIB_COMMIT} && \
     mkdir build && cd build && \
