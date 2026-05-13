@@ -83,3 +83,26 @@ get_en_commands:
   -H 'Content-Type: application/json' \
   -d '{"language_code":"en"}' \
   https://api.telegram.org/bot${TG_TOKEN}/getMyCommands
+
+
+# ci testing with act
+# Install act standalone:    https://github.com/nektos/act#installation
+# Install act as gh extension: gh extension install nektos/gh-act
+# Override the executable:   ACT=act make test-ci-checks
+ACT ?= gh act
+
+.PHONY: test-ci-checks
+test-ci-checks: # run checks workflow locally via act (build + test + lint). test and lint run inside the CI container — set GITHUB_TOKEN=<read:packages token> in checks.env. copy .github/act/checks.env.example → checks.env first
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/pr-checks.yml \
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env \
+   		--input dry_run=true
+
+.PHONY: test-golang-tdlib-image-build
+test-golang-tdlib-image-build: # run checks workflow locally via act (build + test + lint). test and lint run inside the CI container — set GITHUB_TOKEN=<read:packages token> in checks.env. copy .github/act/checks.env.example → checks.env first
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/golang-tdlib-image-build.yml \
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env \
+   		--input dry_run=true

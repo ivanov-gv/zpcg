@@ -1,0 +1,47 @@
+name: build
+description: >
+  Builds deploy/Dockerfile into a local Docker image (load: true, no push).
+  Callers decide whether to push, retag, or just verify the image compiles.
+  Requires actions/checkout to run before this action.
+
+inputs:
+  image_tag:
+    description: >
+      Tag applied to the built image (e.g. ghcr.io/org/repo:abc1234).
+      Optional — omit when only verifying the image builds successfully.
+    required: false
+
+outputs:
+  imageid:
+    description: Docker image ID of the built image
+    value: ${{ steps.build.outputs.imageid }}
+  digest:
+    description: Content-addressable digest of the built image
+    value: ${{ steps.build.outputs.digest }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build
+      id: build
+      uses: docker/build-push-action@v6
+      env:
+        DOCKER_BUILD_RECORD_UPLOAD: false
+      with:
+        context: .
+        file: deploy/Dockerfile
+        load: 'true'
+        tags: ${{ inputs.image_tag }}
+
+    - name: Summary
+      if: always()
+      shell: bash
+      run: |
+        {
+          echo "**Tag**: \`${{ inputs.image_tag }}\`"
+          echo "**Image ID**: \`${{ steps.build.outputs.imageid }}\`"
+          echo "**Digest**: \`${{ steps.build.outputs.digest }}\`"
+        } >> "$GITHUB_STEP_SUMMARY"
