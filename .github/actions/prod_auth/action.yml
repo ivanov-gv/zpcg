@@ -1,0 +1,57 @@
+name: Preprod and Prod environments authentication
+description: >
+  Authenticates to Google Cloud, or fails.
+
+  On GitHub run: Uses Workload Identity Federation on remote runs. Local act runs
+  cannot use WIF/OIDC, so the action verifies that gcloud is already authenticated
+  via locally configured credentials. The calling job must provide project_id,
+  workload_identity_provider, service_account, and region as inputs.
+  region is required in both modes (used by configure-docker).
+  The remaining three are required for remote runs only (WIF).
+
+  On local act run: Uses locally configured credentials.
+
+inputs:
+  project_id:
+    description: Google Cloud project ID
+    required: true
+  region:
+    description: Google Cloud region
+    required: true
+  workload_identity_provider:
+    description: Workload Identity Provider for authentication
+    required: false
+  service_account:
+    description: Service account email for authentication
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Authenticate to Google Cloud
+      if: env.ACT != 'true'
+      uses: google-github-actions/auth@v3
+      with:
+        project_id: ${{ inputs.project_id }}
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+        create_credentials_file: true
+
+    - name: GCloud CLI setup (local act run)
+      if: env.ACT == 'true'
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Verify local Google Cloud credentials (local act run)
+      if: env.ACT == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if ! gcloud artifacts repositories list --project="${{ inputs.project_id }}" --location="${{ inputs.region }}" --limit=1 > /dev/null 2>&1; then
+          echo "::error::Not authenticated to Google Cloud." >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+        echo "::notice::Running in act — local Google Cloud credentials verified"
+
+    - name: Configure Docker for Artifact Registry
+      shell: bash
+      run: gcloud auth configure-docker "${{ inputs.region }}-docker.pkg.dev" --quiet

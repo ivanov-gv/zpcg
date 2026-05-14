@@ -1,15 +1,14 @@
-name: golang-tdlib image build
-
+name: CI - push to ghcr.io
 on:
+  push:
+    tags:
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Dry run - build without pushing to GHCR
-        required: false
+        description: Dry run
         type: boolean
-
-env:
-  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
+        default: true
 
 jobs:
   switch:
@@ -25,7 +24,7 @@ jobs:
           dry_run: ${{ inputs.dry_run }}
 
   build-and-push:
-    name: Build and push CI image
+    name: Build and push ZPCG image
     needs: switch
     if: needs.switch.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
@@ -33,8 +32,10 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    environment: dev
     env: &build-and-push-env
-      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT }}
+      IMAGE_TAG_SHA: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+      IMAGE_TAG_TAG: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
     steps: &build-and-push-steps
       - uses: actions/checkout@v4
 
@@ -45,28 +46,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Build CI image
+      - name: Build image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: deploy/tdlib.dockerfile
-          build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
+          file: deploy/Dockerfile
           load: 'true'
           tags: |
-            ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
+            ${{ env.IMAGE_TAG_SHA }}
+            ${{ env.IMAGE_TAG_TAG }}
 
       - name: Push
-        if: ${{ needs.switch.outputs.dry_run != 'true' }}
-        run: docker push ${{ env.IMAGE_TAG }}
+        run: |
+          docker push ${{ env.IMAGE_TAG_SHA }}
+          docker push ${{ env.IMAGE_TAG_TAG }}
 
   build-and-push-dry-run:
     name: Build CI image (dry-run)
     needs: switch
     if: needs.switch.outputs.dry_run == 'true'
     runs-on: ubuntu-latest
+    environment: dry-run
     permissions:
       contents: read
-      packages: read
+      packages: read # <-- dry-run mode
       id-token: write
     env: *build-and-push-env
     steps: *build-and-push-steps
+

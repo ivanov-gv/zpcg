@@ -1,0 +1,75 @@
+name: Deploy
+description: >
+  Deploys a container image to Cloud Run with arbitrary environment variables
+  and Secret Manager mounts.
+
+  Authentication is the caller's responsibility — run ./.github/actions/auth
+  before this action. This action does not authenticate to Google Cloud.
+
+  Dry-run mode (inputs.dry_run='true'): skips deployment. Prints a plan
+  summary to the job summary instead.
+
+inputs:
+  gcloud_image:
+    description: Full GCloud Artifact Registry image ref to deploy (use the gcloud_tag output from build-and-push).
+    required: true
+  gcloud_project_id:
+    description: GCP project ID.
+    required: true
+  gcloud_region:
+    description: Cloud Run and Artifact Registry region (e.g. europe-west1).
+    required: true
+  gcloud_run_service:
+    description: Cloud Run service name.
+    required: true
+  env_vars:
+    description: >
+      Environment variables to inject into the Cloud Run service.
+      Format: |-
+              ENV1=ENV1_VALUE
+              ENV2=ENV2_VALUE
+    required: false
+    default: ''
+  secrets:
+    description: >
+      Secrets to mount from Secret Manager.
+      Format: |-
+              SECRET1=VALUE
+              SECRET2=VALUE
+    required: false
+    default: ''
+  dry_run:
+    description: >
+      If 'true', skip Cloud Run deployment.
+      Prints a plan summary to the job summary.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy to Cloud Run
+      if: inputs.dry_run != 'true'
+      uses: google-github-actions/deploy-cloudrun@v3
+      with:
+        service: ${{ inputs.gcloud_run_service }}
+        image: ${{ inputs.gcloud_image }}
+        region: ${{ inputs.gcloud_region }}
+        project_id: ${{ inputs.gcloud_project_id }}
+        env_vars: ${{ inputs.env_vars }}
+        secrets: ${{ inputs.secrets }}
+
+    - name: Dry-run summary
+      if: inputs.dry_run == 'true'
+      shell: bash
+      run: |
+        echo "## Dry-run mode — deployment skipped" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Parameter | Value |" >> "$GITHUB_STEP_SUMMARY"
+        echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Service** | \`${{ inputs.gcloud_run_service }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Image** | \`${{ inputs.gcloud_image }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Project ID** | \`${{ inputs.gcloud_project_id }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Region** | \`${{ inputs.gcloud_region }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Environment Variables** | \`${{ inputs.env_vars }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Secrets** | \`${{ inputs.secrets }}\` |" >> "$GITHUB_STEP_SUMMARY"

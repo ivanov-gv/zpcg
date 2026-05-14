@@ -91,8 +91,12 @@ get_en_commands:
 # Override the executable:   ACT=act make test-ci-checks
 ACT ?= gh act
 
-.PHONY: test-ci-checks
-test-ci-checks: # run checks workflow locally via act (build + test + lint). test and lint run inside the CI container — set GITHUB_TOKEN=<read:packages token> in checks.env. copy .github/act/checks.env.example → checks.env first
+GCLOUD_SCOPE := https://www.googleapis.com/auth/cloud-platform.read-only
+# lazy evaluation for gcloud token with read-only scope
+GCLOUD_TOKEN = $(eval GCLOUD_TOKEN := $(shell gcloud auth print-access-token --scopes='$(GCLOUD_SCOPE)'))$(GCLOUD_TOKEN)
+
+.PHONY: test-pr-checks
+test-pr-checks:
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/pr-checks.yml \
 		--secret-file .github/act/secret.env \
@@ -100,9 +104,26 @@ test-ci-checks: # run checks workflow locally via act (build + test + lint). tes
    		--input dry_run=true
 
 .PHONY: test-golang-tdlib-image-build
-test-golang-tdlib-image-build: # run checks workflow locally via act (build + test + lint). test and lint run inside the CI container — set GITHUB_TOKEN=<read:packages token> in checks.env. copy .github/act/checks.env.example → checks.env first
+test-golang-tdlib-image-build:
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/golang-tdlib-image-build.yml \
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
+   		--input dry_run=true
+
+.PHONY: test-ci
+test-ci:
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/ci.yml \
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env \
+   		--input dry_run=true
+
+.PHONY: test-cd-pre-release
+test-cd-pre-release:
+	$(ACT) workflow_dispatch \
+		-W .github/workflows/cd-pre-release.yml \
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env \
+		--env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN) \
    		--input dry_run=true

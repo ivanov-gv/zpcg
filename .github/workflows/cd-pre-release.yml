@@ -1,0 +1,142 @@
+name: Pre-release deployment to preprod
+
+on:
+  release:
+    types: [ prereleased ]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: skip registry push and deployment (default: true for safety)"
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-preprod
+  cancel-in-progress: false
+
+jobs:
+  switch:
+    name: Dry-run switch
+    runs-on: ubuntu-latest
+    outputs:
+      dry_run: ${{ steps.dry_run.outputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: dry_run
+        uses: ./.github/actions/dry_run
+        with:
+          dry_run: ${{ inputs.dry_run }}
+
+  retag:
+    name: Retag image and push to preprod registry
+    needs: switch
+    if: ${{ needs.switch.outputs.dry_run != 'true' }}
+    runs-on: ubuntu-latest
+    environment: preprod
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      image_tag: ${{ steps.retag-env.outputs.PREPROD_IMAGE_TAG_TAG }}
+    env: &retag-env
+      AUTH_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
+      AUTH_REGION: ${{ secrets.ENV_REGION }}
+      AUTH_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
+      AUTH_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
+      GHCR_IMAGE_TAG_SHA: ghcr.io/${{ github.repository }}:${{ github.sha }}
+      GHCR_IMAGE_TAG_TAG: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+      PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.sha }}
+      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.event.release.tag_name }}
+    steps: &retag-steps
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - uses: ./.github/actions/prod_auth
+        with:
+          project_id: ${{ env.AUTH_PROJECT_ID }}
+          region: ${{ env.AUTH_REGION }}
+          workload_identity_provider: ${{ env.AUTH_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.AUTH_SERVICE_ACCOUNT }}
+
+      - id: retag-env
+        name: Retag image
+        shell: bash
+        run: |
+          docker buildx imagetools create -t ${{ env.PREPROD_IMAGE_TAG_SHA }} ${{ env.GHCR_IMAGE_TAG_SHA }}
+          docker buildx imagetools create -t ${{ env.PREPROD_IMAGE_TAG_TAG }} ${{ env.GHCR_IMAGE_TAG_TAG }}
+          echo "PREPROD_IMAGE_TAG_TAG=${{ env.PREPROD_IMAGE_TAG_TAG }}" >> $GITHUB_OUTPUT
+
+  retag-dry-run:
+    name: (dry-run) Retag image and push to preprod registry
+    needs: switch
+    if: ${{ needs.switch.outputs.dry_run == 'true' }}
+    runs-on: ubuntu-latest
+    environment: dry-run # <-- safety first
+    permissions:
+      contents: read
+      packages: read # <-- safety first
+      id-token: write
+    outputs:
+      image_tag: ${{ steps.retag-env.outputs.PREPROD_IMAGE_TAG_TAG }}
+    env: *retag-env
+    steps: *retag-steps
+
+  retag-out:
+    name: Retag output (fan-in)
+    needs: [ retag, retag-dry-run ]
+    if: ${{ !cancelled() && (needs.retag.result == 'success' || needs.retag-dry-run.result == 'success') }}
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ needs.retag.outputs.image_tag || needs.retag-dry-run.outputs.image_tag }}
+    steps:
+      - run: 'true'
+
+  deploy:
+    name: Deploy to preprod
+    needs: [ switch, retag-out ]
+    if: ${{ needs.switch.outputs.dry_run != 'true' }}
+    runs-on: ubuntu-latest
+    environment: preprod
+    env: &deploy-env
+      DRY_RUN: ${{ needs.switch.outputs.dry_run }}
+      PREPROD_IMAGE: ${{ needs.retag-out.outputs.image_tag }}
+      PREPROD_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
+      PREPROD_REGION: ${{ secrets.ENV_REGION }}
+      PREPROD_RUN_SERVICE: ${{ secrets.ENV_RUN_SERVICE }}
+      PREPROD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
+      PREPROD_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
+    steps: &deploy-steps
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/prod_auth
+        with:
+          project_id: ${{ env.PREPROD_PROJECT_ID }}
+          region: ${{ env.PREPROD_REGION }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+      - name: Deploy to preprod
+        uses: ./.github/actions/deploy
+        with:
+          dry_run: ${{ env.DRY_RUN }}
+          gcloud_image: ${{ env.PREPROD_IMAGE }}
+          gcloud_project_id: ${{ env.PREPROD_PROJECT_ID }}
+          gcloud_region: ${{ env.PREPROD_REGION }}
+          gcloud_run_service: ${{ env.PREPROD_RUN_SERVICE }}
+
+  deploy-dry-run:
+    name: (dry-run) Deploy to preprod
+    needs: [ switch, retag-out ]
+    if: ${{ needs.switch.outputs.dry_run == 'true' }}
+    runs-on: ubuntu-latest
+    environment: dry-run # <-- safety first
+    env: *deploy-env
+    steps: *deploy-steps
