@@ -10,6 +10,11 @@ on:
         required: false
         type: boolean
         default: true
+      fallback_tag:
+        description: "Tag to use when not triggered by a release (workflow_dispatch). Default is safe for dry-run."
+        required: false
+        type: string
+        default: dry-run-tag
 
 concurrency:
   group: deploy-preprod
@@ -46,9 +51,9 @@ jobs:
       AUTH_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
       AUTH_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
       GHCR_IMAGE_TAG_SHA: ghcr.io/${{ github.repository }}:${{ github.sha }}
-      GHCR_IMAGE_TAG_TAG: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+      GHCR_IMAGE_TAG_TAG: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
       PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.sha }}
-      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.event.release.tag_name }}
+      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
     steps: &retag-steps
       - uses: actions/checkout@v4
       - name: Set up Docker Buildx
@@ -121,8 +126,8 @@ jobs:
         with:
           project_id: ${{ env.PREPROD_PROJECT_ID }}
           region: ${{ env.PREPROD_REGION }}
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ env.PREPROD_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.PREPROD_SERVICE_ACCOUNT }}
       - name: Deploy to preprod
         uses: ./.github/actions/deploy
         with:

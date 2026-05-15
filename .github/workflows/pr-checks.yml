@@ -10,6 +10,9 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  TDLIB_IMAGE: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
+
 jobs:
   build:
     name: Build
@@ -23,7 +26,7 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT }}
+      image: ${{ env.TDLIB_IMAGE }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -36,7 +39,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT }}
+      image: ${{ env.TDLIB_IMAGE }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}

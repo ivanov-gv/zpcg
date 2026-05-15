@@ -47,7 +47,8 @@ runs:
       run: |
         set -euo pipefail
         if ! gcloud artifacts repositories list --project="${{ inputs.project_id }}" --location="${{ inputs.region }}" --limit=1 > /dev/null 2>&1; then
-          echo "::error::Not authenticated to Google Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "::error::Not authenticated to Google Cloud."
+          echo "**Error**: Not authenticated to Google Cloud." >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
         echo "::notice::Running in act — local Google Cloud credentials verified"

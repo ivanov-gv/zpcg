@@ -9,7 +9,7 @@ on:
         type: boolean
 
 env:
-  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT }}
+  TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT || '971684a' }}
 
 jobs:
   switch:
@@ -34,7 +34,7 @@ jobs:
       packages: write
       id-token: write
     env: &build-and-push-env
-      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT }}
+      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
     steps: &build-and-push-steps
       - uses: actions/checkout@v4
 
