@@ -132,7 +132,33 @@ jobs:
 
 ## CI vs CD
 
-#TODO: write this up
+The split is: **CI writes only to GHCR; CD reads from GHCR and writes to production-grade registries**.
+
+| Workflow | Trigger | Category |
+|---|---|---|
+| `pr-checks.yml` | PR, push to `main` | CI |
+| `ci.yml` | Tag push `v*.*.*` | CI |
+| `golang-tdlib-image-build.yml` | `workflow_dispatch` | CI |
+| `cd-pre-release.yml` | GitHub prerelease | CD |
+
+**CI** workflows run checks and build Docker images to GHCR.io only. They never authenticate to GCP
+or touch any production environment. `pr-checks.yml` runs build/test/lint on every PR and push to
+`main`. `ci.yml` builds the ZPCG image and pushes it to `ghcr.io/<repo>:<sha>` and
+`ghcr.io/<repo>:<tag>`. `golang-tdlib-image-build.yml` builds the base TDLib image that test and lint
+jobs use as their container.
+
+**CD** workflows (`cd-pre-release.yml`) pull the CI-built image from GHCR, retag it into the target
+environment's Artifact Registry, and deploy to Cloud Run. CD is gated behind a GitHub release event —
+a deliberate, human-initiated action. CD never builds images; it only retags and deploys.
+
+Typical end-to-end flow for a prerelease:
+
+1. Developer pushes tag `v1.2.3-rc.1` → `ci.yml` builds and pushes `ghcr.io/<repo>:<sha>` and
+   `ghcr.io/<repo>:v1.2.3-rc.1` to GHCR.
+2. Developer creates a GitHub prerelease from that tag → `cd-pre-release.yml` pulls from GHCR,
+   retags to `<preprod-registry>/<repo>:<sha>` and `:<tag>`, and deploys to Cloud Run preprod.
+
+GHCR is always the intermediate artifact store. CD never rebuilds from source.
 
 ## `env:` blocks
 
@@ -222,12 +248,42 @@ The one exception is `golang-tdlib-image-build.yml`'s Push step, see below.
 
 ### Outputs don't work
 
-#TODO: write this up
+In GitHub Actions, **outputs from skipped jobs are always empty strings** — they are not propagated
+to downstream `needs`. This is a problem for the mutually exclusive test-run pair: exactly one of
+`retag` / `retag-test-run` runs and the other is skipped. If `deploy` referenced
+`needs.retag.outputs.image_tag` directly, it would receive an empty string in test-run mode (because
+`retag` was skipped).
 
-Fan-in jobs preserve outputs across the test-run pair
+The `retag-out` fan-in job works around this. It uses `!cancelled()` and `result` checks in its `if:`
+so it always runs as long as one of the pair succeeded. It then picks the non-empty output with `||`:
 
-`cd-pre-release.yml` has a `retag-out` job (lines ~94-102) whose only role is to coalesce
-`outputs.image_tag` from the two mutually-exclusive `retag` and `retag-test-run` jobs into a
-single output that the `deploy` job can consume. It looks like a no-op but it is **load-bearing**:
+```yaml
+image_tag: ${{ needs.retag.outputs.image_tag || needs.retag-test-run.outputs.image_tag }}
+```
+
+Because `retag-out` itself is not skipped, its output is always populated. `deploy` then only needs
+`needs.retag-out.outputs.image_tag` — no conditional logic required.
+
+`cd-pre-release.yml`'s `retag-out` job (lines ~94-102) is the concrete example. Its only role is to
+coalesce `outputs.image_tag` from the two mutually-exclusive `retag` and `retag-test-run` jobs into
+a single output that the `deploy` job can consume. It looks like a no-op but it is **load-bearing**:
 without it, the `deploy` job would need conditional logic to pick the right upstream, and the
 test-run path would break.
+
+### `golang-tdlib-image-build.yml` Push step exception
+
+This workflow's `build-and-push` job has a step-level `if:` skip on the Push step:
+
+```yaml
+- name: Push
+  if: ${{ needs.switch.outputs.test_run != 'true' }}
+  run: docker push ${{ env.IMAGE_TAG }}
+```
+
+This is the one place where a step-level skip is intentional. In all other workflows, test-run
+safety comes from `vars.ENV_REGISTRY` resolving to a no-auth sink (e.g. `ttl.sh`) in the
+`test-run` GitHub environment, so the push step runs but writes to a harmless destination.
+That redirect cannot be applied here: the tdlib image tag is always
+`ghcr.io/<repo>/tdlib:<commit>` — a hardcoded GHCR path that does not change between environments.
+There is no environment variable to point at a test-run sink, so skipping the push is the only
+safe option.
