@@ -1,0 +1,23 @@
+name: Test-run switch
+description: Determines if test-run mode is active based on ACT env var or input
+inputs:
+  test_run:
+    description: Explicit test-run flag
+    required: false
+    default: 'false'
+outputs:
+  test_run:
+    description: Whether test-run mode is active
+    value: ${{ steps.test_run.outputs.test_run }}
+runs:
+  using: composite
+  steps:
+    - id: test_run
+      shell: bash
+      env:
+        INPUT_TEST_RUN: ${{ inputs.test_run }}
+      run: |
+        # Determine if test-run mode is active
+        test_run=$([[ "$ACT" == "true" || "$INPUT_TEST_RUN" == "true" ]] && echo true || echo false)
+        echo "test_run=$test_run" >> "$GITHUB_OUTPUT"
+        echo "test_run=$test_run" >> "$GITHUB_STEP_SUMMARY"

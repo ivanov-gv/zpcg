@@ -101,7 +101,7 @@ test-pr-checks:
 		-W .github/workflows/pr-checks.yml \
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
-   		--input dry_run=true
+   		--input test_run=true
 
 .PHONY: test-golang-tdlib-image-build
 test-golang-tdlib-image-build:
@@ -109,7 +109,7 @@ test-golang-tdlib-image-build:
 		-W .github/workflows/golang-tdlib-image-build.yml \
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
-   		--input dry_run=true
+   		--input test_run=true
 
 .PHONY: test-ci
 test-ci:
@@ -117,7 +117,7 @@ test-ci:
 		-W .github/workflows/ci.yml \
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
-   		--input dry_run=true
+   		--input test_run=true
 
 .PHONY: test-cd-pre-release
 test-cd-pre-release:
@@ -126,4 +126,4 @@ test-cd-pre-release:
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
 		--env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN) \
-   		--input dry_run=true
+   		--input test_run=true

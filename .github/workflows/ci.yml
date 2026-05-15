@@ -5,28 +5,28 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: Dry run
+      test_run:
+        description: Test run
         type: boolean
         default: true
 
 jobs:
   switch:
-    name: Dry-run switch
+    name: Test-run switch
     runs-on: ubuntu-latest
     outputs:
-      dry_run: ${{ steps.dry_run.outputs.dry_run }}
+      test_run: ${{ steps.test_run.outputs.test_run }}
     steps:
-      - uses: actions/checkout@v4
-      - id: dry_run
-        uses: ./.github/actions/dry_run
+      - uses: actions/checkout@v6
+      - id: test_run
+        uses: ./.github/actions/test_run
         with:
-          dry_run: ${{ inputs.dry_run }}
+          test_run: ${{ inputs.test_run }}
 
   build-and-push:
     name: Build and push ZPCG image
     needs: switch
-    if: needs.switch.outputs.dry_run != 'true'
+    if: needs.switch.outputs.test_run != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,17 +37,17 @@ jobs:
       IMAGE_TAG_SHA: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
       IMAGE_TAG_TAG: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
     steps: &build-and-push-steps
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/Dockerfile
@@ -61,16 +61,15 @@ jobs:
           docker push ${{ env.IMAGE_TAG_SHA }}
           docker push ${{ env.IMAGE_TAG_TAG }}
 
-  build-and-push-dry-run:
-    name: Build CI image (dry-run)
+  build-and-push-test-run:
+    name: Build CI image (test-run)
     needs: switch
-    if: needs.switch.outputs.dry_run == 'true'
+    if: needs.switch.outputs.test_run == 'true'
     runs-on: ubuntu-latest
-    environment: dry-run
+    environment: test-run
     permissions:
       contents: read
-      packages: read # <-- dry-run mode
+      packages: read # <-- test-run mode
       id-token: write
     env: *build-and-push-env
     steps: *build-and-push-steps
-

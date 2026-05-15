@@ -3,29 +3,29 @@ name: golang-tdlib image build
 on:
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: Dry run - build without pushing to GHCR
+      test_run:
+        description: Test run - build without pushing to GHCR
         required: false
         type: boolean
 
 
 jobs:
   switch:
-    name: Dry-run switch
+    name: Test-run switch
     runs-on: ubuntu-latest
     outputs:
-      dry_run: ${{ steps.dry_run.outputs.dry_run }}
+      test_run: ${{ steps.test_run.outputs.test_run }}
     steps:
-      - uses: actions/checkout@v4
-      - id: dry_run
-        uses: ./.github/actions/dry_run
+      - uses: actions/checkout@v6
+      - id: test_run
+        uses: ./.github/actions/test_run
         with:
-          dry_run: ${{ inputs.dry_run }}
+          test_run: ${{ inputs.test_run }}
 
   build-and-push:
     name: Build and push CI image
     needs: switch
-    if: needs.switch.outputs.dry_run != 'true'
+    if: needs.switch.outputs.test_run != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,17 +35,17 @@ jobs:
       IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
       TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT || '971684a' }}
     steps: &build-and-push-steps
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
       - name: Build CI image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/tdlib.dockerfile
@@ -55,13 +55,13 @@ jobs:
             ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
 
       - name: Push
-        if: ${{ needs.switch.outputs.dry_run != 'true' }}
+        if: ${{ needs.switch.outputs.test_run != 'true' }}
         run: docker push ${{ env.IMAGE_TAG }}
 
-  build-and-push-dry-run:
-    name: Build CI image (dry-run)
+  build-and-push-test-run:
+    name: Build CI image (test-run)
     needs: switch
-    if: needs.switch.outputs.dry_run == 'true'
+    if: needs.switch.outputs.test_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

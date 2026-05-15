@@ -15,7 +15,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build
         uses: ./.github/actions/build
 
@@ -28,7 +28,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run all tests
         run: go test -count=1 -race ./...
 
@@ -41,9 +41,9 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v9
         with:
           version: v2.11.4
           args: --timeout=5m ./...

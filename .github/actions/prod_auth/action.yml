@@ -39,7 +39,7 @@ runs:
 
     - name: GCloud CLI setup (local act run)
       if: env.ACT == 'true'
-      uses: google-github-actions/setup-gcloud@v2
+      uses: google-github-actions/setup-gcloud@v3
 
     - name: Verify local Google Cloud credentials (local act run)
       if: env.ACT == 'true'

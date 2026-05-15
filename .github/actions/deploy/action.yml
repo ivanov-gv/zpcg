@@ -6,7 +6,7 @@ description: >
   Authentication is the caller's responsibility — run ./.github/actions/auth
   before this action. This action does not authenticate to Google Cloud.
 
-  Dry-run mode (inputs.dry_run='true'): skips deployment. Prints a plan
+  Test-run mode (inputs.test_run='true'): skips deployment. Prints a plan
   summary to the job summary instead.
 
 inputs:
@@ -38,7 +38,7 @@ inputs:
               SECRET2=VALUE
     required: false
     default: ''
-  dry_run:
+  test_run:
     description: >
       If 'true', skip Cloud Run deployment.
       Prints a plan summary to the job summary.
@@ -49,7 +49,7 @@ runs:
   using: composite
   steps:
     - name: Deploy to Cloud Run
-      if: inputs.dry_run != 'true'
+      if: inputs.test_run != 'true'
       uses: google-github-actions/deploy-cloudrun@v3
       with:
         service: ${{ inputs.gcloud_run_service }}
@@ -59,11 +59,11 @@ runs:
         env_vars: ${{ inputs.env_vars }}
         secrets: ${{ inputs.secrets }}
 
-    - name: Dry-run summary
-      if: inputs.dry_run == 'true'
+    - name: Test-run summary
+      if: inputs.test_run == 'true'
       shell: bash
       run: |
-        echo "## Dry-run mode — deployment skipped" >> "$GITHUB_STEP_SUMMARY"
+        echo "## Test-run mode — deployment skipped" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
         echo "| Parameter | Value |" >> "$GITHUB_STEP_SUMMARY"
         echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
