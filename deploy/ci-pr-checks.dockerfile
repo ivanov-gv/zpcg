@@ -14,6 +14,8 @@ RUN apt-get update && \
     apt-get purge -y cmake php-cli gperf && \
     apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
+RUN go install github.com/rhysd/actionlint/cmd/actionlint@latest
+
 ENV CGO_CFLAGS="-I/usr/local/include" \
     CGO_LDFLAGS="-L/usr/local/lib -ltdjson" \
     LD_LIBRARY_PATH="/usr/local/lib"

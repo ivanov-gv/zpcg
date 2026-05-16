@@ -63,13 +63,15 @@ runs:
       if: inputs.test_run == 'true'
       shell: bash
       run: |
-        echo "## Test-run mode — deployment skipped" >> "$GITHUB_STEP_SUMMARY"
-        echo "" >> "$GITHUB_STEP_SUMMARY"
-        echo "| Parameter | Value |" >> "$GITHUB_STEP_SUMMARY"
-        echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-        echo "| **Service** | \`${{ inputs.gcloud_run_service }}\` |" >> "$GITHUB_STEP_SUMMARY"
-        echo "| **Image** | \`${{ inputs.gcloud_image }}\` |" >> "$GITHUB_STEP_SUMMARY"
-        echo "| **Project ID** | \`${{ inputs.gcloud_project_id }}\` |" >> "$GITHUB_STEP_SUMMARY"
-        echo "| **Region** | \`${{ inputs.gcloud_region }}\` |" >> "$GITHUB_STEP_SUMMARY"
-        echo "| **Environment Variables** | \`${{ inputs.env_vars }}\` |" >> "$GITHUB_STEP_SUMMARY"
-        echo "| **Secrets** | \`${{ inputs.secrets }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        {
+          echo "## Test-run mode — deployment skipped"
+          echo ""
+          echo "| Parameter | Value |"
+          echo "|---|---|"
+          echo "| **Service** | \`${{ inputs.gcloud_run_service }}\` |"
+          echo "| **Image** | \`${{ inputs.gcloud_image }}\` |"
+          echo "| **Project ID** | \`${{ inputs.gcloud_project_id }}\` |"
+          echo "| **Region** | \`${{ inputs.gcloud_region }}\` |"
+          echo "| **Environment Variables** | \`${{ inputs.env_vars }}\` |"
+          echo "| **Secrets** | \`${{ inputs.secrets }}\` |"
+        } | tee -a "$GITHUB_STEP_SUMMARY"

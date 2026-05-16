@@ -50,10 +50,10 @@ jobs:
       AUTH_REGION: ${{ secrets.ENV_REGION }}
       AUTH_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
       AUTH_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
-      GHCR_IMAGE_TAG_SHA: ghcr.io/${{ github.repository }}:${{ github.sha }}
-      GHCR_IMAGE_TAG_TAG: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
-      PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.sha }}
-      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      GHCR_IMAGE_TAG_SHA: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.sha }}
+      GHCR_IMAGE_TAG_TAG: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
     steps: &retag-steps
       - uses: actions/checkout@v6
       - name: Set up Docker Buildx
@@ -62,7 +62,7 @@ jobs:
       - name: Login to GHCR
         uses: docker/login-action@v4
         with:
-          registry: ghcr.io
+          registry: ${{vars.DEV_REGISTRY}}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
@@ -96,25 +96,15 @@ jobs:
     env: *retag-env
     steps: *retag-steps
 
-  retag-out:
-    name: Retag output (fan-in)
-    needs: [ retag, retag-test-run ]
-    if: ${{ !cancelled() && (needs.retag.result == 'success' || needs.retag-test-run.result == 'success') }}
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ needs.retag.outputs.image_tag || needs.retag-test-run.outputs.image_tag }}
-    steps:
-      - run: 'true'
-
   deploy:
     name: Deploy to preprod
-    needs: [ switch, retag-out ]
+    needs: [ switch, retag ]
     if: ${{ needs.switch.outputs.test_run != 'true' }}
     runs-on: ubuntu-latest
     environment: preprod
-    env: &deploy-env
+    env:
       TEST_RUN: ${{ needs.switch.outputs.test_run }}
-      PREPROD_IMAGE: ${{ needs.retag-out.outputs.image_tag }}
+      PREPROD_IMAGE: ${{ needs.retag.outputs.image_tag }}
       PREPROD_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
       PREPROD_REGION: ${{ secrets.ENV_REGION }}
       PREPROD_RUN_SERVICE: ${{ secrets.ENV_RUN_SERVICE }}
@@ -139,9 +129,16 @@ jobs:
 
   deploy-test-run:
     name: (test-run) Deploy to preprod
-    needs: [ switch, retag-out ]
+    needs: [ switch, retag-test-run ]
     if: ${{ needs.switch.outputs.test_run == 'true' }}
     runs-on: ubuntu-latest
     environment: test-run # <-- safety first
-    env: *deploy-env
+    env:
+      TEST_RUN: ${{ needs.switch.outputs.test_run }}
+      PREPROD_IMAGE: ${{ needs.retag-test-run.outputs.image_tag }}
+      PREPROD_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
+      PREPROD_REGION: ${{ secrets.ENV_REGION }}
+      PREPROD_RUN_SERVICE: ${{ secrets.ENV_RUN_SERVICE }}
+      PREPROD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
+      PREPROD_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
     steps: *deploy-steps

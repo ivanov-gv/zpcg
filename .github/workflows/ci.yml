@@ -34,8 +34,8 @@ jobs:
       id-token: write
     environment: dev
     env: &build-and-push-env
-      IMAGE_TAG_SHA: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
-      IMAGE_TAG_TAG: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+      IMAGE_TAG_SHA: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+      IMAGE_TAG_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
     steps: &build-and-push-steps
       - uses: actions/checkout@v6
 
