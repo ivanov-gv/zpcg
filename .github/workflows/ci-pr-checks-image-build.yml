@@ -1,4 +1,4 @@
-name: golang-tdlib image build
+name: ci-pr-checks image build
 
 on:
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
       packages: write
       id-token: write
     env: &build-and-push-env
-      IMAGE_TAG: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
+      IMAGE_TAG: ghcr.io/${{ github.repository }}/ci-pr-checks:${{ vars.TDLIB_COMMIT || '971684a' }}
       TDLIB_COMMIT: ${{ vars.TDLIB_COMMIT || '971684a' }}
     steps: &build-and-push-steps
       - uses: actions/checkout@v6
@@ -48,11 +48,11 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: deploy/tdlib.dockerfile
+          file: deploy/ci-pr-checks.dockerfile
           build-args: TDLIB_COMMIT=${{ env.TDLIB_COMMIT }}
           load: 'true'
           tags: |
-            ghcr.io/${{ github.repository }}/tdlib:${{ env.TDLIB_COMMIT }}
+            ghcr.io/${{ github.repository }}/ci-pr-checks:${{ env.TDLIB_COMMIT }}
 
       - name: Push
         if: ${{ needs.switch.outputs.test_run != 'true' }}

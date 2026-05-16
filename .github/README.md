@@ -172,7 +172,7 @@ graph LR
 **CI** workflows run checks and build Docker images to GHCR.io only. They never authenticate to GCP
 or touch any production environment. `pr-checks.yml` runs build/test/lint on every PR and push to
 `main`. `ci.yml` builds the ZPCG image and pushes it to `ghcr.io/<repo>:<sha>` and
-`ghcr.io/<repo>:<tag>`. `golang-tdlib-image-build.yml` builds the base TDLib image that test and lint
+`ghcr.io/<repo>:<tag>`. `ci-pr-checks-image-build.yml` builds the base TDLib image that test and lint
 jobs use as their container.
 
 **CD** workflows (`cd-pre-release.yml`) pull the CI-built image from GHCR, retag it into the target
@@ -396,7 +396,7 @@ The `workflows-lint` job in `pr-checks.yml` dry-runs every workflow with `act -n
 `make test-all-workflows`. That target depends on a per-workflow `test-<name>` target:
 
 ```makefile
-test-all-workflows: test-pr-checks test-golang-tdlib-image-build test-ci test-cd-pre-release
+test-all-workflows: test-pr-checks test-ci-pr-checks-image-build test-ci test-cd-pre-release
 ```
 
 `act -n` validates the YAML and the job dependency graph without running real steps,

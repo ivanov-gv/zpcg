@@ -85,9 +85,9 @@ get_en_commands:
   https://api.telegram.org/bot${TG_TOKEN}/getMyCommands
 
 
-# ci testing with act
-# Install act standalone:    https://github.com/nektos/act#installation
-# Install act as gh extension: gh extension install nektos/gh-act
+.PHONY: test-all-workflows
+test-all-workflows: test-ci-pr-checks test-ci-pr-checks-image-build test-ci test-cd-pre-release
+
 # Override the executable:   ACT=act make test-ci-checks
 ACT ?= gh act
 
@@ -95,40 +95,33 @@ GCLOUD_SCOPE := https://www.googleapis.com/auth/cloud-platform.read-only
 # lazy evaluation for gcloud token with read-only scope
 GCLOUD_TOKEN = $(eval GCLOUD_TOKEN := $(shell gcloud auth print-access-token --scopes='$(GCLOUD_SCOPE)'))$(GCLOUD_TOKEN)
 
-# Flags shared across the per-workflow test targets. Override per-target (or via
-# the command line) to opt out — `test-all-workflows` does that so the lint job
-# doesn't need the .env files or the gcloud CLI.
-ACT_SECRETS_FLAGS ?= --secret-file .github/act/secret.env --var-file .github/act/var.env
-ACT_CLOUD_FLAGS   ?= --env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)
-
-.PHONY: test-pr-checks
-test-pr-checks:
+.PHONY: test-ci-pr-checks
+test-ci-pr-checks:
 	$(ACT) pull_request \
-		-W .github/workflows/pr-checks.yml \
-		$(ACT_SECRETS_FLAGS)
+		-W .github/workflows/ci-pr-checks.yml \
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env
 
-.PHONY: test-golang-tdlib-image-build
-test-golang-tdlib-image-build:
+.PHONY: test-ci-pr-checks-image-build
+test-ci-pr-checks-image-build:
 	$(ACT) workflow_dispatch \
-		-W .github/workflows/golang-tdlib-image-build.yml \
-		$(ACT_SECRETS_FLAGS)
+		-W .github/workflows/ci-pr-checks-image-build.yml \
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env
 
 .PHONY: test-ci
 test-ci:
 	$(ACT) push \
 		-W .github/workflows/ci.yml \
 		-e .github/act/event-push-tag.json \
-		$(ACT_SECRETS_FLAGS)
+		--secret-file .github/act/secret.env \
+		--var-file .github/act/var.env
 
 .PHONY: test-cd-pre-release
 test-cd-pre-release:
 	$(ACT) release \
 		-W .github/workflows/cd-pre-release.yml \
 		-e .github/act/event-release-prerelease.json \
-		$(ACT_SECRETS_FLAGS) \
-		$(ACT_CLOUD_FLAGS)
-
-.PHONY: test-all-workflows
-test-all-workflows: ACT_SECRETS_FLAGS :=
-test-all-workflows: ACT_CLOUD_FLAGS :=
-test-all-workflows: test-pr-checks test-golang-tdlib-image-build test-ci test-cd-pre-release
+		--secret-file .github/act/secret.env \
+        --var-file .github/act/var.env \
+        --env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)

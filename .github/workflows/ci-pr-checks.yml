@@ -1,7 +1,7 @@
 name: Pull request checks
 
 on:
-  pull_request: 
+  pull_request:
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref != 'refs/heads/main' && 'ci-pr-checks-approval' || '' }}
     container:
-      image: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
+      image: ghcr.io/${{ github.repository }}/ci-pr-checks:${{ vars.TDLIB_COMMIT || '971684a' }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref != 'refs/heads/main' && 'ci-pr-checks-approval' || '' }}
     container:
-      image: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
+      image: ghcr.io/${{ github.repository }}/ci-pr-checks:${{ vars.TDLIB_COMMIT || '971684a' }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref != 'refs/heads/main' && 'ci-pr-checks-approval' || '' }}
     container:
-      image: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
+      image: ghcr.io/${{ github.repository }}/ci-pr-checks:${{ vars.TDLIB_COMMIT || '971684a' }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
