@@ -24,8 +24,12 @@ jobs:
   switch:
     name: Test-run switch
     runs-on: ubuntu-latest
+    # Computed inline (not from a step output) so the value is available even
+    # when steps don't execute — for example under `act -n` (dry-run), which
+    # skips bash steps. `vars.ACT` is set in `.github/act/var.env`; real GitHub
+    # never defines it, so production runs evaluate to 'false' from inputs alone.
     outputs:
-      test_run: ${{ steps.test_run.outputs.test_run }}
+      test_run: ${{ inputs.test_run == true || vars.ACT == 'true' }}
     steps:
       - uses: actions/checkout@v6
       - id: test_run
@@ -109,7 +113,12 @@ jobs:
   deploy:
     name: Deploy to preprod
     needs: [ switch, retag-out ]
-    if: ${{ needs.switch.outputs.test_run != 'true' }}
+    # `!cancelled() &&` neutralises the implicit ancestor-skipping that GitHub
+    # Actions (and act) apply when any transitive `needs:` job is skipped — here
+    # the unused half of the retag pair is always skipped, which would otherwise
+    # cascade and skip both deploy jobs. The explicit `retag-out.result` check
+    # keeps the deploy from running if the retag chain actually failed.
+    if: ${{ !cancelled() && needs.retag-out.result == 'success' && needs.switch.outputs.test_run != 'true' }}
     runs-on: ubuntu-latest
     environment: preprod
     env: &deploy-env
@@ -140,7 +149,7 @@ jobs:
   deploy-test-run:
     name: (test-run) Deploy to preprod
     needs: [ switch, retag-out ]
-    if: ${{ needs.switch.outputs.test_run == 'true' }}
+    if: ${{ !cancelled() && needs.retag-out.result == 'success' && needs.switch.outputs.test_run == 'true' }}
     runs-on: ubuntu-latest
     environment: test-run # <-- safety first
     env: *deploy-env

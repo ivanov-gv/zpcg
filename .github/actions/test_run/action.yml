@@ -8,16 +8,14 @@ inputs:
 outputs:
   test_run:
     description: Whether test-run mode is active
-    value: ${{ steps.test_run.outputs.test_run }}
+    # Computed as a workflow expression so the value is available even when bash
+    # steps don't execute (e.g. `act -n` dry-run). `vars.ACT` is set by act via
+    # --var-file; real GitHub never defines it, so production behaviour is unchanged.
+    value: ${{ inputs.test_run == 'true' || vars.ACT == 'true' }}
 runs:
   using: composite
   steps:
-    - id: test_run
-      shell: bash
+    - shell: bash
       env:
-        INPUT_TEST_RUN: ${{ inputs.test_run }}
-      run: |
-        # Determine if test-run mode is active
-        test_run=$([[ "$ACT" == "true" || "$INPUT_TEST_RUN" == "true" ]] && echo true || echo false)
-        echo "test_run=$test_run" >> "$GITHUB_OUTPUT"
-        echo "test_run=$test_run" >> "$GITHUB_STEP_SUMMARY"
+        TEST_RUN: ${{ inputs.test_run == 'true' || vars.ACT == 'true' }}
+      run: echo "test_run=$TEST_RUN" >> "$GITHUB_STEP_SUMMARY"
