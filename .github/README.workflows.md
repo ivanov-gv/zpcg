@@ -30,9 +30,10 @@ Workflows are strictly divided into CI and CD parts.
 
 CI workflows:
 
-1. Must not use a pre/production environment in any way.
-2. Must use only GHCR.io artifactory, which is considered a part of the development environment.
-3. Must not create tags or releases.
+1. Must have `ci-` prefix in the name.
+2. Must not use a pre/production environment in any way.
+3. Must use only GHCR.io artifactory, which is considered a part of the development environment.
+4. Must not create tags or releases.
 
 CD workflows:
 
@@ -295,9 +296,9 @@ test-run steps "no-op" — that defeats the purpose of exercising the same code 
 Take a look at the last line - `env:` block in `push-test-run` job references `needs.build.outputs.image`
 but actually needs `needs.build-test-run.outputs.image`.
 
-There are two ways to fix this:
-
-#### Duplicate the `env:` block.
+Fix it by duplicating the `env:` block. Pair each downstream job with its matching upstream
+sibling directly, copy the `env:` section, and keep the steps anchor — the only line that differs
+is the one that reads the upstream output:
 
 ```yaml
    - push:
@@ -315,45 +316,6 @@ There are two ways to fix this:
            - IMAGE_TAG: ${{ needs.build-test-run.outputs.image }} # but be careful when editing 
         steps: *push-steps
 ```
-
-#### If it's a critical pipeline – use a middle job to coalesce the outputs.
-
-In GitHub Actions, **outputs from skipped jobs are always empty strings** — they are not propagated
-to downstream `needs`. This is a problem for the mutually exclusive test-run pair: exactly one of
-`build` / `build-test-run` runs and the other is skipped. If `deploy` referenced
-`needs.build.outputs.image_tag` directly, it would receive an empty string in test-run mode (because
-`build` was skipped).
-
-The `build-out` fan-in job works around this. It uses `!cancelled()` and `result` checks in its `if:`
-so it always runs as long as one of the pair succeeded. It then picks the non-empty output with `||`:
-
-```yaml
-  build-out:
-     name: Build output (fan-in)
-     needs: [ build, build-test-run ]
-     if: ${{ !cancelled() && (needs.build.result == 'success' || needs.build-test-run.result == 'success') }}
-     outputs:
-        image_tag: ${{ needs.build.outputs.image_tag || needs.build-test-run.outputs.image_tag }}
-     steps:
-        - run: 'true'
-
-  push:
-     # ...
-     needs: [ build-out ]
-     env: &push-env
-        - IMAGE_TAG: ${{ needs.build-out.outputs.image_tag }} # safe to anchor!
-     steps: &push-steps
-     # ...
-
-  push-test-run:
-     # ...
-     needs: [ build-out ]
-     env: *push-env
-     steps: *push-steps # safe to reuse in push-test-run!
-```
-
-Because `build-out` itself is not skipped, its output is always populated. `push` then only needs
-`needs.build-out.outputs.image_tag` — no conditional logic required.
 
 ## Hide global var references in `env:` blocks
 
