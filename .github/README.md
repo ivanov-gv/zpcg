@@ -355,12 +355,12 @@ Because `build-out` itself is not skipped, its output is always populated. `push
 
 ```mermaid
 graph LR
-   Secrets[Secrets] -- " ${{ secret.SECRET }} " - - > JobEnvs [Job's env: ]
-Vars [ Vars ] - -" ${{ vars.VAR }} " - - > JobEnvs
-Envs [ Environment variables ] - - " ${{ env.GLOBAL_ENV_VAR }} " - - > JobEnvs
-JobEnvs - -" ${{ env.JOB_ENV_VAR }} " - - > Step1 [Step 1 ]
-JobEnvs - - " ${{ env.JOB_ENV_VAR }} " - - > Step2 [ Step 2 ]
-JobEnvs - - " ${{ env.JOB_ENV_VAR }} " - - > Step3 [ Step 3 ]
+   Secrets[Secrets] -- " ${{ secret.SECRET }} " --> JobEnvs[Job's env:]
+   Vars[Vars] -- " ${{ vars.VAR }} " --> JobEnvs
+   Envs[Environment variables] -- " ${{ env.GLOBAL_ENV_VAR }} " --> JobEnvs
+   JobEnvs -- " ${{ env.JOB_ENV_VAR }} " --> Step1[Step 1]
+   JobEnvs -- " ${{ env.JOB_ENV_VAR }} " --> Step2[Step 2]
+   JobEnvs -- " ${{ env.JOB_ENV_VAR }} " --> Step3[Step 3]
 
 ```
 
