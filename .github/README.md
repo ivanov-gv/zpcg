@@ -21,6 +21,10 @@ Every workflow:
 6. Must use test_run mode if running locally with `nektos/act`.
 7. Must never run automatically on every commit, except for protected branches and the default one. For PR checks
    require manual approval, do not run workflows on every push.
+8. Must have a matching `test-<name>` target in the root `Makefile`, listed as a prerequisite of
+   `test-all-workflows`. The `workflows-lint` job in `pr-checks.yml` invokes `make test-all-workflows ACT="act -n …"`
+   on every PR — a new workflow without a matching test target is invisible to that lint. See
+   [Linting workflows in CI](#linting-workflows-in-ci) for details.
 
 Workflows are strictly divided into CI and CD parts.
 
@@ -385,3 +389,28 @@ jobs:
                 LOCAL_VAR=${{ env.JOB1_VAR }} # explicitly shows that env.JOB1_VAR is defined in job1's env: section
                 LOCAL_VAR2=LOCAL_VAR          # explicitly shows that LOCAL_VAR is a local variable
 ```
+
+## Linting workflows in CI
+
+The `workflows-lint` job in `pr-checks.yml` dry-runs every workflow with `act -n` via
+`make test-all-workflows`. That target depends on a per-workflow `test-<name>` target:
+
+```makefile
+test-all-workflows: test-pr-checks test-golang-tdlib-image-build test-ci test-cd-pre-release
+```
+
+`act -n` validates the YAML and the job dependency graph without running real steps,
+pulling deploy credentials, or hitting registries.
+
+**When you add or rename a workflow under `.github/workflows/`:**
+
+1. Add or rename the matching `test-<workflow-name>` target in `Makefile`, mirroring
+   the existing ones (`$(ACT) <event> -W .github/workflows/<file>.yml …`).
+2. List the target as a prerequisite of `test-all-workflows`.
+
+Nothing else catches a missing test target — `act` only lints the workflows it's
+explicitly pointed at. The same caveat lives in [`AGENTS.md`](../AGENTS.md).
+
+**Locally:** invoke as `GITHUB_TOKEN=$(gh auth token) make test-all-workflows ACT="act -n"`.
+The token only needs `public_repo` scope — act uses it to clone external actions
+referenced by the workflows (e.g. `golangci/golangci-lint-action`).

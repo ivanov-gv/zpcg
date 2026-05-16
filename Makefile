@@ -125,3 +125,14 @@ test-cd-pre-release:
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
 		--env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)
+
+# Lint every workflow with act dry-run. The PR-checks workflow calls this with
+# `ACT="act -n"` so no containers run and no real GCloud token is needed; the
+# stub override below keeps the gcloud command from being invoked.
+#
+# MAINTENANCE: when you add a workflow under .github/workflows/, also add a
+# matching `test-<name>` target above and list it here. The caveats in
+# .github/README.md and AGENTS.md exist because nothing else catches this.
+.PHONY: test-all-workflows
+test-all-workflows: GCLOUD_TOKEN := stub-gcloud-token
+test-all-workflows: test-pr-checks test-golang-tdlib-image-build test-ci test-cd-pre-release
