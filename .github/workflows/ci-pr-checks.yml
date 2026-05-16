@@ -60,13 +60,15 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
-      # act spawns sibling containers via the runner's Docker daemon — even in
-      # `-n` it does `docker pull/create/run` for each job's runs-on image.
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     steps:
       - uses: actions/checkout@v6
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
       - name: Lint all workflows
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: make test-all-workflows ACT="act -n"
+        run: make test-all-workflows ACT="act -n" GCLOUD_TOKEN=no-token
