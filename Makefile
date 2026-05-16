@@ -97,33 +97,31 @@ GCLOUD_TOKEN = $(eval GCLOUD_TOKEN := $(shell gcloud auth print-access-token --s
 
 .PHONY: test-pr-checks
 test-pr-checks:
-	$(ACT) workflow_dispatch \
+	$(ACT) pull_request \
 		-W .github/workflows/pr-checks.yml \
 		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env \
-   		--input test_run=true
+		--var-file .github/act/var.env
 
 .PHONY: test-golang-tdlib-image-build
 test-golang-tdlib-image-build:
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/golang-tdlib-image-build.yml \
 		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env \
-   		--input test_run=true
+		--var-file .github/act/var.env
 
 .PHONY: test-ci
 test-ci:
-	$(ACT) workflow_dispatch \
+	$(ACT) push \
 		-W .github/workflows/ci.yml \
+		-e .github/act/event-push-tag.json \
 		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env \
-   		--input test_run=true
+		--var-file .github/act/var.env
 
 .PHONY: test-cd-pre-release
 test-cd-pre-release:
-	$(ACT) workflow_dispatch \
+	$(ACT) release \
 		-W .github/workflows/cd-pre-release.yml \
+		-e .github/act/event-release-prerelease.json \
 		--secret-file .github/act/secret.env \
 		--var-file .github/act/var.env \
-		--env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN) \
-   		--input test_run=true
+		--env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)

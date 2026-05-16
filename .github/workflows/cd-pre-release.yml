@@ -50,10 +50,10 @@ jobs:
       AUTH_REGION: ${{ secrets.ENV_REGION }}
       AUTH_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
       AUTH_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
-      GHCR_IMAGE_TAG_SHA: ghcr.io/${{ github.repository }}:${{ github.sha }}
-      GHCR_IMAGE_TAG_TAG: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
-      PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.sha }}
-      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_IMAGE_PREFIX }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      GHCR_IMAGE_TAG_SHA: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.sha }}
+      GHCR_IMAGE_TAG_TAG: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
     steps: &retag-steps
       - uses: actions/checkout@v6
       - name: Set up Docker Buildx
@@ -62,7 +62,7 @@ jobs:
       - name: Login to GHCR
         uses: docker/login-action@v4
         with:
-          registry: ghcr.io
+          registry: ${{vars.DEV_REGISTRY}}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
