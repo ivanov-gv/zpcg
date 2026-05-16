@@ -60,15 +60,7 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
     steps:
       - uses: actions/checkout@v6
-      - name: Login to GHCR
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
       - name: Lint all workflows
-        run: make test-all-workflows ACT="act -n" GCLOUD_TOKEN=no-token
+        run: actionlint
