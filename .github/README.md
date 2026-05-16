@@ -409,8 +409,9 @@ pulling deploy credentials, or hitting registries.
 2. List the target as a prerequisite of `test-all-workflows`.
 
 Nothing else catches a missing test target — `act` only lints the workflows it's
-explicitly pointed at. The same caveat lives in [`AGENTS.md`](../AGENTS.md).
+explicitly pointed at. The same caveat lives in [`AGENTS.md`](AGENTS.md).
 
-**Locally:** invoke as `GITHUB_TOKEN=$(gh auth token) make test-all-workflows ACT="act -n"`.
-The token only needs `public_repo` scope — act uses it to clone external actions
-referenced by the workflows (e.g. `golangci/golangci-lint-action`).
+**Locally:** the existing `test-<workflow>` targets pass `--secret-file`/`--var-file`
+so they can run end-to-end with real env files (`.github/act/secret.env`,
+`.github/act/var.env`). `test-all-workflows` overrides those flags to empty so
+it can run in CI without any local config — just `make test-all-workflows ACT="act -n"`.

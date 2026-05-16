@@ -55,25 +55,18 @@ jobs:
     name: Lint workflows
     runs-on: ubuntu-latest
     environment: ${{ github.ref != 'refs/heads/main' && 'ci-pr-checks-approval' || '' }}
+    container:
+      image: ghcr.io/${{ github.repository }}/tdlib:${{ vars.TDLIB_COMMIT || '971684a' }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+      # act spawns sibling containers via the runner's Docker daemon — even in
+      # `-n` it does `docker pull/create/run` for each job's runs-on image.
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     steps:
       - uses: actions/checkout@v6
-      - name: Install act
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf \
-            https://raw.githubusercontent.com/nektos/act/master/install.sh \
-            | bash -s -- -b "$HOME/.local/bin"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - name: Bootstrap act env files from examples
-        env:
-          REAL_GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          cp .github/act/var.env.example .github/act/var.env
-          # The example uses a stub GITHUB_TOKEN so the file is committable;
-          # replace it with the real CI token so act can clone the external
-          # actions referenced by the workflows being linted.
-          {
-            grep -v '^GITHUB_TOKEN=' .github/act/secret.env.example
-            printf 'GITHUB_TOKEN=%s\n' "$REAL_GITHUB_TOKEN"
-          } > .github/act/secret.env
       - name: Lint all workflows
-        run: make test-all-workflows ACT="act -n -P ubuntu-latest=catthehacker/ubuntu:act-latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: make test-all-workflows ACT="act -n"

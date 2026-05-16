@@ -14,6 +14,12 @@ RUN apt-get update && \
     apt-get purge -y cmake php-cli gperf && \
     apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
+# Install act so the workflows-lint PR check can `act -n` without reinstalling
+# on every run. See .github/AGENTS.md.
+RUN curl --proto '=https' --tlsv1.2 -sSf \
+        https://raw.githubusercontent.com/nektos/act/master/install.sh \
+        | bash -s -- -b /usr/local/bin
+
 ENV CGO_CFLAGS="-I/usr/local/include" \
     CGO_LDFLAGS="-L/usr/local/lib -ltdjson" \
     LD_LIBRARY_PATH="/usr/local/lib"

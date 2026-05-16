@@ -95,44 +95,40 @@ GCLOUD_SCOPE := https://www.googleapis.com/auth/cloud-platform.read-only
 # lazy evaluation for gcloud token with read-only scope
 GCLOUD_TOKEN = $(eval GCLOUD_TOKEN := $(shell gcloud auth print-access-token --scopes='$(GCLOUD_SCOPE)'))$(GCLOUD_TOKEN)
 
+# Flags shared across the per-workflow test targets. Override per-target (or via
+# the command line) to opt out — `test-all-workflows` does that so the lint job
+# doesn't need the .env files or the gcloud CLI.
+ACT_SECRETS_FLAGS ?= --secret-file .github/act/secret.env --var-file .github/act/var.env
+ACT_CLOUD_FLAGS   ?= --env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)
+
 .PHONY: test-pr-checks
 test-pr-checks:
 	$(ACT) pull_request \
 		-W .github/workflows/pr-checks.yml \
-		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env
+		$(ACT_SECRETS_FLAGS)
 
 .PHONY: test-golang-tdlib-image-build
 test-golang-tdlib-image-build:
 	$(ACT) workflow_dispatch \
 		-W .github/workflows/golang-tdlib-image-build.yml \
-		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env
+		$(ACT_SECRETS_FLAGS)
 
 .PHONY: test-ci
 test-ci:
 	$(ACT) push \
 		-W .github/workflows/ci.yml \
 		-e .github/act/event-push-tag.json \
-		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env
+		$(ACT_SECRETS_FLAGS)
 
 .PHONY: test-cd-pre-release
 test-cd-pre-release:
 	$(ACT) release \
 		-W .github/workflows/cd-pre-release.yml \
 		-e .github/act/event-release-prerelease.json \
-		--secret-file .github/act/secret.env \
-		--var-file .github/act/var.env \
-		--env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)
+		$(ACT_SECRETS_FLAGS) \
+		$(ACT_CLOUD_FLAGS)
 
-# Lint every workflow with act dry-run. The PR-checks workflow calls this with
-# `ACT="act -n"` so no containers run and no real GCloud token is needed; the
-# stub override below keeps the gcloud command from being invoked.
-#
-# MAINTENANCE: when you add a workflow under .github/workflows/, also add a
-# matching `test-<name>` target above and list it here. The caveats in
-# .github/README.md and AGENTS.md exist because nothing else catches this.
 .PHONY: test-all-workflows
-test-all-workflows: GCLOUD_TOKEN := stub-gcloud-token
+test-all-workflows: ACT_SECRETS_FLAGS :=
+test-all-workflows: ACT_CLOUD_FLAGS :=
 test-all-workflows: test-pr-checks test-golang-tdlib-image-build test-ci test-cd-pre-release
