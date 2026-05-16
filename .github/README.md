@@ -19,6 +19,8 @@ Every workflow:
 5. Must not use `test_run` for branching in `steps:` sections. Steps must not know whether they're
    running in test-run mode or not.
 6. Must use test_run mode if running locally with `nektos/act`.
+7. Must never run automatically on every commit, except for protected branches and the default one. For PR checks
+   require manual approval, do not run workflows on every push.
 
 Workflows are strictly divided into CI and CD parts.
 
@@ -41,6 +43,7 @@ CD workflows:
 8. Must never use GHCR.io directly to push to pre/production environments. Must always create a copy of the image
    in the environment it deploys to.
 9. Must never delete any image from pre/production environments.
+10. Must never touch any source code. Only pull release-ready artifacts.
 
 # Workflows
 
@@ -134,12 +137,33 @@ jobs:
 
 The split is: **CI writes only to GHCR; CD reads from GHCR and writes to production-grade registries**.
 
-| Workflow | Trigger | Category |
-|---|---|---|
-| `pr-checks.yml` | PR, push to `main` | CI |
-| `ci.yml` | Tag push `v*.*.*` | CI |
-| `golang-tdlib-image-build.yml` | `workflow_dispatch` | CI |
-| `cd-pre-release.yml` | GitHub prerelease | CD |
+```mermaid
+
+graph LR
+   subgraph CI["CI Pipeline - Devs zone"]
+      style CI fill: #e0f0ff, stroke: #333
+      direction LR
+      CI1[test] --> CI2[build]
+      CI2 --> CI3[push]
+      CI-TEST["Test-Registry without auth for testing pipelines"]
+   end
+
+   subgraph CD["CD Pipeline - Ops zone"]
+      style CD fill: #fff0e0, stroke: #333
+      direction LR
+      CD1[retag ghcr image to prod registry] --> CD2[push to prod registry]
+      CD2 --> CD3[deploy to preprod]
+      CD3 --> CD4[deploy to prod]
+      CD-TEST["Test-Project for testing pipelines"]
+   end
+
+   GCP[GCP Artifact Registry - pre/prod registry]
+   GHCR[GHCR.io - dev registry]
+   CI -- 1 . CI Pushes to GHCR registry --> GHCR
+   CD -- 2 . CD Retags an image from GHCR registry --> GHCR
+   CD -- 3 . CD Pushes an image to GCP registry --> GCP
+
+```
 
 **CI** workflows run checks and build Docker images to GHCR.io only. They never authenticate to GCP
 or touch any production environment. `pr-checks.yml` runs build/test/lint on every PR and push to
@@ -155,34 +179,10 @@ Typical end-to-end flow for a prerelease:
 
 1. Developer pushes tag `v1.2.3-rc.1` → `ci.yml` builds and pushes `ghcr.io/<repo>:<sha>` and
    `ghcr.io/<repo>:v1.2.3-rc.1` to GHCR.
-2. Developer creates a GitHub prerelease from that tag → `cd-pre-release.yml` pulls from GHCR,
-   retags to `<preprod-registry>/<repo>:<sha>` and `:<tag>`, and deploys to Cloud Run preprod.
+2. Developer (or someone from an Ops team) creates a GitHub prerelease from that tag → `cd-pre-release.yml` pulls from
+   GHCR, retags to `<preprod-registry>/<repo>:<sha>` and `:<tag>`, and deploys to Cloud Run pre/prod.
 
 GHCR is always the intermediate artifact store. CD never rebuilds from source.
-
-## `env:` blocks
-
-```yaml
-
-env:
-  GLOBAL_ENV_VAR: value
-
-jobs:
-  - job1:
-      env: # maps outside secrets and vars to job-scoped env vars
-        - DOESNT_WORK: ${{ env.GLOBAL_ENV_VAR }} # <-- substitution from global env: DOESN'T WORK in ACT
-        - JOB1_VAR2: ${{ secrets.GLOBAL_SECRET }}
-        - JOB1_VAR2: ${{ vars.GLOBAL_VAR }}
-      steps:
-        - run: |
-            LOCAL_VAR=${{ env.JOB1_VAR }} # explicitly shows that env.JOB1_VAR is defined in job1's env: section
-            LOCAL_VAR2=LOCAL_VAR          # explicitly shows that LOCAL_VAR is a local variable
-```
-
-Each job declares an `env:` block that maps `secrets.*` and `vars.*` into named env vars. Steps then reference only
-`${{ env.* }}` in `with:` and `run:` blocks — never `secrets.*` or `vars.*` directly. The benefit is that each step is a
-**self-contained block** — to understand
-or edit a step you don't have to scroll up and cross-reference secret/var definitions.
 
 ## Test-run model
 
@@ -211,24 +211,24 @@ jobs:
       steps:
         - # decide - default or test-run
         - # set outputs.test_run to true or false 
-  - build:
+  - deploy:
       name: Deploy to preprod
       needs: [ switch ]
       if: ${{ needs.switch.outputs.test_run != 'true' }} # depends on switch
-      env: &build-env       # env anchor
+      env: &deploy-env        # env anchor
       # ...
-      steps: &build-steps   # steps anchor
+      steps: &deploy-steps    # steps anchor
       # ...
 
   - deploy-test-run:
       name: (test-run) Deploy to preprod
       needs: [ switch ]
       if: ${{ needs.switch.outputs.test_run == 'true' }}
-      environment: test-run # test environment
+      environment: test-run   # test environment
       permissions:
-        registry: read      # protects from accidental writes
-      env: *build-env       # same envs
-      steps: *build-steps   # same steps
+         registry: read        # protects from accidental writes
+      env: *deploy-env        # same envs
+      steps: *deploy-steps    # same steps
 ```
 
 Production and test-run jobs are deployed as **parallel pairs** that share a YAML-anchor step list
@@ -240,50 +240,148 @@ for example `vars.ENV_REGISTRY` resolves to a public no-auth sink like `ttl.sh` 
 environment, and WIF credentials resolve to a test-run GCP project. Reduced `permissions:`
 (e.g. `packages: read` on GHCR) provide a second layer.
 
+```yaml
+  - deploy:
+       # ...
+       env: &deploy-env
+          - ENV_REGISTRY: ${{ vars.ENV_REGISTRY }}
+       steps: &deploy-steps
+          - docker push ${{ env.ENV_REGISTRY }}/image:tag
+
+  - deploy-test-run:
+       # ...       
+       environment: test-run
+       permissions:
+          registry: read
+       env: *deploy-env
+       steps: *deploy-steps    # same 'docker push', but to a test-run registry
+```
+
 This means a step that "actually runs" in the test-run job is fine, as long as its destination
 comes from environment-scoped secrets or vars. Do **not** add step-level `if:` skips to make
 test-run steps "no-op" — that defeats the purpose of exercising the same code path.
 
-The one exception is `golang-tdlib-image-build.yml`'s Push step, see below.
-
 ### Outputs don't work
+
+```yaml
+   - build:
+        # ... 
+        outputs: &push-outputs
+           image:
+              description: Docker image ID of the built image
+              value: ${{ steps.build.outputs.image }}
+
+   - build-test-run:
+        # ...
+        outputs: *push-outputs # same outputs
+
+   - push:
+        # ...
+        needs: [ build ]
+        env: &push-env
+           - IMAGE_TAG: ${{ needs.build.outputs.image }}
+
+   - push-test-run:
+        # ...
+        needs: [ build-test-run ]
+        env: *push-env # gets IMAGE_TAG from 'build', not 'build-test-run' !!!
+
+```
+
+Take a look at the last line - `env:` block in `push-test-run` job references `needs.build.outputs.image`
+but actually needs `needs.build-test-run.outputs.image`.
+
+There are two ways to fix this:
+
+#### Duplicate the `env:` block.
+
+```yaml
+   - push:
+        # ...
+        needs: [ build ]
+        env: &push-env
+           - IMAGE_TAG: ${{ needs.build.outputs.image }}
+        steps: &push-steps
+        # ...     
+
+   - push-test-run:
+        # ...
+        needs: [ build-test-run ]
+        env:
+           - IMAGE_TAG: ${{ needs.build-test-run.outputs.image }} # but be careful when editing 
+        steps: *push-steps
+```
+
+#### If it's a critical pipeline – use a middle job to coalesce the outputs.
 
 In GitHub Actions, **outputs from skipped jobs are always empty strings** — they are not propagated
 to downstream `needs`. This is a problem for the mutually exclusive test-run pair: exactly one of
-`retag` / `retag-test-run` runs and the other is skipped. If `deploy` referenced
-`needs.retag.outputs.image_tag` directly, it would receive an empty string in test-run mode (because
-`retag` was skipped).
+`build` / `build-test-run` runs and the other is skipped. If `deploy` referenced
+`needs.build.outputs.image_tag` directly, it would receive an empty string in test-run mode (because
+`build` was skipped).
 
-The `retag-out` fan-in job works around this. It uses `!cancelled()` and `result` checks in its `if:`
+The `build-out` fan-in job works around this. It uses `!cancelled()` and `result` checks in its `if:`
 so it always runs as long as one of the pair succeeded. It then picks the non-empty output with `||`:
 
 ```yaml
-image_tag: ${{ needs.retag.outputs.image_tag || needs.retag-test-run.outputs.image_tag }}
+  build-out:
+     name: Build output (fan-in)
+     needs: [ build, build-test-run ]
+     if: ${{ !cancelled() && (needs.build.result == 'success' || needs.build-test-run.result == 'success') }}
+     outputs:
+        image_tag: ${{ needs.build.outputs.image_tag || needs.build-test-run.outputs.image_tag }}
+     steps:
+        - run: 'true'
+
+  push:
+     # ...
+     needs: [ build-out ]
+     env: &push-env
+        - IMAGE_TAG: ${{ needs.build-out.outputs.image_tag }} # safe to anchor!
+     steps: &push-steps
+     # ...
+
+  push-test-run:
+     # ...
+     needs: [ build-out ]
+     env: *push-env
+     steps: *push-steps # safe to reuse in push-test-run!
 ```
 
-Because `retag-out` itself is not skipped, its output is always populated. `deploy` then only needs
-`needs.retag-out.outputs.image_tag` — no conditional logic required.
+Because `build-out` itself is not skipped, its output is always populated. `push` then only needs
+`needs.build-out.outputs.image_tag` — no conditional logic required.
 
-`cd-pre-release.yml`'s `retag-out` job (lines ~94-102) is the concrete example. Its only role is to
-coalesce `outputs.image_tag` from the two mutually-exclusive `retag` and `retag-test-run` jobs into
-a single output that the `deploy` job can consume. It looks like a no-op but it is **load-bearing**:
-without it, the `deploy` job would need conditional logic to pick the right upstream, and the
-test-run path would break.
+## Hide global var references in `env:` blocks
 
-### `golang-tdlib-image-build.yml` Push step exception
+```mermaid
+graph LR
+   Secrets[Secrets] -- " ${{ secret.SECRET }} " - - > JobEnvs [Job's env: ]
+Vars [ Vars ] - -" ${{ vars.VAR }} " - - > JobEnvs
+Envs [ Environment variables ] - - " ${{ env.GLOBAL_ENV_VAR }} " - - > JobEnvs
+JobEnvs - -" ${{ env.JOB_ENV_VAR }} " - - > Step1 [Step 1 ]
+JobEnvs - - " ${{ env.JOB_ENV_VAR }} " - - > Step2 [ Step 2 ]
+JobEnvs - - " ${{ env.JOB_ENV_VAR }} " - - > Step3 [ Step 3 ]
 
-This workflow's `build-and-push` job has a step-level `if:` skip on the Push step:
+```
+
+Each job declares an `env:` block that maps `secrets.*` and `vars.*` into named env vars. Steps then reference only
+`${{ env.* }}` in `with:` and `run:` blocks — never `secrets.*` or `vars.*` directly. The benefit is that each step is a
+**self-contained block** — to understand or edit a step you don't have to scroll up and cross-reference secret/var
+definitions.
 
 ```yaml
-- name: Push
-  if: ${{ needs.switch.outputs.test_run != 'true' }}
-  run: docker push ${{ env.IMAGE_TAG }}
-```
 
-This is the one place where a step-level skip is intentional. In all other workflows, test-run
-safety comes from `vars.ENV_REGISTRY` resolving to a no-auth sink (e.g. `ttl.sh`) in the
-`test-run` GitHub environment, so the push step runs but writes to a harmless destination.
-That redirect cannot be applied here: the tdlib image tag is always
-`ghcr.io/<repo>/tdlib:<commit>` — a hardcoded GHCR path that does not change between environments.
-There is no environment variable to point at a test-run sink, so skipping the push is the only
-safe option.
+env:
+   GLOBAL_ENV_VAR: value
+
+jobs:
+   - job1:
+        env: # maps outside secrets and vars to job-scoped env vars
+           - DOESNT_WORK: ${{ env.GLOBAL_ENV_VAR }} # <-- substitution from global env: DOESN'T WORK in ACT
+           - JOB1_VAR2: ${{ secrets.GLOBAL_SECRET }}
+           - JOB1_VAR2: ${{ vars.GLOBAL_VAR }}
+        steps:
+           - run: |
+                LOCAL_VAR=${{ env.JOB1_VAR }} # explicitly shows that env.JOB1_VAR is defined in job1's env: section
+                LOCAL_VAR2=LOCAL_VAR          # explicitly shows that LOCAL_VAR is a local variable
+```
