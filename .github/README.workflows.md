@@ -316,44 +316,22 @@ There are two ways to fix this:
         steps: *push-steps
 ```
 
-#### If it's a critical pipeline – use a middle job to coalesce the outputs.
+#### Don't try a fan-in job — it breaks `act`
 
-In GitHub Actions, **outputs from skipped jobs are always empty strings** — they are not propagated
-to downstream `needs`. This is a problem for the mutually exclusive test-run pair: exactly one of
-`build` / `build-test-run` runs and the other is skipped. If `deploy` referenced
-`needs.build.outputs.image_tag` directly, it would receive an empty string in test-run mode (because
-`build` was skipped).
+The "obvious" alternative is a middle job that coalesces the two pair outputs
+(`build-out` with `if: !cancelled() && (build.result == 'success' || build-test-run.result == 'success')`
+and `outputs.image_tag: ${{ needs.build.outputs.image_tag || needs.build-test-run.outputs.image_tag }}`),
+then downstream jobs `needs: [build-out]`. It looks clean on paper but **does not survive `act` /
+`act -n`**: when the unused half of the upstream pair is skipped, the `needs` context for jobs that
+depend (transitively) on the fan-in is poisoned, and downstream `if:` expressions referencing
+*another* `needs.<job>.outputs.x` evaluate as if the job were skipped. We hit this on
+`cd-pre-release.yml` (PR #83) — both `deploy` and `deploy-test-run` were dropped from `act -n` even
+though `switch.outputs.test_run` itself was correct on the same run for the upstream `retag` pair.
 
-The `build-out` fan-in job works around this. It uses `!cancelled()` and `result` checks in its `if:`
-so it always runs as long as one of the pair succeeded. It then picks the non-empty output with `||`:
-
-```yaml
-  build-out:
-     name: Build output (fan-in)
-     needs: [ build, build-test-run ]
-     if: ${{ !cancelled() && (needs.build.result == 'success' || needs.build-test-run.result == 'success') }}
-     outputs:
-        image_tag: ${{ needs.build.outputs.image_tag || needs.build-test-run.outputs.image_tag }}
-     steps:
-        - run: 'true'
-
-  push:
-     # ...
-     needs: [ build-out ]
-     env: &push-env
-        - IMAGE_TAG: ${{ needs.build-out.outputs.image_tag }} # safe to anchor!
-     steps: &push-steps
-     # ...
-
-  push-test-run:
-     # ...
-     needs: [ build-out ]
-     env: *push-env
-     steps: *push-steps # safe to reuse in push-test-run!
-```
-
-Because `build-out` itself is not skipped, its output is always populated. `push` then only needs
-`needs.build-out.outputs.image_tag` — no conditional logic required.
+**Use the duplicated `env:` block above.** Pair each downstream job with its matching upstream
+sibling directly (`deploy → retag`, `deploy-test-run → retag-test-run`), copy the `env:` section,
+and keep the `*deploy-steps` anchor. The only line that differs is the one that reads the upstream
+output.
 
 ## Hide global var references in `env:` blocks
 
