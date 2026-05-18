@@ -49,7 +49,7 @@ CD workflows:
 
 Actions:
 
-1. Use it to abstract away similar steps across workflows. Do not copy-paste, use actions instead.
+1. Use it to abstract away similar steps across workflows. Do not copy-paste steps, use actions instead.
 2. Must use $GITHUB_STEP_SUMMARY to simplify debugging and improve visibility into what happened during the step.
 3. Must use duplicate step summary to stdout for easier debugging with `act`. Step summary is unavailble in local runs
    with `nektos/act`.
@@ -220,7 +220,7 @@ jobs:
       outputs:
         test_run: ${{ steps.test_run_switch.outputs.test_run }} # true or false
       steps:
-         - # decide - default or test-run mode
+        - # decide - default or test-run mode
         - # set outputs.test_run to true or false 
   - deploy:
       name: Deploy to preprod
@@ -358,7 +358,7 @@ jobs:
                 LOCAL_VAR2=LOCAL_VAR          # explicitly shows that LOCAL_VAR is a local variable
 ```
 
-## RUnning tests and linters
+## Running tests and linters
 
 ### Local testing with `nektos/act`
 
