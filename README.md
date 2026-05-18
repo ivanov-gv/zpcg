@@ -326,7 +326,7 @@ directly into the executable file, making it accessible without any additional s
 Initializer: `cmd/tg-init`
 Server: `cmd/tg-server`
 
-The bot waits for HTTP requests from Telegram, handles and sends messages to users. It runs on the Google Cloud Run
+The bot waits for HTTP requests from Telegram, handles, and sends messages to users. It runs on the Google Cloud Run
 platform,
 invokes on every request (i.e. is not running all time long) which makes it cost-effective.
 
@@ -344,6 +344,92 @@ The request handling time (~200ms) is the only billable time in this lifecycle. 
 is about 0.03 euros per month with 100-150 users and ~500 user requests per 30 days.
 
 The bot is almost free to maintain and as cost-effective as possible.
+
+## CI / CD
+
+All pipelines are divided into two parts: CI and CD. CI is intended to be devs responsibility - tests, linting, any
+other pr checks, and final image build. CD is intended to be run by the devops team - fetch the image from the
+devs registry and deploy it to the production environment.
+
+```mermaid
+
+graph LR
+    subgraph CI["CI Pipeline - Devs zone"]
+        style CI fill: #e0f0ff, stroke: #333
+        direction LR
+        CI1[test] --> CI2[build]
+        CI2 --> CI3[push]
+        CI-TEST["Test-Registry without auth for testing pipelines"]
+    end
+
+    subgraph CD["CD Pipeline - Ops zone"]
+        style CD fill: #fff0e0, stroke: #333
+        direction LR
+        CD1[retag ghcr image to prod registry] --> CD2[push to prod registry]
+        CD2 --> CD3[deploy to preprod]
+        CD3 --> CD4[deploy to prod]
+        CD-TEST["Test-Project for testing pipelines"]
+    end
+
+    GCP[GCP Artifact Registry - pre/prod registry]
+    GHCR[GHCR.io - dev registry]
+    CI -- 1 . CI Pushes to GHCR registry --> GHCR
+    CD -- 2 . CD Retags an image from GHCR registry --> GHCR
+    CD -- 3 . CD Pushes an image to GCP registry --> GCP
+
+```
+
+Every workflow has two branches: for default execution and test runs. It helps with testing the pipelines in isolation,
+both locally and in GitHub Actions.
+
+```mermaid
+
+graph LR
+    A[test-run switch] --> B[build]
+    B --> C[push]
+    C --> D[retag]
+    D --> E[deploy]
+    A --> B1[test-run: build]
+    B1 --> C1[test-run: retag]
+    C1 --> D1[test-run: deploy]
+    D1 --> E1[test-run: deploy]
+```
+
+<details>
+<summary>Implementation example:</summary>
+
+```yaml
+jobs:
+  - switch:
+      outputs:
+        test_run: ${{ steps.test_run_switch.outputs.test_run }} # true or false
+      steps:
+        - # decide - default or test-run mode
+        - # set outputs.test_run to true or false 
+  - deploy:
+      name: Deploy to preprod
+      needs: [ switch ]
+      if: ${{ needs.switch.outputs.test_run != 'true' }} # depends on the switch
+      env: &deploy-env        # env anchor
+      # ...
+      steps: &deploy-steps    # steps anchor
+      # ...
+
+  - deploy-test-run:
+      name: (test-run) Deploy to preprod
+      needs: [ switch ]
+      if: ${{ needs.switch.outputs.test_run == 'true' }}
+      environment: test-run   # test environment
+      permissions:
+        registry: read       # protects from accidental writes
+      env: *deploy-env        # same envs
+      steps: *deploy-steps    # same steps
+```
+
+</details>
+
+
+See [CI/CD](.github/README.workflows.md) workflow guide and docs for more details.
 
 # Ways to improve
 

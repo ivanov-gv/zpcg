@@ -2,8 +2,6 @@
 
 This document describes the conventions used by the workflows in
 `.github/workflows/` and the composite actions in `.github/actions/`.
-Most of them look like duplication or footguns at first glance — they aren't.
-Read this before "simplifying" anything here.
 
 # TL;DR
 
@@ -22,9 +20,8 @@ Every workflow:
 7. Must never run automatically on every commit, except for protected branches and the default one. For PR checks
    require manual approval, do not run workflows on every push.
 8. Must have a matching `test-<name>` target in the root `Makefile`, listed as a prerequisite of
-   `test-all-workflows`. The `workflows-lint` job in `pr-checks.yml` invokes `make test-all-workflows ACT="act -n …"`
-   on every PR — a new workflow without a matching test target is invisible to that lint. See
-   [Linting workflows in CI](#linting-workflows-in-ci) for details.
+   `test-all-workflows`. The target runs `act` with the workflow file and the corresponding
+   `test-run` input.
 
 Workflows are strictly divided into CI and CD parts.
 
@@ -49,6 +46,15 @@ CD workflows:
    in the environment it deploys to.
 9. Must never delete any image from pre/production environments.
 10. Must never touch any source code. Only pull release-ready artifacts.
+
+Actions:
+
+1. Use it to abstract away similar steps across workflows. Do not copy-paste steps, use actions instead.
+2. Must use $GITHUB_STEP_SUMMARY to simplify debugging and improve visibility into what happened during the step.
+3. Must use duplicate step summary to stdout for easier debugging with `act`. Step summary is unavailble in local runs
+   with `nektos/act`.
+4. Must use workflow commands (`::error...`, `::warning...`, `::debug...`, `::group...`, etc.) to simplify understanding
+   of what happened during the step.
 
 # Workflows
 
@@ -214,12 +220,12 @@ jobs:
       outputs:
         test_run: ${{ steps.test_run_switch.outputs.test_run }} # true or false
       steps:
-        - # decide - default or test-run
+        - # decide - default or test-run mode
         - # set outputs.test_run to true or false 
   - deploy:
       name: Deploy to preprod
       needs: [ switch ]
-      if: ${{ needs.switch.outputs.test_run != 'true' }} # depends on switch
+      if: ${{ needs.switch.outputs.test_run != 'true' }} # depends on the switch
       env: &deploy-env        # env anchor
       # ...
       steps: &deploy-steps    # steps anchor
@@ -231,7 +237,7 @@ jobs:
       if: ${{ needs.switch.outputs.test_run == 'true' }}
       environment: test-run   # test environment
       permissions:
-         registry: read        # protects from accidental writes
+         registry: read       # protects from accidental writes
       env: *deploy-env        # same envs
       steps: *deploy-steps    # same steps
 ```
@@ -352,17 +358,51 @@ jobs:
                 LOCAL_VAR2=LOCAL_VAR          # explicitly shows that LOCAL_VAR is a local variable
 ```
 
-## Linting workflows in CI
+## Running tests and linters
 
-The `workflows-lint` job in `pr-checks.yml` dry-runs every workflow with `act -n` via
-`make test-all-workflows`. That target depends on a per-workflow `test-<name>` target:
+### Local testing with `nektos/act`
+
+Every workflow must have a `test-<name>` target in the root `Makefile`. Let's see an example.
+
+The `ci-pr-checks` workflow is intended to be run on every PR, checking validity of every change before
+it's merged into the main branch. Then, its test case must look like this:
 
 ```makefile
-test-all-workflows: test-pr-checks test-ci-pr-checks-image-build test-ci test-cd-pre-release
+ACT ?= gh act
+
+.PHONY: test-ci-pr-checks
+test-ci-pr-checks:
+	$(ACT) pull_request \                         # on pull_request event
+		-W .github/workflows/ci-pr-checks.yml \   # run ci-pr-checks
+		--secret-file .github/act/secret.env \    # with local secrets
+		--var-file .github/act/var.env            # and vars
 ```
 
-`act -n` validates the YAML and the job dependency graph without running real steps,
-pulling deploy credentials, or hitting registries.
+Another example - `cd-pre-release` workflow.
+
+```makefile
+ACT ?= gh act
+
+GCLOUD_SCOPE := https://www.googleapis.com/auth/cloud-platform.read-only
+# lazy evaluation for gcloud token with read-only scope
+GCLOUD_TOKEN = $(eval GCLOUD_TOKEN := $(shell gcloud auth print-access-token --scopes='$(GCLOUD_SCOPE)'))$(GCLOUD_TOKEN)
+
+.PHONY: test-cd-pre-release
+test-cd-pre-release:
+    $(ACT) release \                                    # on release 
+        -W .github/workflows/cd-pre-release.yml \       # run cd-pre-release   
+        -e .github/act/event-release-prerelease.json \  # with release event payload, containing release tag and preprelease = true    
+        --secret-file .github/act/secret.env \          # with local secrets
+        --var-file .github/act/var.env \                # vars
+        --env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)# and lazily evaluated gcloud token with read-only scope. 
+```
+
+Both of the targets can be run in dry-run mode with `act -n`:
+
+```shell
+make test-ci-pr-checks ACT="act -n"
+make test-cd-pre-release ACT="act -n" GCLOUD_TOKEN=without-token-evaluation
+```
 
 **When you add or rename a workflow under `.github/workflows/`:**
 
@@ -371,9 +411,16 @@ pulling deploy credentials, or hitting registries.
 2. List the target as a prerequisite of `test-all-workflows`.
 
 Nothing else catches a missing test target — `act` only lints the workflows it's
-explicitly pointed at. The same caveat lives in [`AGENTS.md`](AGENTS.md).
+explicitly pointed at.
 
-**Locally:** the existing `test-<workflow>` targets pass `--secret-file`/`--var-file`
-so they can run end-to-end with real env files (`.github/act/secret.env`,
-`.github/act/var.env`). `test-all-workflows` overrides those flags to empty so
-it can run in CI without any local config — just `make test-all-workflows ACT="act -n"`.
+### CI linting with `rhysd/actionlint`
+
+`rhysd/actionlint` is a static checker for GitHub Actions workflows. It's used in `ci-pr-checks`:
+
+```yaml
+    # ...
+    steps:
+       - uses: actions/checkout@v6
+       - name: Lint all workflows
+         run: actionlint
+```
