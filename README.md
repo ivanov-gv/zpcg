@@ -345,11 +345,11 @@ is about 0.03 euros per month with 100-150 users and ~500 user requests per 30 d
 
 The bot is almost free to maintain and as cost-effective as possible.
 
-# CI / CD
+## CI / CD
 
-All pipelines are divided into two parts: CI and CD. CI is intended to be devs' responsibility - tests, linting, any
+All pipelines are divided into two parts: CI and CD. CI is intended to be devs responsibility - tests, linting, any
 other pr checks, and final image build. CD is intended to be run by the devops team - fetch the image from the
-devs' registry and deploy it to the production environment.
+devs registry and deploy it to the production environment.
 
 ```mermaid
 
@@ -429,7 +429,7 @@ jobs:
 </details>
 
 
-See [CI/CD](.github/README.workflows.md) workflow full guide and docs for more details.
+See [CI/CD](.github/README.workflows.md) workflow guide and docs for more details.
 
 # Ways to improve
 
