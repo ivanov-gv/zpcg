@@ -44,6 +44,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v6
+
       - name: Build CI image
         uses: docker/build-push-action@v7
         with:
@@ -53,6 +57,7 @@ jobs:
           load: 'true'
           tags: |
             ghcr.io/${{ github.repository }}/ci-pr-checks:${{ env.TDLIB_COMMIT }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Push
         if: ${{ needs.switch.outputs.test_run != 'true' }}
