@@ -429,7 +429,7 @@ jobs:
 </details>
 
 
-See [CI/CD](.github/README.workflows.md) workflow guide and docs for more details.
+See [the CI / CD](.github/README.workflows.md) workflow guide and docs for more details.
 
 # Ways to improve
 

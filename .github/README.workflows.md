@@ -31,6 +31,10 @@ CI workflows:
 2. Must not use a pre/production environment in any way.
 3. Must use only GHCR.io artifactory, which is considered a part of the development environment.
 4. Must not create tags or releases.
+5. Must create only one Docker image of the microservice per commit. Git (and git commit) is the only source of truth
+   for artifacts.
+6. Must use only one Docker tag per image, preferably a git tag, may use a commit SHA instead.
+7. Must add labels to the image containing meta-information with at least its version and repo URL.
 
 CD workflows:
 
@@ -99,8 +103,7 @@ jobs:
       id-token: write
     environment: dev
     env: &build-and-push-env
-      IMAGE_TAG_SHA: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
-      IMAGE_TAG_TAG: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+       IMAGE_TAG: ${{ vars.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
     steps: &build-and-push-steps
       - uses: actions/checkout@v6
 
@@ -111,20 +114,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v6
+
       - name: Build image
         uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/Dockerfile
           load: 'true'
-          tags: |
-            ${{ env.IMAGE_TAG_SHA }}
-            ${{ env.IMAGE_TAG_TAG }}
+          tags: ${{ env.IMAGE_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Push
-        run: |
-          docker push ${{ env.IMAGE_TAG_SHA }}
-          docker push ${{ env.IMAGE_TAG_TAG }}
+        run: docker push ${{ env.IMAGE_TAG }}
 
   build-and-push-test-run:
     name: Build CI image (test-run)

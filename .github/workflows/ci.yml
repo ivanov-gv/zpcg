@@ -34,8 +34,7 @@ jobs:
       id-token: write
     environment: dev
     env: &build-and-push-env
-      IMAGE_TAG_SHA: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
-      IMAGE_TAG_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+      IMAGE_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
     steps: &build-and-push-steps
       - uses: actions/checkout@v6
 
@@ -47,19 +46,12 @@ jobs:
           password: ${{ github.token }}
 
       - name: Build image
-        uses: docker/build-push-action@v7
+        uses: ./.github/actions/build
         with:
-          context: .
-          file: deploy/Dockerfile
-          load: 'true'
-          tags: |
-            ${{ env.IMAGE_TAG_SHA }}
-            ${{ env.IMAGE_TAG_TAG }}
+          image_tag: ${{ env.IMAGE_TAG }}
 
       - name: Push
-        run: |
-          docker push ${{ env.IMAGE_TAG_SHA }}
-          docker push ${{ env.IMAGE_TAG_TAG }}
+        run: docker push ${{ env.IMAGE_TAG }}
 
   build-and-push-test-run:
     name: Build CI image (test-run)

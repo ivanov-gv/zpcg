@@ -25,6 +25,10 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v6
+
     - name: Build
       id: build
       uses: docker/build-push-action@v7
@@ -35,6 +39,7 @@ runs:
         file: deploy/Dockerfile
         load: 'true'
         tags: ${{ inputs.image_tag }}
+        labels: ${{ steps.meta.outputs.labels }}
 
     - name: Summary
       if: always()
@@ -44,4 +49,9 @@ runs:
           echo "**Tag**: \`${{ inputs.image_tag }}\`"
           echo "**Image ID**: \`${{ steps.build.outputs.imageid }}\`"
           echo "**Digest**: \`${{ steps.build.outputs.digest }}\`"
+          echo ""
+          echo "**Labels**:"
+          echo '```'
+          echo "${{ steps.meta.outputs.labels }}"
+          echo '```'
         } >> "$GITHUB_STEP_SUMMARY"

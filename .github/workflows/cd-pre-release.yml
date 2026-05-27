@@ -43,17 +43,13 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    outputs:
-      image_tag: ${{ steps.retag-env.outputs.PREPROD_IMAGE_TAG_TAG }}
     env: &retag-env
       AUTH_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
       AUTH_REGION: ${{ secrets.ENV_REGION }}
       AUTH_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
       AUTH_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
-      GHCR_IMAGE_TAG_SHA: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.sha }}
-      GHCR_IMAGE_TAG_TAG: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
-      PREPROD_IMAGE_TAG_SHA: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.sha }}
-      PREPROD_IMAGE_TAG_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      GHCR_IMAGE_TAG: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      PREPROD_IMAGE_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
     steps: &retag-steps
       - uses: actions/checkout@v6
       - name: Set up Docker Buildx
@@ -76,10 +72,7 @@ jobs:
       - id: retag-env
         name: Retag image
         shell: bash
-        run: |
-          docker buildx imagetools create -t ${{ env.PREPROD_IMAGE_TAG_SHA }} ${{ env.GHCR_IMAGE_TAG_SHA }}
-          docker buildx imagetools create -t ${{ env.PREPROD_IMAGE_TAG_TAG }} ${{ env.GHCR_IMAGE_TAG_TAG }}
-          echo "PREPROD_IMAGE_TAG_TAG=${{ env.PREPROD_IMAGE_TAG_TAG }}" >> $GITHUB_OUTPUT
+        run: docker buildx imagetools create -t ${{ env.PREPROD_IMAGE_TAG }} ${{ env.GHCR_IMAGE_TAG }}
 
   retag-test-run:
     name: (test-run) Retag image and push to preprod registry
@@ -91,8 +84,6 @@ jobs:
       contents: read
       packages: read # <-- safety first
       id-token: write
-    outputs:
-      image_tag: ${{ steps.retag-env.outputs.PREPROD_IMAGE_TAG_TAG }}
     env: *retag-env
     steps: *retag-steps
 
@@ -102,14 +93,20 @@ jobs:
     if: ${{ needs.switch.outputs.test_run != 'true' }}
     runs-on: ubuntu-latest
     environment: preprod
-    env:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env: &deploy-env
       TEST_RUN: ${{ needs.switch.outputs.test_run }}
-      PREPROD_IMAGE: ${{ needs.retag.outputs.image_tag }}
+      PREPROD_IMAGE: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      PREPROD_ENVIRONMENT: ${{ vars.ENVIRONMENT }}
       PREPROD_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
       PREPROD_REGION: ${{ secrets.ENV_REGION }}
       PREPROD_RUN_SERVICE: ${{ secrets.ENV_RUN_SERVICE }}
       PREPROD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
       PREPROD_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
+      PREPROD_TELEGRAM_APITOKEN_SECRET: ${{ secrets.ENV_TELEGRAM_APITOKEN }}
     steps: &deploy-steps
       - uses: actions/checkout@v6
       - uses: ./.github/actions/prod_auth
@@ -126,6 +123,10 @@ jobs:
           gcloud_project_id: ${{ env.PREPROD_PROJECT_ID }}
           gcloud_region: ${{ env.PREPROD_REGION }}
           gcloud_run_service: ${{ env.PREPROD_RUN_SERVICE }}
+          env_vars: |
+            ENVIRONMENT=${{ env.PREPROD_ENVIRONMENT }}
+          secrets: |
+            TELEGRAM_APITOKEN=${{ env.PREPROD_TELEGRAM_APITOKEN_SECRET }}
 
   deploy-test-run:
     name: (test-run) Deploy to preprod
@@ -133,12 +134,9 @@ jobs:
     if: ${{ needs.switch.outputs.test_run == 'true' }}
     runs-on: ubuntu-latest
     environment: test-run # <-- safety first
-    env:
-      TEST_RUN: ${{ needs.switch.outputs.test_run }}
-      PREPROD_IMAGE: ${{ needs.retag-test-run.outputs.image_tag }}
-      PREPROD_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
-      PREPROD_REGION: ${{ secrets.ENV_REGION }}
-      PREPROD_RUN_SERVICE: ${{ secrets.ENV_RUN_SERVICE }}
-      PREPROD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
-      PREPROD_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env: *deploy-env
     steps: *deploy-steps

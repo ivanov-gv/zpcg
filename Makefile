@@ -85,6 +85,16 @@ get_en_commands:
   https://api.telegram.org/bot${TG_TOKEN}/getMyCommands
 
 
+TEST_RUN_IMAGE_REPO ?= ttl.sh
+TEST_RUN_IMAGE_PATH = $(TEST_RUN_IMAGE_REPO)/ivanov-gv/zpcg
+TEST_RUN_TAG ?= test-run-tag
+
+.PHONY: push-test-run-image
+push-test-run-image:
+	docker pull hello-world
+	docker tag hello-world $(TEST_RUN_IMAGE_PATH):$(TEST_RUN_TAG)
+	docker push $(TEST_RUN_IMAGE_PATH):$(TEST_RUN_TAG)
+
 .PHONY: test-all-workflows
 test-all-workflows: test-ci-pr-checks test-ci-pr-checks-image-build test-ci test-cd-pre-release
 
@@ -118,7 +128,7 @@ test-ci:
 		--var-file .github/act/var.env
 
 .PHONY: test-cd-pre-release
-test-cd-pre-release:
+test-cd-pre-release: push-test-run-image
 	$(ACT) release \
 		-W .github/workflows/cd-pre-release.yml \
 		-e .github/act/event-release-prerelease.json \
