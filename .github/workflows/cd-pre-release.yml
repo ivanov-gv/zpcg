@@ -93,6 +93,10 @@ jobs:
     if: ${{ needs.switch.outputs.test_run != 'true' }}
     runs-on: ubuntu-latest
     environment: preprod
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     env: &deploy-env
       TEST_RUN: ${{ needs.switch.outputs.test_run }}
       PREPROD_IMAGE: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
@@ -130,5 +134,9 @@ jobs:
     if: ${{ needs.switch.outputs.test_run == 'true' }}
     runs-on: ubuntu-latest
     environment: test-run # <-- safety first
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     env: *deploy-env
     steps: *deploy-steps
