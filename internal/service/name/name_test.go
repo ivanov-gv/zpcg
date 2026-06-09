@@ -30,6 +30,7 @@ func TestFindStationByApproximateName(t *testing.T) {
 		{"Nikschichsss   ", "Nikšić"},
 		{"shushan", "Šušanj"},
 		{"padgareeka", "Podgorica"},
+		{"susan", "Šušanj"},
 		// Cyrillic inputs
 		{"никшич", "Nikšić"},
 		{"подгорица", "Podgorica"},
@@ -42,6 +43,10 @@ func TestFindStationByApproximateName(t *testing.T) {
 		{"белград", "Beograd Centar"},
 		// approximate Cyrillic
 		{"бело поле", "Bijelo Polje"},
+		// aliases
+		{"сербия", "Beograd Centar"},
+		{"аэропорт", "Aerodrom"},
+		{"Airport", "Aerodrom"},
 	}
 
 	for _, tt := range tests {
