@@ -15,7 +15,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/yfuruyama/crzerolog"
 
-	"github.com/ivanov-gv/zpcg/internal/config"
+	"github.com/ivanov-gv/zpcg/internal/config/server_config"
 	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
@@ -25,7 +25,7 @@ type App interface {
 
 // RunServer starts all processes needed to communicate with environment - initializes http server, logger,
 // middlewares, k8s probes, etc. It knows nothing about business logic, only handles communication
-func RunServer(ctx context.Context, _config config.Config, _app App, opts ...ApplyOption) error {
+func RunServer(ctx context.Context, _config server_config.Config, _app App, opts ...ApplyOption) error {
 	// settings options
 	var settings = options{
 		botOpts: &gotgbot.BotOpts{
@@ -49,7 +49,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 
 	// server middlewares
 	var postHandlers []PostTgMsgHandler
-	if _config.Environment == config.EnvironmentPreProdValue {
+	if _config.Environment == server_config.EnvironmentPreProdValue {
 		// add test env warning to every message
 		postHandlers = append(postHandlers, AddTestEnvWarning)
 	}
@@ -67,10 +67,10 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 type PostTgMsgHandler func(message.ResponseWithChatId) message.ResponseWithChatId
 
 const (
-	maxUpdateRetry   = 3
-	updateCacheSize  = 64    // max number of in-flight update IDs to deduplicate
-	logPreviewLines  = 2     // how many response lines to show in the log trace
-	chatIdDivisor    = 10000 // cut last 4 digits from chat ID for privacy in logs
+	maxUpdateRetry  = 3
+	updateCacheSize = 64    // max number of in-flight update IDs to deduplicate
+	logPreviewLines = 2     // how many response lines to show in the log trace
+	chatIdDivisor   = 10000 // cut last 4 digits from chat ID for privacy in logs
 )
 
 func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCache *lru.Cache[int64, int8],

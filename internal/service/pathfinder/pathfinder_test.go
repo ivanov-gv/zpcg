@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ivanov-gv/zpcg/internal/service/name"
-	"github.com/ivanov-gv/zpcg/internal/service/transfer"
+	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
+	"github.com/ivanov-gv/zpcg/internal/service/timetable_export"
 )
 
 const (
@@ -16,21 +16,21 @@ const (
 )
 
 func TestFindDirectPaths(t *testing.T) {
-	timetable := transfer.ImportTimetable()
+	timetable := timetable_export.ImportTimetable()
 	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
 	paths := pathFinder.findDirectPaths(
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(NiksicStationName)],
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(DanilovgradStationName)])
+		timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(NiksicStationName)],
+		timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(DanilovgradStationName)])
 	assert.NotNil(t, paths)
 	assert.NotEmpty(t, paths)
 }
 
 func TestFindPaths(t *testing.T) {
-	timetable := transfer.ImportTimetable()
+	timetable := timetable_export.ImportTimetable()
 	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
 	paths := pathFinder.findPathsWithTransfer(
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(NiksicStationName)],
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(BarStationName)])
+		timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(NiksicStationName)],
+		timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(BarStationName)])
 	assert.NotNil(t, paths)
 	assert.NotEmpty(t, paths)
 }

@@ -12,27 +12,26 @@ import (
 	callback_model "github.com/ivanov-gv/zpcg/internal/model/callback"
 	"github.com/ivanov-gv/zpcg/internal/model/message"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
-	"github.com/ivanov-gv/zpcg/internal/service/date"
-
-	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
 	"github.com/ivanov-gv/zpcg/internal/service/callback"
-	"github.com/ivanov-gv/zpcg/internal/service/name"
+	"github.com/ivanov-gv/zpcg/internal/service/date"
+	"github.com/ivanov-gv/zpcg/internal/service/message_render"
 	"github.com/ivanov-gv/zpcg/internal/service/pathfinder"
-	"github.com/ivanov-gv/zpcg/internal/service/render"
-	"github.com/ivanov-gv/zpcg/internal/service/transfer"
+	"github.com/ivanov-gv/zpcg/internal/service/station_blacklist"
+	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
+	"github.com/ivanov-gv/zpcg/internal/service/timetable_export"
 )
 
 func NewApp() (*App, error) {
 	// timetable
-	_timetable := transfer.ImportTimetable()
+	_timetable := timetable_export.ImportTimetable()
 	// finder
 	finder := pathfinder.NewPathFinder(_timetable.StationIdToTrainIdSet, _timetable.TrainIdToStationMap, _timetable.TransferStationId)
 	// name resolver
-	stationNameResolver := name.NewStationNameResolver(_timetable.UnifiedStationNameToStationIdMap, _timetable.UnifiedStationNameList, _timetable.StationIdToStationMap)
+	stationNameResolver := station_name_resolver.NewStationNameResolver(_timetable.UnifiedStationNameToStationIdMap, _timetable.UnifiedStationNameList, _timetable.StationIdToStationMap)
 	// render
-	_render := render.NewRender(_timetable.StationIdToStationMap, _timetable.TrainIdToTrainInfoMap)
-	// blacklist
-	blackList := blacklist.NewBlackListService()
+	_render := message_render.NewRender(_timetable.StationIdToStationMap, _timetable.TrainIdToTrainInfoMap)
+	// station_blacklist
+	blackList := station_blacklist.NewBlackListService()
 	// date
 	dateService := date.NewDateService(context.TODO())
 
@@ -51,9 +50,9 @@ func NewApp() (*App, error) {
 // It simply takes message and generates response. Contains whole business logic and business logic only
 type App struct {
 	finder              *pathfinder.PathFinder
-	stationNameResolver *name.StationNameResolver
-	render              *render.Render
-	blackList           *blacklist.BlackListService
+	stationNameResolver *station_name_resolver.StationNameResolver
+	render              *message_render.Render
+	blackList           *station_blacklist.BlackListService
 	callback            *callback.CallbackService
 	dateService         *date.DateService
 	transferStationId   timetable.StationId
@@ -71,7 +70,7 @@ func (a *App) HandleUpdate(update message.Update) (responseWithChatIds message.R
 }
 
 func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChatIds message.ResponseWithChatId, warning error) {
-	var languageTag = render.ParseLanguageTag(callbackMessage.From.LanguageCode)
+	var languageTag = message_render.ParseLanguageTag(callbackMessage.From.LanguageCode)
 	defer func() { // we have to answer the callback anyway
 		responseWithChatIds.ChatId = callbackMessage.ChatId
 		responseWithChatIds.AnswerCallback.CallbackQueryId = callbackMessage.Id
@@ -132,7 +131,7 @@ func (a *App) HandleCallback(callbackMessage message.Callback) (responseWithChat
 }
 
 func (a *App) HandleMessage(_message message.Message) (responseWithChatIds message.ResponseWithChatId, warning error) {
-	languageTag := render.ParseLanguageTag(_message.From.LanguageCode)
+	languageTag := message_render.ParseLanguageTag(_message.From.LanguageCode)
 	var (
 		response message.Response
 		err      error
@@ -153,7 +152,7 @@ func (a *App) HandleMessage(_message message.Message) (responseWithChatIds messa
 	}
 	// handle error
 	if err != nil {
-		if errors.Is(err, name.ErrNoMatchesFound) {
+		if errors.Is(err, station_name_resolver.ErrNoMatchesFound) {
 			response = a.render.StationNotFoundMessage(languageTag)
 		} else {
 			response = a.render.ErrorMessage(languageTag)

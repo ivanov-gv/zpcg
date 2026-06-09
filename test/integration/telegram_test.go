@@ -18,8 +18,8 @@ import (
 
 	mock_server "github.com/ivanov-gv/zpcg/gen/mocks/server"
 	"github.com/ivanov-gv/zpcg/internal/app"
-	"github.com/ivanov-gv/zpcg/internal/config"
-	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
+	"github.com/ivanov-gv/zpcg/internal/config/server_config"
+	model_render "github.com/ivanov-gv/zpcg/internal/model/message_render"
 	"github.com/ivanov-gv/zpcg/internal/server"
 )
 
@@ -31,7 +31,7 @@ const (
 	Environment       = "TestEnvironment"
 )
 
-var _config = config.Config{
+var _config = server_config.Config{
 	TelegramApiToken: TelegramApiToken,
 	Port:             Port,
 	Environment:      Environment,

@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ivanov-gv/zpcg/internal/model/render"
-	"github.com/ivanov-gv/zpcg/internal/service/blacklist"
+	"github.com/ivanov-gv/zpcg/internal/model/message_render"
+	"github.com/ivanov-gv/zpcg/internal/service/station_blacklist"
 )
 
 func TestNewApp(t *testing.T) {
@@ -30,13 +30,13 @@ func TestGenerateRoute(t *testing.T) {
 	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
-	message, _ := app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, DanilovgradWrongStationName))
+	message, _ := app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, DanilovgradWrongStationName))
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message.Text, NiksicStationName)
 	assert.Contains(t, message.Text, DanilovgradStationName)
 	assert.NotEmpty(t, message.InlineKeyboard)
-	message, _ = app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, BarWrongStationName))
+	message, _ = app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, BarWrongStationName))
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message.Text, NiksicStationName)
@@ -48,13 +48,13 @@ func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
 	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
-	message, _ := app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), DanilovgradWrongStationName))
+	message, _ := app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), DanilovgradWrongStationName))
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message.Text, NiksicStationName)
 	assert.Contains(t, message.Text, DanilovgradStationName)
 	assert.NotEmpty(t, message.InlineKeyboard)
-	message, _ = app.GenerateRoute(render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), BarWrongStationName))
+	message, _ = app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s %s %s", NiksicWrongStationName, string(lo.SpecialCharset), BarWrongStationName))
 	t.Log("\n", message)
 	assert.NotEmpty(t, message)
 	assert.Contains(t, message.Text, NiksicStationName)
@@ -66,9 +66,9 @@ func TestBlackList(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 
-	for _, station := range blacklist.BlackListedStations {
+	for _, station := range station_blacklist.BlackListedStations {
 		t.Run(station.Name, func(t *testing.T) {
-			for _, language := range render.SupportedLanguages {
+			for _, language := range message_render.SupportedLanguages {
 				t.Run(language.String(), func(t *testing.T) {
 					message, err := app.GenerateRoute(language, fmt.Sprintf("%s, %s", BarStationName, station.Name))
 					assert.NoError(t, err)
@@ -117,7 +117,7 @@ func TestNameClashing(t *testing.T) {
 		t.Run(station, func(t *testing.T) {
 			for _, originInput := range inputs {
 				input := originInput + ", Podgorica"
-				message, err := app.GenerateRoute(render.DefaultLanguageTag, input)
+				message, err := app.GenerateRoute(message_render.DefaultLanguageTag, input)
 				assert.NoError(t, err)
 				assert.Contains(t, message.Text, station,
 					"'%s': '%s'", input, message.Text)

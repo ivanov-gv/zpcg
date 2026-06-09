@@ -4,7 +4,7 @@ github.com/PaulSonOfLars/gotgbot/v2
 # github.com/caarlos0/env/v10 v10.0.0
 ## explicit; go 1.17
 github.com/caarlos0/env/v10
-# github.com/davecgh/go-spew v1.1.1
+# github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 ## explicit
 github.com/davecgh/go-spew/spew
 # github.com/hashicorp/go-cleanhttp v0.5.2
@@ -21,13 +21,15 @@ github.com/hashicorp/golang-lru/v2/simplelru
 # github.com/ivanov-gv/approximate-match v0.0.0-20260410195618-220fa966108a
 ## explicit; go 1.26.1
 github.com/ivanov-gv/approximate-match
+# github.com/kr/text v0.2.0
+## explicit
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.20
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/pmezard/go-difflib v1.0.0
+# github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 ## explicit
 github.com/pmezard/go-difflib/difflib
 # github.com/rs/zerolog v1.33.0
@@ -43,6 +45,9 @@ github.com/samber/lo/internal/constraints
 github.com/samber/lo/internal/xrand
 github.com/samber/lo/internal/xtime
 github.com/samber/lo/mutable
+# github.com/samber/mo v1.17.0
+## explicit; go 1.18
+github.com/samber/mo
 # github.com/stretchr/objx v0.5.2
 ## explicit; go 1.20
 github.com/stretchr/objx

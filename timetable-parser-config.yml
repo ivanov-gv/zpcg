@@ -1,0 +1,40 @@
+version: v0.0
+timetable:
+  seasons:
+    - name: winter-early
+      start:
+      end: 2026-06-11
+      fetch_date: 2026-06-09
+      warning:
+        ru:
+        en:
+        sr:
+    - name: summer
+      start: 2026-06-12
+      end: 2026-09-15
+      fetch_date: 2026-06-25
+    - name: winter-late
+      start: 2026-09-16
+      end:
+      fetch_date: 2026-11-25
+  routes:
+    - start: Bar
+      finish: Subotica
+    - start: Subotica
+      finish: Bar
+    - start: Bar
+      finish: Zemun
+    - start: Zemun
+      finish: Bar
+    - start: Podgorica
+      finish: Bar
+    - start: Bar
+      finish: Podgorica
+    - start: Podgorica
+      finish: Nikšić
+    - start: Nikšić
+      finish: Podgorica
+    - start: Bar
+      finish: Bijelo Polje
+    - start: Bijelo Polje
+      finish: Bar
