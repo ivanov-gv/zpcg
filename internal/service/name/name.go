@@ -20,8 +20,7 @@ func NewStationNameResolver(
 	stationIdToStationMap map[timetable.StationId]timetable.Station,
 ) *StationNameResolver {
 	stationNames := lo.Map(unifiedStationNameList, func(r []rune, _ int) string { return string(r) })
-	threshold := scoreThreshold
-	matcher := approxmatch.NewMatcher(stationNames, &threshold)
+	matcher := approxmatch.NewMatcher(stationNames, new(scoreThreshold))
 	return &StationNameResolver{
 		unifiedStationNameToStationIdMap: unifiedStationNameToStationIdMap,
 		matcher:                          matcher,

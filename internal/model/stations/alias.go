@@ -7,7 +7,7 @@ import "github.com/ivanov-gv/zpcg/internal/model/timetable"
 var AliasesStationsList = []timetable.StationAliases{
 	{
 		StationName: "Beograd Centar",
-		Aliases:     []string{"Beograd", "belgrad", "belgrade", "Београд Центар", "Белград Центр"},
+		Aliases:     []string{"Beograd", "Београд", "Београд Центар", "Белград Центр", "Белград", "Сербия", "Serbia"},
 	},
 
 	// summer period aliases
@@ -39,7 +39,7 @@ var AliasesStationsList = []timetable.StationAliases{
 	},
 	{
 		StationName: "Golubovci",
-		Aliases:     []string{"Голубовци", "Голубовцы"},
+		Aliases:     []string{"Голубовци"},
 	},
 	{
 		StationName: "Podgorica",
@@ -127,7 +127,7 @@ var AliasesStationsList = []timetable.StationAliases{
 	},
 	{
 		StationName: "Aerodrom",
-		Aliases:     []string{"аэродром"},
+		Aliases:     []string{"аэродром", "аэропорт", "airport"},
 	},
 	{
 		StationName: "Zlatica",
