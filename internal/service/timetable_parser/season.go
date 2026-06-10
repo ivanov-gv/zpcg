@@ -60,7 +60,7 @@ const (
 	StationsApiUrl = BaseUrl + "/stops"
 )
 
-func url(start, end string, date time.Time) string {
+func buildUrl(start, end string, date time.Time) string {
 	start = strings.ReplaceAll(start, " ", "+")
 	end = strings.ReplaceAll(end, " ", "+")
 	dateString := date.Format("2006-01-02")
@@ -70,7 +70,8 @@ func url(start, end string, date time.Time) string {
 func (p *seasonParser) parseSeason(season timetable_parser_config.Season) (timetable.Season, error) {
 	var routesResponseBodies []io.ReadCloser
 	for _, route := range p.timetableConfig.Routes {
-		routesResponse, err := retryablehttp.Get(url(route.Start, route.Finish, season.FetchDate))
+		url := buildUrl(route.Start, route.Finish, season.FetchDate)
+		routesResponse, err := retryablehttp.Get(url)
 		if err != nil {
 			return timetable.Season{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", url, err)
 		}
@@ -235,7 +236,7 @@ func parseStops(zpcgStopIdToStationsMap map[int]timetable.Station, timetableItem
 			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
 				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
 				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02
-			if !station.Arrival.After(station.Departure) {  // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
+			if !station.Arrival.After(station.Departure) { // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
 				station.Arrival = station.Arrival.Add(utils.Day)
 			}
 			station.Departure = station.Departure.Add(utils.Day)
