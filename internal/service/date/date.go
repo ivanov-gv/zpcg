@@ -72,6 +72,10 @@ func (d *DateService) CurrentDateAsTime() time.Time {
 }
 
 func (d *DateService) startUpdatingLoop(duration time.Duration) time.Time {
+	if d.ctx.Err() != nil {
+		return d.CurrentDateAsTime()
+	}
+
 	now := time.Now().Add(podgoricaUTCOffset)
 	currentDate := now.Truncate(duration)
 	d.currentDate.Store(toInt64(currentDate))

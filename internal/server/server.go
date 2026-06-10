@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	lru "github.com/hashicorp/golang-lru/v2"
@@ -58,8 +59,18 @@ func RunServer(ctx context.Context, _config server_config.Config, _app App, opts
 	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot, updateCache, postHandlers...))))
 	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) {})
 	// start
-	if err := http.ListenAndServe(":"+_config.Port, mux); !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("http.ListenAndServe: %w", err)
+	server := &http.Server{Addr: ":" + _config.Port, Handler: mux}
+	go func() {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			log.Error().Err(fmt.Errorf("http.ListenAndServe: %w", err)).Send()
+		}
+	}()
+	<-ctx.Done()
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer shutdownCancel()
+	err = server.Shutdown(shutdownCtx)
+	if err != nil {
+		return fmt.Errorf("server.Shutdown: %w", err)
 	}
 	return nil
 }

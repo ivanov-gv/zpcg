@@ -35,7 +35,13 @@ func (p *PathFinder) FindRoutes(aStation, bStation timetable_model.StationId) (r
 func (p *PathFinder) findPathsWithTransfer(season timetable_model.Season, aStation, bStation timetable_model.StationId) []timetable_model.Path {
 	// there is no direct trains from A to B. lets find one through the transfer station
 	pathsAtoTransferStation := p.findDirectPaths(season, aStation, p.timetableService.TransferStationId())
+	if len(pathsAtoTransferStation) == 0 {
+		return nil
+	}
 	pathsTransferStationToB := p.findDirectPaths(season, p.timetableService.TransferStationId(), bStation)
+	if len(pathsTransferStationToB) == 0 {
+		return nil
+	}
 	// merge paths
 	var (
 		paths                                      []timetable_model.Path

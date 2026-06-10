@@ -2,12 +2,17 @@ package app
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
+	timetable_gen "github.com/ivanov-gv/zpcg/gen/timetable"
+	message_model "github.com/ivanov-gv/zpcg/internal/model/message"
 	"github.com/ivanov-gv/zpcg/internal/model/message_render"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/service/date"
 	"github.com/ivanov-gv/zpcg/internal/service/station_blacklist"
 )
 
@@ -81,7 +86,16 @@ func TestBlackList(t *testing.T) {
 }
 
 func TestNameClashing(t *testing.T) {
-	app, err := NewApp()
+	summerSeason, found := lo.Find(timetable_gen.Timetable.Seasons, func(item timetable.Season) bool {
+		return strings.Contains(item.Name, "summer")
+	})
+
+	var option date.Option
+	if found {
+		option = date.FixedDate(summerSeason.Start)
+	}
+
+	app, err := NewApp(option)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
 
@@ -93,24 +107,18 @@ func TestNameClashing(t *testing.T) {
 			"Герцег нови", "Херцег Нови", "Херцег новый", "Герцег новый",
 			"Herceg novi",
 		},
-
-		// summer period stations
-		//"Novi Beograd": {
-		//	"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
-		//	"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
-		//},
-		//"Stara Pazova": {
-		//	"Стара пазова", "Старая пазова",
-		//	"Stara Pazova",
-		//},
-		//"Nova Pazova": {
-		//	"Nova Pazova", "New Pazova",
-		//	"Нова Пазова",
-		//},
-		//"Novi Sad": {
-		//	"Novi Sad", "New Sad", "Novij Sad",
-		//	"Новый Сад", "Нови сад",
-		//},
+		"Novi Beograd": {
+			"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
+			"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
+		},
+		"Stara Pazova": {
+			"Стара пазова", "Старая пазова",
+			"Stara Pazova",
+		},
+		"Novi Sad": {
+			"Novi Sad", "New Sad", "Novij Sad",
+			"Новый Сад", "Нови сад",
+		},
 	}
 
 	for station, inputs := range mapExpectedStationToPossibleInput {
@@ -122,6 +130,35 @@ func TestNameClashing(t *testing.T) {
 				assert.Contains(t, message.Text, station,
 					"'%s': '%s'", input, message.Text)
 			}
+		})
+	}
+}
+
+func TestNoTrainsWarning(t *testing.T) {
+	summerSeason, found := lo.Find(timetable_gen.Timetable.Seasons, func(item timetable.Season) bool {
+		return strings.Contains(item.Name, "summer")
+	})
+	if !found {
+		t.Skipf("summer season not found, can't test no trains warning properly")
+	}
+
+	app, err := NewApp(date.FixedDate(summerSeason.Start))
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+
+	for _, languageTag := range message_render.SupportedLanguages {
+		t.Run(languageTag.String(), func(t *testing.T) {
+			message, _ := app.HandleMessage(message_model.Message{
+				IsFilled: true,
+				From: message_model.From{
+					IsFilled:     true,
+					LanguageCode: languageTag.String(),
+				},
+				Text:   "Podgorica, Novi Sad", // Novi sad is a summer train station
+				ChatId: 0,
+			})
+			t.Log("\n", message)
+			assert.NotEmpty(t, message)
 		})
 	}
 }

@@ -21,7 +21,7 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/service/timetable"
 )
 
-func NewApp() (*App, error) {
+func NewApp(opts ...date.Option) (*App, error) {
 	// timetable
 	_timetable := timetable_export.ImportTimetable()
 	// name resolver
@@ -32,7 +32,7 @@ func NewApp() (*App, error) {
 	// station_blacklist
 	blackList := station_blacklist.NewBlackListService()
 	// date
-	dateService := date.NewDateService(context.TODO())
+	dateService := date.NewDateService(context.TODO(), opts...)
 	// timetable
 	timetableService, err := timetable.New(_timetable, dateService)
 	if err != nil {
