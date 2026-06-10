@@ -12,23 +12,19 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 )
 
-func NewRender(stationsMap map[timetable.StationId]timetable.Station,
-	trainsMap map[timetable.TrainId]timetable.TrainInfo) *Render {
+func NewRender(stationsMap map[timetable.StationId]timetable.Station) *Render {
 	return &Render{
 		stationsMap: stationsMap,
-		trainsMap:   trainsMap,
 	}
 }
 
 type Render struct {
 	stationsMap map[timetable.StationId]timetable.Station
-	trainsMap   map[timetable.TrainId]timetable.TrainInfo
 }
 
 const (
-	timetableLinkAnchor = "#tab3"
-	stationsDelimiter   = "\\>"
-	timeLayout          = "15:04"
+	stationsDelimiter = "\\>"
+	timeLayout        = "15:04"
 )
 
 func inlineButtonWithUpdateCallback(languageCode language.Tag, currentDate time.Time, updateCallback string) message.InlineButton {
@@ -51,7 +47,7 @@ func inlineButtonWithReverseCallback(languageTag language.Tag, reverseCallback s
 	}
 }
 
-func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, currentDate time.Time,
+func (r *Render) DirectRoutes(languageTag language.Tag, season timetable.Season, paths []timetable.Path, currentDate time.Time,
 	updateCallback, reverseCallback string) message.Response {
 	// render each line for the result message
 	var lines []string
@@ -64,7 +60,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	// render the rest of the message
 	timetableUrl := getUrlToTimetable(origin.Name, destination.Name)
 	for _, path := range paths {
-		train := r.trainsMap[path.TrainId]
+		train := season.TrainIdToTrainInfoMap[path.TrainId]
 		line := fmt.Sprintf("[%04d](%s)` %s %s %s `",
 			train.TrainId, timetableUrl,
 			path.Origin.Departure.Format(timeLayout), stationsDelimiter, path.Destination.Arrival.Format(timeLayout))
@@ -84,7 +80,7 @@ func (r *Render) DirectRoutes(languageTag language.Tag, paths []timetable.Path, 
 	}
 }
 
-func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path, currentDate time.Time,
+func (r *Render) TransferRoutes(languageTag language.Tag, season timetable.Season, paths []timetable.Path, currentDate time.Time,
 	originId, transferId, destinationId timetable.StationId, updateCallback, reverseCallback string) message.Response {
 	// render each line for the result message
 	var lines []string
@@ -101,7 +97,7 @@ func (r *Render) TransferRoutes(languageTag language.Tag, paths []timetable.Path
 	transferToDestinationTimetableUrl := getUrlToTimetable(transfer.Name, destination.Name)
 	for _, path := range paths {
 		var (
-			train = r.trainsMap[path.TrainId]
+			train = season.TrainIdToTrainInfoMap[path.TrainId]
 			line  string
 		)
 		if path.Origin.Id == originId && path.Destination.Id == transferId {
@@ -151,6 +147,13 @@ func (r *Render) StationNotFoundMessage(languageTag language.Tag) message.Respon
 				},
 			},
 		},
+	}
+}
+
+func (r *Render) NoRoutesInThisSeasonMessage(tag language.Tag, warning timetable.Warning) message.Response {
+	return message.Response{
+		Text:      GetWarningMessage(tag, warning),
+		ParseMode: message.ModeNone,
 	}
 }
 
@@ -254,4 +257,29 @@ func GetMessage[T any](_map map[language.Tag]T, tag language.Tag) T {
 		return _message
 	}
 	return _map[model_render.DefaultLanguageTag]
+}
+
+func GetWarningMessage(tag language.Tag, warning timetable.Warning) string {
+	switch tag {
+	case model_render.Belarusian:
+		return warning.Be
+	case language.English:
+		return warning.En
+	case language.Russian:
+		return warning.Ru
+	case language.German:
+		return warning.De
+	case language.Serbian:
+		return warning.Sr
+	case language.Turkish:
+		return warning.Tr
+	case language.Ukrainian:
+		return warning.Uk
+	case language.Croatian:
+		return warning.Hr
+	case language.Slovak:
+		return warning.Sk
+	default: // model_render.DefaultLanguageTag == english
+		return warning.En
+	}
 }

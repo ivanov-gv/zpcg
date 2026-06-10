@@ -3,50 +3,42 @@ package pathfinder
 import (
 	"slices"
 
-	"github.com/ivanov-gv/zpcg/internal/model/timetable"
-	"github.com/ivanov-gv/zpcg/internal/utils"
+	timetable_model "github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/pkg/utils"
+	"github.com/ivanov-gv/zpcg/internal/service/timetable"
 )
 
-func NewPathFinder(
-	stationIdToTrainIdSetMap map[timetable.StationId]timetable.TrainIdSet,
-	trainIdToStationsMap map[timetable.TrainId]timetable.StationIdToStationMap,
-	transferStation timetable.StationId) *PathFinder {
+func NewPathFinder(timetableService *timetable.TimetableService) *PathFinder {
 	return &PathFinder{
-		stationIdToTrainIdSetMap: stationIdToTrainIdSetMap,
-		trainIdToStationsMap:     trainIdToStationsMap,
-		transferStation:          transferStation,
+		timetableService: timetableService,
 	}
 }
 
 type PathFinder struct {
-	stationIdToTrainIdSetMap map[timetable.StationId]timetable.TrainIdSet
-	trainIdToStationsMap     map[timetable.TrainId]timetable.StationIdToStationMap
-	transferStation          timetable.StationId
+	timetableService *timetable.TimetableService
 }
 
-func (p *PathFinder) FindRoutes(aStation, bStation timetable.StationId) (routes []timetable.Path, isDirectRoute bool) {
-	var (
-		paths    []timetable.Path
-		isDirect bool
-	)
-	// try to find direct paths
-	if paths = p.findDirectPaths(aStation, bStation); len(paths) != 0 {
-		isDirect = true
-	} else {
-		// find paths with transfer
-		paths = p.findPathsWithTransfer(aStation, bStation)
-		isDirect = false
+func (p *PathFinder) FindRoutes(aStation, bStation timetable_model.StationId) (routes []timetable_model.Path, isDirectRoute bool, err error) {
+	season := p.timetableService.Season()
+	// try to find direct routes
+	if routes = p.findDirectPaths(season, aStation, bStation); len(routes) != 0 {
+		return routes, true, nil
 	}
-	return paths, isDirect
+	// try to find routes with transfer
+	if routes = p.findPathsWithTransfer(season, aStation, bStation); len(routes) != 0 {
+		return routes, false, nil
+	}
+	// no routes found
+	return nil, false, ErrNoRoutesFound
 }
 
-func (p *PathFinder) findPathsWithTransfer(aStation, bStation timetable.StationId) []timetable.Path {
+func (p *PathFinder) findPathsWithTransfer(season timetable_model.Season, aStation, bStation timetable_model.StationId) []timetable_model.Path {
 	// there is no direct trains from A to B. lets find one through the transfer station
-	pathsAtoTransferStation := p.findDirectPaths(aStation, p.transferStation)
-	pathsTransferStationToB := p.findDirectPaths(p.transferStation, bStation)
+	pathsAtoTransferStation := p.findDirectPaths(season, aStation, p.timetableService.TransferStationId())
+	pathsTransferStationToB := p.findDirectPaths(season, p.timetableService.TransferStationId(), bStation)
 	// merge paths
 	var (
-		paths                                      []timetable.Path
+		paths                                      []timetable_model.Path
 		indexPathAtoTransfer, indexPathTransferToB int
 	)
 	// run through all the paths and add them to the result
@@ -74,19 +66,19 @@ func (p *PathFinder) findPathsWithTransfer(aStation, bStation timetable.StationI
 	return paths
 }
 
-func (p *PathFinder) findDirectPaths(aStation, bStation timetable.StationId) []timetable.Path {
-	var trainIdSetA, trainIdSetB timetable.TrainIdSet
-	trainIdSetA = p.stationIdToTrainIdSetMap[aStation]
-	trainIdSetB = p.stationIdToTrainIdSetMap[bStation]
+func (p *PathFinder) findDirectPaths(season timetable_model.Season, aStation, bStation timetable_model.StationId) []timetable_model.Path {
+	var trainIdSetA, trainIdSetB timetable_model.TrainIdSet
+	trainIdSetA = season.StationIdToTrainIdSet[aStation]
+	trainIdSetB = season.StationIdToTrainIdSet[bStation]
 	// get intersection of maps of the trains
 	possibleRoutes := utils.Intersection(trainIdSetA, trainIdSetB)
 	if len(possibleRoutes) == 0 { // I've got no routes~~~
 		return nil
 	}
 	// find suitable routes
-	paths := make([]timetable.Path, 0, len(possibleRoutes))
+	paths := make([]timetable_model.Path, 0, len(possibleRoutes))
 	for trainId := range possibleRoutes {
-		stations := p.trainIdToStationsMap[trainId]
+		stations := season.TrainIdToStationMap[trainId]
 		origin := stations[aStation]
 		destination := stations[bStation]
 
@@ -95,7 +87,7 @@ func (p *PathFinder) findDirectPaths(aStation, bStation timetable.StationId) []t
 			continue
 		}
 		// add found path
-		paths = append(paths, timetable.Path{
+		paths = append(paths, timetable_model.Path{
 			TrainId:     trainId,
 			Origin:      origin,
 			Destination: destination,
@@ -103,7 +95,7 @@ func (p *PathFinder) findDirectPaths(aStation, bStation timetable.StationId) []t
 	}
 	// normalize time - make it all in a range 00:00 - 23:59
 	utils.NormalizeTimeInPaths(paths)
-	slices.SortFunc(paths, func(a, b timetable.Path) int {
+	slices.SortFunc(paths, func(a, b timetable_model.Path) int {
 		return a.Origin.Departure.Compare(b.Origin.Departure)
 	})
 	return paths

@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/ivanov-gv/zpcg/internal/config/timetable_parser_config"
-	"github.com/ivanov-gv/zpcg/internal/service/timetable_export"
+	"github.com/ivanov-gv/zpcg/internal/pkg/timetable_export"
 	"github.com/ivanov-gv/zpcg/internal/service/timetable_parser"
 )
 

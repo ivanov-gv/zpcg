@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ivanov-gv/zpcg/internal/pkg/timetable_export"
 	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
-	"github.com/ivanov-gv/zpcg/internal/service/timetable_export"
 )
 
 const (

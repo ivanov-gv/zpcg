@@ -15,8 +15,8 @@ import (
 
 	"github.com/ivanov-gv/zpcg/internal/config/timetable_parser_config"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/pkg/utils"
 	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
-	"github.com/ivanov-gv/zpcg/internal/utils"
 )
 
 func newSeasonParser(config timetable_parser_config.Timetable, parser *stationParser) *seasonParser {

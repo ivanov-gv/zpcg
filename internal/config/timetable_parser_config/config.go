@@ -5,7 +5,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/samber/lo"
 	"gopkg.in/yaml.v3"
+
+	"github.com/ivanov-gv/zpcg/internal/pkg/timetable_export"
 )
 
 // Config is the top-level structure
@@ -114,5 +117,27 @@ func Load(path string) (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("decoder.Decode: %w", err)
 	}
+
+	err = verifyParseConfigSeasons(config.Timetable.Seasons)
+	if err != nil {
+		return Config{}, fmt.Errorf("VerifyParseConfigSeasons: %w", err)
+	}
 	return config, nil
+}
+
+func verifyParseConfigSeasons(seasons []Season) error {
+	for _, season := range seasons {
+		if season.FetchDate.Before(season.Start) || season.FetchDate.After(season.End) {
+			return fmt.Errorf("fetch date must be between start and end dates. currently start='%s', end='%s', fetch='%s'",
+				season.Start.Format(time.DateOnly), season.End.Format(time.DateOnly), season.FetchDate.Format(time.DateOnly))
+		}
+	}
+	timeRanges := lo.Map(seasons, func(item Season, _ int) timetable_export.TimeRange {
+		return timetable_export.TimeRange{
+			name:  item.Name,
+			start: item.Start,
+			end:   item.End,
+		}
+	})
+	return timetable_export.VerifyTimeranges(timeRanges)
 }
