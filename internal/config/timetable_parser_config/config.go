@@ -31,21 +31,23 @@ type Route struct {
 
 // Season represents a single season in the timetable
 type Season struct {
-	Name      string    `yaml:"name"`
-	Start     time.Time `yaml:"start"`
-	End       time.Time `yaml:"end"`
-	FetchDate time.Time `yaml:"fetch_date"`
-	Warning   Warning   `yaml:"warning"`
+	Name                  string    `yaml:"name"`
+	Start                 time.Time `yaml:"start"`
+	End                   time.Time `yaml:"end"`
+	FetchDate             time.Time `yaml:"fetch_date"`
+	NoTrainsWarning       UiText    `yaml:"no_trains_warning"`
+	UpdateButtonAlertText UiText    `yaml:"update_button_alert_text"`
 }
 
 func (s *Season) UnmarshalYAML(value *yaml.Node) error {
 	// Create an intermediate struct to unmarshal into
 	aux := &struct {
-		Name      string  `yaml:"name"`
-		Start     string  `yaml:"start"`
-		End       string  `yaml:"end"`
-		FetchDate string  `yaml:"fetch_date"`
-		Warning   Warning `yaml:"warning"`
+		Name                  string `yaml:"name"`
+		Start                 string `yaml:"start"`
+		End                   string `yaml:"end"`
+		FetchDate             string `yaml:"fetch_date"`
+		NoTrainsWarning       UiText `yaml:"no_trains_warning"`
+		UpdateButtonAlertText UiText `yaml:"update_button_alert_text"`
 	}{}
 
 	// Unmarshal the YAML node into the intermediate struct
@@ -74,7 +76,8 @@ func (s *Season) UnmarshalYAML(value *yaml.Node) error {
 	s.Start = start
 	s.End = end
 	s.FetchDate = fetchDate
-	s.Warning = aux.Warning
+	s.NoTrainsWarning = aux.NoTrainsWarning
+	s.UpdateButtonAlertText = aux.UpdateButtonAlertText
 
 	return nil
 }
@@ -92,7 +95,7 @@ func parseDate(input string) (time.Time, error) {
 	return date, nil
 }
 
-type Warning struct {
+type UiText struct {
 	Be string `yaml:"be"`
 	De string `yaml:"de"`
 	En string `yaml:"en"`
@@ -127,7 +130,7 @@ func Load(path string) (Config, error) {
 
 func verifyParseConfigSeasons(seasons []Season) error {
 	for _, season := range seasons {
-		if season.FetchDate.Before(season.Start) || season.FetchDate.After(season.End) {
+		if season.FetchDate.Before(season.Start) || (!season.End.IsZero() && season.FetchDate.After(season.End)) {
 			return fmt.Errorf("fetch date must be between start and end dates. currently start='%s', end='%s', fetch='%s'",
 				season.Start.Format(time.DateOnly), season.End.Format(time.DateOnly), season.FetchDate.Format(time.DateOnly))
 		}

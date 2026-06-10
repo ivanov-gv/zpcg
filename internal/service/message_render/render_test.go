@@ -1,6 +1,7 @@
 package message_render
 
 import (
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/zelenin/go-tdlib/client"
 	"golang.org/x/text/language"
 
+	timetable_gen "github.com/ivanov-gv/zpcg/gen/timetable"
 	"github.com/ivanov-gv/zpcg/internal/model/message"
 	model_render "github.com/ivanov-gv/zpcg/internal/model/message_render"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
@@ -158,7 +160,6 @@ func TestConstants(t *testing.T) {
 		"StationDoesNotExistMessageMap":   model_render.StationDoesNotExistMessageMap,
 		"RailwayMapButtonTextMap":         model_render.RailwayMapButtonTextMap,
 		"ReverseRouteInlineButtonTextMap": model_render.ReverseRouteInlineButtonTextMap,
-		"AlertUpdateNotificationTextMap":  model_render.AlertUpdateNotificationTextMap,
 		"SimpleUpdateNotificationTextMap": model_render.SimpleUpdateNotificationTextMap,
 		"OfficialTimetableUrlTextMap":     model_render.OfficialTimetableUrlTextMap,
 		"MapMessageMap":                   model_render.MapMessageMap,
@@ -185,8 +186,15 @@ func TestConstants(t *testing.T) {
 
 func TestAlertMessage(t *testing.T) {
 	const MaxTextLen = 200
-	for lang, text := range model_render.AlertUpdateNotificationTextMap {
-		assert.Less(t, len(text), MaxTextLen, "lang tag: %s", lang.String())
+	for _, season := range timetable_gen.Timetable.Seasons {
+		t.Run(season.Name, func(t *testing.T) {
+			v := reflect.ValueOf(season.UpdateButtonAlertText)
+			for i := range v.NumField() {
+				field := v.Type().Field(i)
+				value := v.Field(i).String()
+				assert.Less(t, len(value), MaxTextLen, "lang tag: %s", field)
+			}
+		})
 	}
 	for lang, text := range model_render.SimpleUpdateNotificationTextMap {
 		assert.Less(t, len(text), MaxTextLen, "lang tag: %s", lang.String())

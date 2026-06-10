@@ -42,7 +42,7 @@ func VerifyTimeranges(timeRanges []TimeRange) error {
 			return fmt.Errorf("seasons must be consecutive. season '%s' must start '%s'",
 				season.Name, previousEnd.Add(24*time.Hour).Format(time.DateOnly))
 		}
-		if i < len(timeRanges)-1 && !season.End.After(season.Start) {
+		if i < len(timeRanges)-1 && season.Start.After(season.End) {
 			return fmt.Errorf("'%s' season's end date must be after start date. currently start='%s', end='%s'",
 				season.Name, season.Start.Format(time.DateOnly), season.End.Format(time.DateOnly))
 		}

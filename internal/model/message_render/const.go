@@ -242,17 +242,6 @@ var (
 		language.Slovak:    sk.ReverseRouteInlineButtonText,
 		language.Turkish:   tr.ReverseRouteInlineButtonText,
 	}
-	AlertUpdateNotificationTextMap = map[language.Tag]string{
-		language.Russian:   ru.AlertUpdateNotificationText,
-		language.Ukrainian: uk.AlertUpdateNotificationText,
-		Belarusian:         be.AlertUpdateNotificationText,
-		language.English:   en.AlertUpdateNotificationText,
-		language.German:    de.AlertUpdateNotificationText,
-		language.Serbian:   sr.AlertUpdateNotificationText,
-		language.Croatian:  hr.AlertUpdateNotificationText,
-		language.Slovak:    sk.AlertUpdateNotificationText,
-		language.Turkish:   tr.AlertUpdateNotificationText,
-	}
 	SimpleUpdateNotificationTextMap = map[language.Tag]string{
 		language.Russian:   ru.SimpleUpdateNotificationText,
 		language.Ukrainian: uk.SimpleUpdateNotificationText,

@@ -230,8 +230,8 @@ func (r *Render) BlackListedStations(languageTag language.Tag, stations ...timet
 	}
 }
 
-func (r *Render) AlertUpdateNotificationText(languageTag language.Tag) string {
-	return GetMessage(model_render.AlertUpdateNotificationTextMap, languageTag)
+func (r *Render) AlertUpdateNotificationText(languageTag language.Tag, warning timetable.Warning) string {
+	return GetWarningMessage(languageTag, warning)
 }
 
 func (r *Render) SimpleUpdateNotificationText(languageTag language.Tag) string {

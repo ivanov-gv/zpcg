@@ -92,7 +92,7 @@ func (a *App) HandleCallback(callbackMessage message_model.Callback) (responseWi
 		if data.Date.Equal(a.dateService.CurrentDateAsTime()) {
 			return message_model.ResponseWithChatId{
 				AnswerCallback: message_model.ToAnswerCallbackQuery{
-					Text:      a.render.AlertUpdateNotificationText(languageTag),
+					Text:      a.render.AlertUpdateNotificationText(languageTag, a.timetableService.Season().UpdateButtonAlertText),
 					ShowAlert: true,
 				},
 			}, nil
@@ -162,7 +162,7 @@ func (a *App) HandleMessage(_message message_model.Message) (responseWithChatIds
 		case errors.Is(err, station_name_resolver.ErrNoMatchesFound):
 			response = a.render.StationNotFoundMessage(languageTag)
 		case errors.Is(err, pathfinder.ErrNoRoutesFound):
-			response = a.render.NoRoutesInThisSeasonMessage(languageTag, a.timetableService.Season().Warning)
+			response = a.render.NoRoutesInThisSeasonMessage(languageTag, a.timetableService.Season().NoTrainsWarning)
 		default:
 			response = a.render.ErrorMessage(languageTag)
 		}

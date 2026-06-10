@@ -11,11 +11,6 @@ Podgorica, Niksic`
 	RailwayMapButtonTextMap      = "Montenegro Railway Map"
 	OfficialTimetableUrlText     = "More details"
 	ReverseRouteInlineButtonText = "Reverse"
-	AlertUpdateNotificationText  = "" +
-		`Timetable is updated.
-From June 13th to September 14th 2026 one new train Subotica - Belgrade - Bar will be added
-
-The rest of the timetable will remain exactly the same`
 	SimpleUpdateNotificationText = "Today's timetable is updated"
 
 	// bot description

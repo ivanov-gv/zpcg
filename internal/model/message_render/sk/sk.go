@@ -12,11 +12,6 @@ Podgorica, Nikšić`
 	RailwayMapButtonTextMap      = "Mapa železníc Čiernej Hory"
 	OfficialTimetableUrlText     = "Viac informácií"
 	ReverseRouteInlineButtonText = "Späť"
-	AlertUpdateNotificationText  = "" +
-		`Cestovný poriadok už bol aktualizovaný
-Od 13.06.2026 do 14.09.2026 bude pridaný vlak Subotica - Bar
-
-Inak sa poradie nezmení`
 	SimpleUpdateNotificationText = "Cestovný poriadok pre dnešok bol aktualizovaný"
 
 	// Popis bota

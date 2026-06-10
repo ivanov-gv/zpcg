@@ -12,11 +12,6 @@ const (
 	RailwayMapButtonTextMap      = "Karta železnica Crne Gore"
 	OfficialTimetableUrlText     = "Више информација"
 	ReverseRouteInlineButtonText = "Обрнуто"
-	AlertUpdateNotificationText  = "" +
-		`Распоред је већ ажуриран
-Од 13.06.2026 до 14.09.2026 биће додат воз Суботица - Бар
-
-Остатак реда ће остати потпуно исти`
 	SimpleUpdateNotificationText = "Данашњи распоред је приказан"
 
 	// bot description

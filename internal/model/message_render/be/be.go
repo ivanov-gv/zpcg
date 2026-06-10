@@ -12,11 +12,6 @@ Podgorica, Niksic`
 	RailwayMapButtonTextMap      = "Карта ЧД Чарнагорыі"
 	OfficialTimetableUrlText     = "Падрабязней"
 	ReverseRouteInlineButtonText = "Назад "
-	AlertUpdateNotificationText  = "" +
-		`Расклад ужо абноўлены
-З 13.06.2026 по 14.09.2026 дадасца паезд Суботица - Бар
-
-У астатнім расклад не зменіцца`
 	SimpleUpdateNotificationText = "Расклад на сёння абноўлены"
 
 	// апісанне бота

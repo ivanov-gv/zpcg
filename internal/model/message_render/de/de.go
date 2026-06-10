@@ -14,11 +14,6 @@ Podgorica, Niksic`
 	RailwayMapButtonTextMap      = "Montenegro Bahnkarte"
 	OfficialTimetableUrlText     = "Mehr erfahren"
 	ReverseRouteInlineButtonText = "Zurück"
-	AlertUpdateNotificationText  = "" +
-		`Der Fahrplan wurde bereits aktualisiert
-Vom 13.06.2026 bis 14.09.2026 wird ein Zug von Subotica nach Bar hinzugefügt
-
-Ansonsten ändert sich der Fahrplan nicht`
 	SimpleUpdateNotificationText = "Der Fahrplan für heute wurde aktualisiert"
 
 	// Bot-Beschreibung

@@ -12,11 +12,6 @@ Podgorica, Niksic`
 	RailwayMapButtonTextMap      = "Карта ЖД Черногории"
 	OfficialTimetableUrlText     = "Подробнее"
 	ReverseRouteInlineButtonText = "Обратно"
-	AlertUpdateNotificationText  = "" +
-		`Расписание уже обновлено
-13.06.2026 по 14.09.2026 добавится поезд Суботица - Бар
-
-В остальном расписание не изменится`
 	SimpleUpdateNotificationText = "Расписание на сегодня обновлено"
 
 	// bot description

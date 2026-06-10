@@ -12,11 +12,6 @@ Podgorica, Niksic`
 	RailwayMapButtonTextMap      = "Карта Залізниці Чорногорії"
 	OfficialTimetableUrlText     = "Детальніше"
 	ReverseRouteInlineButtonText = "Назад"
-	AlertUpdateNotificationText  = "" +
-		`Розклад вже оновлено
-З 13.06.2026 по 14.09.2026 додастся поїзд Суботица - Бар
-
-В іншому розклад не зміниться`
 	SimpleUpdateNotificationText = "Розклад на сьогодні оновлено"
 
 	// опис бота

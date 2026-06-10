@@ -5,8 +5,9 @@ import (
 )
 
 type Season struct {
-	Name    string
-	Warning Warning
+	Name                  string
+	NoTrainsWarning       Warning
+	UpdateButtonAlertText Warning
 
 	Start time.Time // zero value is -inf
 	End   time.Time // zero value is +inf

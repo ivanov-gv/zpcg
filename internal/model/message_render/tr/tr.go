@@ -14,11 +14,6 @@ Podgorica, Bar`
 	RailwayMapButtonTextMap      = "Karadağ Demiryolu Haritası"
 	OfficialTimetableUrlText     = "Daha fazla bilgi"
 	ReverseRouteInlineButtonText = "Tersine"
-	AlertUpdateNotificationText  = "" +
-		`Tarife zaten güncellendi
-13 Haziran'dan 14 Eylül'e kadar Subotica - Belgrad - Bar yeni bir tren eklenecek
-
-Tarifenin geri kalanı tam olarak aynı kalacak`
 	SimpleUpdateNotificationText = "Bugünün tarifesi güncellendi"
 
 	// bot description
