@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/ivanov-gv/zpcg/internal/app"
-	"github.com/ivanov-gv/zpcg/internal/config"
+	"github.com/ivanov-gv/zpcg/internal/config/server_config"
 	"github.com/ivanov-gv/zpcg/internal/server"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	// config
-	_config, err := config.Load()
+	_config, err := server_config.Load()
 	if err != nil {
 		log.Fatal().Err(fmt.Errorf(logfmt+"can't load config: %w", err)).Send()
 	}

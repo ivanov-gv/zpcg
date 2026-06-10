@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	lru "github.com/hashicorp/golang-lru/v2"
@@ -15,7 +16,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/yfuruyama/crzerolog"
 
-	"github.com/ivanov-gv/zpcg/internal/config"
+	"github.com/ivanov-gv/zpcg/internal/config/server_config"
 	"github.com/ivanov-gv/zpcg/internal/model/message"
 )
 
@@ -23,9 +24,11 @@ type App interface {
 	HandleUpdate(update message.Update) (response message.ResponseWithChatId, warning error)
 }
 
+const serverShutdownTimeout = 15 * time.Second
+
 // RunServer starts all processes needed to communicate with environment - initializes http server, logger,
 // middlewares, k8s probes, etc. It knows nothing about business logic, only handles communication
-func RunServer(ctx context.Context, _config config.Config, _app App, opts ...ApplyOption) error {
+func RunServer(ctx context.Context, _config server_config.Config, _app App, opts ...ApplyOption) error {
 	// settings options
 	var settings = options{
 		botOpts: &gotgbot.BotOpts{
@@ -49,7 +52,7 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 
 	// server middlewares
 	var postHandlers []PostTgMsgHandler
-	if _config.Environment == config.EnvironmentPreProdValue {
+	if _config.Environment == server_config.EnvironmentPreProdValue {
 		// add test env warning to every message
 		postHandlers = append(postHandlers, AddTestEnvWarning)
 	}
@@ -58,8 +61,18 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 	mux.Handle("/", middleware(http.HandlerFunc(newUpdatesHandler(ctx, _app, bot, updateCache, postHandlers...))))
 	mux.HandleFunc("/health", func(_ http.ResponseWriter, _ *http.Request) {})
 	// start
-	if err := http.ListenAndServe(":"+_config.Port, mux); !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("http.ListenAndServe: %w", err)
+	server := &http.Server{Addr: ":" + _config.Port, Handler: mux}
+	go func() {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			log.Error().Err(fmt.Errorf("http.ListenAndServe: %w", err)).Send()
+		}
+	}()
+	<-ctx.Done()
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), serverShutdownTimeout)
+	defer shutdownCancel()
+	err = server.Shutdown(shutdownCtx)
+	if err != nil {
+		return fmt.Errorf("server.Shutdown: %w", err)
 	}
 	return nil
 }
@@ -67,10 +80,10 @@ func RunServer(ctx context.Context, _config config.Config, _app App, opts ...App
 type PostTgMsgHandler func(message.ResponseWithChatId) message.ResponseWithChatId
 
 const (
-	maxUpdateRetry   = 3
-	updateCacheSize  = 64    // max number of in-flight update IDs to deduplicate
-	logPreviewLines  = 2     // how many response lines to show in the log trace
-	chatIdDivisor    = 10000 // cut last 4 digits from chat ID for privacy in logs
+	maxUpdateRetry  = 3
+	updateCacheSize = 64    // max number of in-flight update IDs to deduplicate
+	logPreviewLines = 2     // how many response lines to show in the log trace
+	chatIdDivisor   = 10000 // cut last 4 digits from chat ID for privacy in logs
 )
 
 func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCache *lru.Cache[int64, int8],

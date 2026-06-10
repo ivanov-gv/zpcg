@@ -17,10 +17,13 @@ import (
 	"golang.org/x/text/language"
 
 	mock_server "github.com/ivanov-gv/zpcg/gen/mocks/server"
+	timetable_gen "github.com/ivanov-gv/zpcg/gen/timetable"
 	"github.com/ivanov-gv/zpcg/internal/app"
-	"github.com/ivanov-gv/zpcg/internal/config"
-	model_render "github.com/ivanov-gv/zpcg/internal/model/render"
+	"github.com/ivanov-gv/zpcg/internal/config/server_config"
+	model_render "github.com/ivanov-gv/zpcg/internal/model/message_render"
+	"github.com/ivanov-gv/zpcg/internal/model/timetable"
 	"github.com/ivanov-gv/zpcg/internal/server"
+	"github.com/ivanov-gv/zpcg/internal/service/date"
 )
 
 const (
@@ -31,17 +34,40 @@ const (
 	Environment       = "TestEnvironment"
 )
 
-var _config = config.Config{
-	TelegramApiToken: TelegramApiToken,
-	Port:             Port,
-	Environment:      Environment,
+var (
+	_config = server_config.Config{
+		TelegramApiToken: TelegramApiToken,
+		Port:             Port,
+		Environment:      Environment,
+	}
+	updateId int64 = 0
+)
+
+func nextUpdateRequest() gotgbot.Update {
+	updateId += 1
+	return gotgbot.Update{UpdateId: updateId}
 }
 
 // TestTelegramRouteResponse needs tdlib installed to run. see: https://tdlib.github.io/td/build.html
 func TestTelegramRouteResponse(t *testing.T) {
-	_app, err := app.NewApp()
+	var dates = lo.Map(timetable_gen.Timetable.Seasons,
+		func(item timetable.Season, index int) time.Time {
+			return item.Start
+		})
+
+	for _, _date := range dates {
+		t.Run(_date.Format("2006-01-02"), func(t *testing.T) {
+			testTelegramRouteOnDate(t, _date)
+		})
+	}
+}
+
+func testTelegramRouteOnDate(t *testing.T, _date time.Time) {
+	_app, err := app.NewApp(date.FixedDate(_date))
 	assert.NoError(t, err)
 	mockTgClient := &mock_server.MockCustomTgClient{}
+	serverStopped := make(chan struct{})
+	defer func() { <-serverStopped }()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -49,6 +75,7 @@ func TestTelegramRouteResponse(t *testing.T) {
 	go func() {
 		err := server.RunServer(ctx, _config, _app, server.WithCustomTgClient(mockTgClient))
 		assert.NotErrorIs(t, err, http.ErrServerClosed)
+		close(serverStopped)
 	}()
 	assert.Eventually(t, func() bool {
 		conn, err := net.Dial("tcp", Url)
@@ -71,15 +98,14 @@ func TestTelegramRouteResponse(t *testing.T) {
 	// unknown station request — must run before "start message" to avoid stale sendMessage expectations
 	// consuming the Run callback before it gets a chance to match
 	t.Run("unknown station request", func(t *testing.T) {
-		request := gotgbot.Update{
-			UpdateId: 100, // unique ID so the dedup cache doesn't drop it
-			Message: &gotgbot.Message{
-				Text: "Berlin, London",
-				From: &gotgbot.User{
-					LanguageCode: "en",
-				},
+		request := nextUpdateRequest()
+		request.Message = &gotgbot.Message{
+			Text: "Berlin, London",
+			From: &gotgbot.User{
+				LanguageCode: "en",
 			},
 		}
+
 		requestRaw := lo.Must(json.Marshal(request))
 		var capturedParams map[string]string
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
@@ -98,16 +124,16 @@ func TestTelegramRouteResponse(t *testing.T) {
 	// start message
 	t.Run("start message", func(t *testing.T) {
 		for _, languageTag := range model_render.SupportedLanguages {
-			language := languageTag.String()
-			t.Run(language, func(t *testing.T) {
-				request := gotgbot.Update{
-					Message: &gotgbot.Message{
-						Text: "/start",
-						From: &gotgbot.User{
-							LanguageCode: language,
-						},
+			_language := languageTag.String()
+			t.Run(_language, func(t *testing.T) {
+				request := nextUpdateRequest()
+				request.Message = &gotgbot.Message{
+					Text: "/start",
+					From: &gotgbot.User{
+						LanguageCode: _language,
 					},
 				}
+
 				requestRaw := lo.Must(json.Marshal(request))
 				mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
 					Return([]byte("{}"), nil)
@@ -122,14 +148,14 @@ func TestTelegramRouteResponse(t *testing.T) {
 	})
 	// timetable request
 	t.Run("timetable request", func(t *testing.T) {
-		request := gotgbot.Update{
-			Message: &gotgbot.Message{
-				Text: "nikshich, bar",
-				From: &gotgbot.User{
-					LanguageCode: "en",
-				},
+		request := nextUpdateRequest()
+		request.Message = &gotgbot.Message{
+			Text: "nikshich, bar",
+			From: &gotgbot.User{
+				LanguageCode: "en",
 			},
 		}
+
 		requestRaw := lo.Must(json.Marshal(request))
 		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
 		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "sendMessage", mock.Anything, mock.Anything, mock.Anything).
@@ -143,12 +169,33 @@ func TestTelegramRouteResponse(t *testing.T) {
 	})
 	// callback update
 	t.Run("update callback", func(t *testing.T) {
-		request := gotgbot.Update{
-			CallbackQuery: &gotgbot.CallbackQuery{
-				Id:      "someid",
-				Data:    "0|Niksic|Bar|2000-01-01",
-				Message: &gotgbot.Message{},
-			},
+		request := nextUpdateRequest()
+		request.CallbackQuery = &gotgbot.CallbackQuery{
+			Id:      "someid",
+			Data:    "0|Niksic|Bar|2000-01-01",
+			Message: &gotgbot.Message{},
+		}
+
+		requestRaw := lo.Must(json.Marshal(request))
+		//mockTgClient.EXPECT().TimeoutContext(mock.Anything).Return(context.WithCancel(ctx))
+		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "answerCallbackQuery", mock.Anything, mock.Anything, mock.Anything).
+			Return([]byte("true"), nil)
+		mockTgClient.EXPECT().RequestWithContext(mock.Anything, TelegramApiToken, "editMessageText", mock.Anything, mock.Anything, mock.Anything).
+			Return([]byte("{}"), nil)
+		response, err := http.Post(HttpServerAddress, "application/json", bytes.NewBuffer(requestRaw))
+		assert.NoError(t, err)
+		require.NotNil(t, response)
+		defer func() { _ = response.Body.Close() }()
+		assert.Equal(t, http.StatusOK, response.StatusCode)
+		t.Log("telegram response: ", mockTgClient.Calls[1].Arguments)
+	})
+	// callback update on the same date
+	t.Run("update callback on the same date", func(t *testing.T) {
+		request := nextUpdateRequest()
+		request.CallbackQuery = &gotgbot.CallbackQuery{
+			Id:      "someid",
+			Data:    "0|Niksic|Bar|" + _date.Format("2006-01-02"),
+			Message: &gotgbot.Message{},
 		}
 
 		requestRaw := lo.Must(json.Marshal(request))
@@ -166,12 +213,11 @@ func TestTelegramRouteResponse(t *testing.T) {
 	})
 	// callback reverse
 	t.Run("reverse route callback", func(t *testing.T) {
-		request := gotgbot.Update{
-			CallbackQuery: &gotgbot.CallbackQuery{
-				Id:      "someid",
-				Data:    "1|Niksic|Bar",
-				Message: &gotgbot.Message{},
-			},
+		request := nextUpdateRequest()
+		request.CallbackQuery = &gotgbot.CallbackQuery{
+			Id:      "someid",
+			Data:    "1|Niksic|Bar",
+			Message: &gotgbot.Message{},
 		}
 
 		requestRaw := lo.Must(json.Marshal(request))

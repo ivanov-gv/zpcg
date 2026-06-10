@@ -1,0 +1,395 @@
+# how to:
+# 1. adjust seasons to export timetable for
+# 2. rebuild the timetable
+# 3. run tests
+# 4. deploy to preprod
+# 5. check everything
+# 6. deploy to prod
+
+version:
+timetable:
+  seasons:
+    - name: winter-early
+      start:
+      end: 2026-06-11
+      fetch_date: 2026-06-09
+      update_button_alert_text:
+        be: |
+          Расклад ужо абноўлены
+          З 13.06.2026 па 14.09.2026 дадасца цягнік Суботыца - Бар
+
+          У астатнім расклад не зменіцца
+        de: |
+          Der Fahrplan wurde bereits aktualisiert
+          Vom 13.06.2026 bis 14.09.2026 wird der Zug Subotica - Bar hinzugefügt
+
+          Der restliche Fahrplan bleibt unverändert
+        en: |
+          The timetable has already been updated
+          From 13.06.2026 to 14.09.2026 the Subotica - Bar train will be added
+
+          The rest of the timetable will not change
+        hr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se vlak Subotica - Bar
+
+          Ostatak voznog reda neće se promijeniti
+        ru: |
+          Расписание уже обновлено
+          13.06.2026 по 14.09.2026 добавится поезд Суботица - Бар
+
+          В остальном расписание не изменится
+        sk: |
+          Cestovný poriadok bol už aktualizovaný
+          Od 13.06.2026 do 14.09.2026 bude pridaný vlak Subotica - Bar
+
+          Zvyšok cestovného poriadku sa nezmení
+        sr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se voz Subotica - Bar
+
+          Ostatak voznog reda se neće promeniti
+        tr: |
+          Tarife zaten güncellendi
+          13.06.2026 ile 14.09.2026 tarihleri arasında Subotica - Bar treni eklenecek
+
+          Geri kalan tarife değişmeyecek
+        uk: |
+          Розклад вже оновлено
+          З 13.06.2026 по 14.09.2026 додасться поїзд Суботиця - Бар
+
+          В іншому розклад не зміниться
+      no_trains_warning:
+        be: |
+          На гэтым маршруце цягнікі ходзяць толькі ў летні сезон.
+          З 13.06.2026 па 14.09.2026 у расклад дадасца цягнік Суботыца - Белград - Бар
+        de: |
+          Auf dieser Strecke fahren Züge nur in der Sommersaison.
+          Vom 13.06.2026 bis 14.09.2026 wird der Zug Subotica - Belgrad - Bar in den Fahrplan aufgenommen
+        en: |
+          Trains on this route run only in the summer season.
+          From 13.06.2026 to 14.09.2026 the Subotica - Belgrade - Bar train will be added to the timetable
+        hr: |
+          Na ovoj ruti vlakovi voze samo u ljetnoj sezoni.
+          Od 13.06.2026 do 14.09.2026 u vozni red bit će dodan vlak Subotica - Beograd - Bar
+        ru: |
+          По этому маршруту поезда есть только в летний сезон. 
+          С 13.06.2026 по 14.09.2026 в расписании добавится поезд Суботица - Белград - Бар
+        sk: |
+          Na tejto trase vlaky premávajú iba v letnej sezóne.
+          Od 13.06.2026 do 14.09.2026 bude do cestovného poriadku pridaný vlak Subotica - Belehrad - Bar
+        sr: |
+          Na ovoj ruti vozovi saobraćaju samo u letnjoj sezoni.
+          Od 13.06.2026 do 14.09.2026 u vozni red biće dodat voz Subotica - Beograd - Bar
+        tr: |
+          Bu güzergahta trenler yalnızca yaz sezonunda çalışır.
+          13.06.2026 ile 14.09.2026 tarihleri arasında Subotica - Belgrad - Bar treni tarifeye eklenecek
+        uk: |
+          На цьому маршруті поїзди курсують лише в літній сезон.
+          З 13.06.2026 по 14.09.2026 до розкладу додасться поїзд Суботиця - Белград - Бар
+    - name: pre-summer
+      start: 2026-06-12
+      end: 2026-06-12
+      fetch_date: 2026-06-12
+      update_button_alert_text:
+        be: |
+          Расклад ужо абноўлены
+          З 13.06.2026 па 14.09.2026 дадасца цягнік Суботыца - Бар
+
+          У астатнім расклад не зменіцца
+        de: |
+          Der Fahrplan wurde bereits aktualisiert
+          Vom 13.06.2026 bis 14.09.2026 wird der Zug Subotica - Bar hinzugefügt
+
+          Der restliche Fahrplan bleibt unverändert
+        en: |
+          The timetable has already been updated
+          From 13.06.2026 to 14.09.2026 the Subotica - Bar train will be added
+
+          The rest of the timetable will not change
+        hr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se vlak Subotica - Bar
+
+          Ostatak voznog reda neće se promijeniti
+        ru: |
+          Расписание уже обновлено
+          13.06.2026 по 14.09.2026 добавится поезд Суботица - Бар
+
+          В остальном расписание не изменится
+        sk: |
+          Cestovný poriadok bol už aktualizovaný
+          Od 13.06.2026 do 14.09.2026 bude pridaný vlak Subotica - Bar
+
+          Zvyšok cestovného poriadku sa nezmení
+        sr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se voz Subotica - Bar
+
+          Ostatak voznog reda se neće promeniti
+        tr: |
+          Tarife zaten güncellendi
+          13.06.2026 ile 14.09.2026 tarihleri arasında Subotica - Bar treni eklenecek
+
+          Geri kalan tarife değişmeyecek
+        uk: |
+          Розклад вже оновлено
+          З 13.06.2026 по 14.09.2026 додасться поїзд Суботиця - Бар
+
+          В іншому розклад не зміниться
+      no_trains_warning:
+        be: |
+          На гэтым маршруце цягнікі ходзяць толькі ў летні сезон.
+          З 13.06.2026 па 14.09.2026 у расклад дадасца цягнік Суботыца - Белград - Бар
+        de: |
+          Auf dieser Strecke fahren Züge nur in der Sommersaison.
+          Vom 13.06.2026 bis 14.09.2026 wird der Zug Subotica - Belgrad - Bar in den Fahrplan aufgenommen
+        en: |
+          Trains on this route run only in the summer season.
+          From 13.06.2026 to 14.09.2026 the Subotica - Belgrade - Bar train will be added to the timetable
+        hr: |
+          Na ovoj ruti vlakovi voze samo u ljetnoj sezoni.
+          Od 13.06.2026 do 14.09.2026 u vozni red bit će dodan vlak Subotica - Beograd - Bar
+        ru: |
+          По этому маршруту поезда есть только в летний сезон. 
+          С 13.06.2026 по 14.09.2026 в расписании добавится поезд Суботица - Белград - Бар
+        sk: |
+          Na tejto trase vlaky premávajú iba v letnej sezóne.
+          Od 13.06.2026 do 14.09.2026 bude do cestovného poriadku pridaný vlak Subotica - Belehrad - Bar
+        sr: |
+          Na ovoj ruti vozovi saobraćaju samo u letnjoj sezoni.
+          Od 13.06.2026 do 14.09.2026 u vozni red biće dodat voz Subotica - Beograd - Bar
+        tr: |
+          Bu güzergahta trenler yalnızca yaz sezonunda çalışır.
+          13.06.2026 ile 14.09.2026 tarihleri arasında Subotica - Belgrad - Bar treni tarifeye eklenecek
+        uk: |
+          На цьому маршруті поїзди курсують лише в літній сезон.
+          З 13.06.2026 по 14.09.2026 до розкладу додасться поїзд Суботиця - Белград - Бар
+    - name: summer
+      start: 2026-06-13
+      end: 2026-09-13
+      fetch_date: 2026-06-13
+      update_button_alert_text:
+        be: |
+          Расклад ужо абноўлены
+          З 13.06.2026 па 14.09.2026 дадасца цягнік Суботыца - Бар
+
+          У астатнім расклад не зменіцца
+        de: |
+          Der Fahrplan wurde bereits aktualisiert
+          Vom 13.06.2026 bis 14.09.2026 wird der Zug Subotica - Bar hinzugefügt
+
+          Der restliche Fahrplan bleibt unverändert
+        en: |
+          The timetable has already been updated
+          From 13.06.2026 to 14.09.2026 the Subotica - Bar train will be added
+
+          The rest of the timetable will not change
+        hr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se vlak Subotica - Bar
+
+          Ostatak voznog reda neće se promijeniti
+        ru: |
+          Расписание уже обновлено
+          13.06.2026 по 14.09.2026 добавится поезд Суботица - Бар
+
+          В остальном расписание не изменится
+        sk: |
+          Cestovný poriadok bol už aktualizovaný
+          Od 13.06.2026 do 14.09.2026 bude pridaný vlak Subotica - Bar
+
+          Zvyšok cestovného poriadku sa nezmení
+        sr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se voz Subotica - Bar
+
+          Ostatak voznog reda se neće promeniti
+        tr: |
+          Tarife zaten güncellendi
+          13.06.2026 ile 14.09.2026 tarihleri arasında Subotica - Bar treni eklenecek
+
+          Geri kalan tarife değişmeyecek
+        uk: |
+          Розклад вже оновлено
+          З 13.06.2026 по 14.09.2026 додасться поїзд Суботиця - Бар
+
+          В іншому розклад не зміниться
+      no_trains_warning: # should not happen
+        be:
+        de:
+        en:
+        hr:
+        ru:
+        sk:
+        sr:
+        tr:
+        uk:
+    - name: post-summer
+      start: 2026-09-14
+      end: 2026-09-14
+      fetch_date: 2026-09-14
+      update_button_alert_text:
+        be: |
+          Расклад ужо абноўлены
+          З 13.06.2026 па 14.09.2026 дадасца цягнік Суботыца - Бар
+
+          У астатнім расклад не зменіцца
+        de: |
+          Der Fahrplan wurde bereits aktualisiert
+          Vom 13.06.2026 bis 14.09.2026 wird der Zug Subotica - Bar hinzugefügt
+
+          Der restliche Fahrplan bleibt unverändert
+        en: |
+          The timetable has already been updated
+          From 13.06.2026 to 14.09.2026 the Subotica - Bar train will be added
+
+          The rest of the timetable will not change
+        hr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se vlak Subotica - Bar
+
+          Ostatak voznog reda neće se promijeniti
+        ru: |
+          Расписание уже обновлено
+          13.06.2026 по 14.09.2026 добавится поезд Суботица - Бар
+
+          В остальном расписание не изменится
+        sk: |
+          Cestovný poriadok bol už aktualizovaný
+          Od 13.06.2026 do 14.09.2026 bude pridaný vlak Subotica - Bar
+
+          Zvyšok cestovného poriadku sa nezmení
+        sr: |
+          Vozni red je već ažuriran
+          Od 13.06.2026 do 14.09.2026 dodaje se voz Subotica - Bar
+
+          Ostatak voznog reda se neće promeniti
+        tr: |
+          Tarife zaten güncellendi
+          13.06.2026 ile 14.09.2026 tarihleri arasında Subotica - Bar treni eklenecek
+
+          Geri kalan tarife değişmeyecek
+        uk: |
+          Розклад вже оновлено
+          З 13.06.2026 по 14.09.2026 додасться поїзд Суботиця - Бар
+
+          В іншому розклад не зміниться
+      no_trains_warning:
+        be: |
+          На гэтым маршруце зараз няма цягнікоў, яны з'явяцца ў раскладзе толькі ў наступны летні сезон.
+          Расклад на 2027 год будзе апублікаваны ў снежні.
+        de: |
+          Auf dieser Strecke gibt es derzeit keine Züge; sie werden erst in der nächsten Sommersaison in den Fahrplan aufgenommen.
+          Der Fahrplan für 2027 wird im Dezember veröffentlicht.
+        en: |
+          There are currently no trains on this route; they will appear in the timetable only in the next summer season.
+          The 2027 timetable will be published in December.
+        hr: |
+          Na ovoj ruti trenutno nema vlakova; pojavit će se u voznom redu tek u sljedećoj ljetnoj sezoni.
+          Vozni red za 2027. bit će objavljen u prosincu.
+        ru: |
+          По этому маршруту сейчас нет поездов, они появятся в расписании только в следующий летний сезон. 
+          Расписание на 2027 год будет опубликовано в декабре.
+        sk: |
+          Na tejto trase momentálne nie sú žiadne vlaky; objavia sa v cestovnom poriadku až v nasledujúcej letnej sezóne.
+          Cestovný poriadok na rok 2027 bude zverejnený v decembri.
+        sr: |
+          Na ovoj ruti trenutno nema vozova; pojaviće se u voznom redu tek u sledećoj letnjoj sezoni.
+          Vozni red za 2027. godinu biće objavljen u decembru.
+        tr: |
+          Bu güzergahta şu anda tren bulunmamaktadır; bir sonraki yaz sezonunda tarifeye eklenecektir.
+          2027 tarifesi Aralık ayında yayınlanacak.
+        uk: |
+          На цьому маршруті зараз немає поїздів, вони з'являться в розкладі лише в наступний літній сезон.
+          Розклад на 2027 рік буде опублікований у грудні.
+    - name: winter-late
+      start: 2026-09-15
+      end: # 2026-12-12 - no timetable available after this date
+      fetch_date: 2026-09-15
+      update_button_alert_text:
+        be: |
+          Расклад ужо абноўлены
+
+          Да 13 снежня 2026 года ён застанецца ранейшым.
+        de: |
+          Der Fahrplan wurde bereits aktualisiert
+
+          Er bleibt bis zum 13. Dezember 2026 unverändert.
+        en: |
+          The timetable has already been updated
+
+          It will remain unchanged until December 13, 2026.
+        hr: |
+          Vozni red je već ažuriran
+
+          Ostat će isti do 13. prosinca 2026.
+        ru: |
+          Расписание уже обновлено
+          
+          До 13 декабря 2026 оно останется прежним.
+        sk: |
+          Cestovný poriadok bol už aktualizovaný
+
+          Do 13. decembra 2026 zostane nezmenený.
+        sr: |
+          Vozni red je već ažuriran
+
+          Ostaće isti do 13. decembra 2026.
+        tr: |
+          Tarife zaten güncellendi
+
+          13 Aralık 2026'ya kadar aynı kalacak.
+        uk: |
+          Розклад вже оновлено
+
+          До 13 грудня 2026 він залишиться незмінним.
+      no_trains_warning:
+        be: |
+          На гэтым маршруце зараз няма цягнікоў, яны з'явяцца ў раскладзе толькі ў наступны летні сезон.
+          Расклад на 2027 год будзе апублікаваны ў снежні.
+        de: |
+          Auf dieser Strecke gibt es derzeit keine Züge; sie werden erst in der nächsten Sommersaison in den Fahrplan aufgenommen.
+          Der Fahrplan für 2027 wird im Dezember veröffentlicht.
+        en: |
+          There are currently no trains on this route; they will appear in the timetable only in the next summer season.
+          The 2027 timetable will be published in December.
+        hr: |
+          Na ovoj ruti trenutno nema vlakova; pojavit će se u voznom redu tek u sljedećoj ljetnoj sezoni.
+          Vozni red za 2027. bit će objavljen u prosincu.
+        ru: |
+          По этому маршруту сейчас нет поездов, они появятся в расписании только в следующий летний сезон. 
+          Расписание на 2027 год будет опубликовано в декабре.
+        sk: |
+          Na tejto trase momentálne nie sú žiadne vlaky; objavia sa v cestovnom poriadku až v nasledujúcej letnej sezóne.
+          Cestovný poriadok na rok 2027 bude zverejnený v decembri.
+        sr: |
+          Na ovoj ruti trenutno nema vozova; pojaviće se u voznom redu tek u sledećoj letnjoj sezoni.
+          Vozni red za 2027. godinu biće objavljen u decembru.
+        tr: |
+          Bu güzergahta şu anda tren bulunmamaktadır; bir sonraki yaz sezonunda tarifeye eklenecektir.
+          2027 tarifesi Aralık ayında yayınlanacak.
+        uk: |
+          На цьому маршруті зараз немає поїздів, вони з'являться в розкладі лише в наступний літній сезон.
+          Розклад на 2027 рік буде опублікований у грудні.
+  routes:
+    - start: Bar
+      finish: Subotica
+    - start: Subotica
+      finish: Bar
+    - start: Bar
+      finish: Zemun
+    - start: Zemun
+      finish: Bar
+    - start: Podgorica
+      finish: Bar
+    - start: Bar
+      finish: Podgorica
+    - start: Podgorica
+      finish: Nikšić
+    - start: Nikšić
+      finish: Podgorica
+    - start: Bar
+      finish: Bijelo Polje
+    - start: Bijelo Polje
+      finish: Bar

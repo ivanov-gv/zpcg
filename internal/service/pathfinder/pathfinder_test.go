@@ -5,8 +5,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ivanov-gv/zpcg/internal/service/name"
-	"github.com/ivanov-gv/zpcg/internal/service/transfer"
+	"github.com/ivanov-gv/zpcg/internal/pkg/timetable_export"
+	"github.com/ivanov-gv/zpcg/internal/service/date"
+	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
+	"github.com/ivanov-gv/zpcg/internal/service/timetable"
 )
 
 const (
@@ -16,21 +18,39 @@ const (
 )
 
 func TestFindDirectPaths(t *testing.T) {
-	timetable := transfer.ImportTimetable()
-	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
-	paths := pathFinder.findDirectPaths(
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(NiksicStationName)],
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(DanilovgradStationName)])
-	assert.NotNil(t, paths)
-	assert.NotEmpty(t, paths)
+	_timetable := timetable_export.ImportTimetable()
+
+	for _, season := range _timetable.Seasons {
+		t.Run(season.Name, func(t *testing.T) {
+			dateService := date.NewDateService(t.Context(), date.FixedDate(season.Start))
+			timetableService, err := timetable.New(_timetable, dateService)
+			assert.NoError(t, err)
+
+			pathFinder := NewPathFinder(timetableService)
+			paths := pathFinder.findDirectPaths(season,
+				_timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(NiksicStationName)],
+				_timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(DanilovgradStationName)])
+			assert.NotNil(t, paths)
+			assert.NotEmpty(t, paths)
+		})
+	}
 }
 
 func TestFindPaths(t *testing.T) {
-	timetable := transfer.ImportTimetable()
-	pathFinder := NewPathFinder(timetable.StationIdToTrainIdSet, timetable.TrainIdToStationMap, timetable.TransferStationId)
-	paths := pathFinder.findPathsWithTransfer(
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(NiksicStationName)],
-		timetable.UnifiedStationNameToStationIdMap[name.Unify(BarStationName)])
-	assert.NotNil(t, paths)
-	assert.NotEmpty(t, paths)
+	_timetable := timetable_export.ImportTimetable()
+
+	for _, season := range _timetable.Seasons {
+		t.Run(season.Name, func(t *testing.T) {
+			dateService := date.NewDateService(t.Context(), date.FixedDate(season.Start))
+			timetableService, err := timetable.New(_timetable, dateService)
+			assert.NoError(t, err)
+
+			pathFinder := NewPathFinder(timetableService)
+			paths := pathFinder.findPathsWithTransfer(season,
+				_timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(NiksicStationName)],
+				_timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(BarStationName)])
+			assert.NotNil(t, paths)
+			assert.NotEmpty(t, paths)
+		})
+	}
 }

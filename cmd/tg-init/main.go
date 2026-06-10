@@ -9,7 +9,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/samber/lo"
 
-	"github.com/ivanov-gv/zpcg/internal/model/render"
+	"github.com/ivanov-gv/zpcg/internal/model/message_render"
 )
 
 const botRequestTimeout = 30 * time.Second
@@ -42,7 +42,7 @@ func main() {
 
 	// set info
 
-	defaultInfo := render.BotInfoMap[render.DefaultLanguageTag]
+	defaultInfo := message_render.BotInfoMap[message_render.DefaultLanguageTag]
 	_, err = bot.SetMyName(&gotgbot.SetMyNameOpts{Name: defaultInfo.Name})
 	if err != nil {
 		log.Fatal("bot.SetMyName: ", err)
@@ -55,7 +55,7 @@ func main() {
 	if err != nil {
 		log.Fatal("bot.SetMyShortDescription: ", err)
 	}
-	_, err = bot.SetMyCommands(lo.Map(render.AllCommands, func(item render.BotCommand, _ int) gotgbot.BotCommand {
+	_, err = bot.SetMyCommands(lo.Map(message_render.AllCommands, func(item message_render.BotCommand, _ int) gotgbot.BotCommand {
 		return gotgbot.BotCommand{
 			Command:     string(item),
 			Description: defaultInfo.CommandNames[item],
@@ -65,7 +65,7 @@ func main() {
 		log.Fatal("bot.SetMyCommands: ", err)
 	}
 
-	for languageTag, info := range render.BotInfoMap {
+	for languageTag, info := range message_render.BotInfoMap {
 		_, err = bot.SetMyName(&gotgbot.SetMyNameOpts{
 			Name:         info.Name,
 			LanguageCode: languageTag.String(),
@@ -87,7 +87,7 @@ func main() {
 		if err != nil {
 			log.Fatal(languageTag.String()+" bot.SetMyShortDescription: ", err)
 		}
-		_, err = bot.SetMyCommands(lo.Map(render.AllCommands, func(item render.BotCommand, _ int) gotgbot.BotCommand {
+		_, err = bot.SetMyCommands(lo.Map(message_render.AllCommands, func(item message_render.BotCommand, _ int) gotgbot.BotCommand {
 			return gotgbot.BotCommand{
 				Command:     string(item),
 				Description: info.CommandNames[item],

@@ -5,12 +5,10 @@ const (
 )
 
 type ExportFormat struct {
-	StationIdToTrainIdSet            map[StationId]TrainIdSet
-	TrainIdToStationMap              map[TrainId]StationIdToStationMap
-	StationIdToStationMap            map[StationId]Station
-	TrainIdToTrainInfoMap            map[TrainId]TrainInfo
-	UnifiedStationNameToStationIdMap map[string]StationId
+	Seasons                          []Season
 	UnifiedStationNameList           [][]rune
+	UnifiedStationNameToStationIdMap map[string]StationId
+	StationIdToStationMap            map[StationId]Station
 	StationTypes                     map[StationTypeId]StationType
 	TransferStationId                StationId
 }
