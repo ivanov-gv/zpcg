@@ -17,13 +17,7 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/service/timetable_parser/routes"
 )
 
-const (
-	BaseUrl        = "https://api.zpcg.me/api"
-	StationsApiUrl = BaseUrl + "/stops"
-)
-
 func New(config timetable_parser_config.Config) TimetableParser {
-
 	return TimetableParser{
 		timetableConfig: config.Timetable,
 
@@ -99,10 +93,15 @@ func (t *TimetableParser) ParseTimetable() (timetable.ExportFormat, error) {
 	}, nil
 }
 
+const (
+	BaseUrl        = "https://api.zpcg.me/api"
+	StationsApiUrl = BaseUrl + "/stops"
+)
+
 func url(start, end string, date time.Time) string {
 	start = strings.ReplaceAll(start, " ", "+")
 	end = strings.ReplaceAll(end, " ", "+")
-	dateString := date.Format("2006-02-01")
+	dateString := date.Format("2006-01-02")
 	return fmt.Sprintf(BaseUrl+"/routes?start=%s&finish=%s&date=%s", start, end, dateString)
 }
 
