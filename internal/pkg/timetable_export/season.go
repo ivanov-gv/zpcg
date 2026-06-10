@@ -37,12 +37,12 @@ func VerifyTimeranges(timeRanges []TimeRange) error {
 	}
 
 	previousEnd := time.Time{}.Add(-24 * time.Hour)
-	for _, season := range timeRanges {
+	for i, season := range timeRanges {
 		if !previousEnd.Add(24 * time.Hour).Equal(season.Start) {
 			return fmt.Errorf("seasons must be consecutive. season '%s' must start '%s'",
 				season.Name, previousEnd.Add(24*time.Hour).Format(time.DateOnly))
 		}
-		if !season.End.After(season.Start) {
+		if i < len(timeRanges)-1 && !season.End.After(season.Start) {
 			return fmt.Errorf("'%s' season's end date must be after start date. currently start='%s', end='%s'",
 				season.Name, season.Start.Format(time.DateOnly), season.End.Format(time.DateOnly))
 		}

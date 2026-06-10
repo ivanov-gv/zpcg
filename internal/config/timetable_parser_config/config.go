@@ -134,9 +134,9 @@ func verifyParseConfigSeasons(seasons []Season) error {
 	}
 	timeRanges := lo.Map(seasons, func(item Season, _ int) timetable_export.TimeRange {
 		return timetable_export.TimeRange{
-			name:  item.Name,
-			start: item.Start,
-			end:   item.End,
+			Name:  item.Name,
+			Start: item.Start,
+			End:   item.End,
 		}
 	})
 	return timetable_export.VerifyTimeranges(timeRanges)

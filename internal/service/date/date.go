@@ -29,9 +29,25 @@ const (
 	podgoricaUTCOffset = 2 * time.Hour // FIXME: Cloud Run runs in UTC; time.In(location) broken there
 )
 
+type Option func(*DateService)
+
+var (
+	FixedDate = func(date time.Time) Option {
+		return func(d *DateService) {
+			d.currentDate.Store(toInt64(date))
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+			d.ctx = ctx
+		}
+	}
+)
+
 // NewDateService holds current date and updates it once a day
-func NewDateService(ctx context.Context) *DateService {
+func NewDateService(ctx context.Context, options ...Option) *DateService {
 	service := &DateService{ctx: ctx}
+	for _, option := range options {
+		option(service)
+	}
 	service.startUpdatingLoop(day)
 	return service
 }

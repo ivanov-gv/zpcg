@@ -55,17 +55,19 @@ func renderTestDirectRoutes(tag language.Tag, _time time.Time, updateCallback, r
 			Name: "Station2",
 		},
 	}
-	trainMap := map[timetable.TrainId]timetable.TrainInfo{
-		1111: {
-			TrainId:      1111,
-			TimetableUrl: "https:/somesite.com/timetable/1111",
-		},
-		222: {
-			TrainId:      222,
-			TimetableUrl: "https:/somesite.com/timetable/222",
+	season := timetable.Season{
+		TrainIdToTrainInfoMap: map[timetable.TrainId]timetable.TrainInfo{
+			1111: {
+				TrainId:      1111,
+				TimetableUrl: "https:/somesite.com/timetable/1111",
+			},
+			222: {
+				TrainId:      222,
+				TimetableUrl: "https:/somesite.com/timetable/222",
+			},
 		},
 	}
-	return NewRender(stationsMap, trainMap).DirectRoutes(tag, paths, _time, updateCallback, reverseCallback)
+	return NewRender(stationsMap).DirectRoutes(tag, season, paths, _time, updateCallback, reverseCallback)
 }
 
 func TestDirectRoutes(t *testing.T) {
@@ -122,17 +124,19 @@ func renderTestTransferRoutes(tag language.Tag, _time time.Time, updateCallback,
 			Name: "Station3",
 		},
 	}
-	trainMap := map[timetable.TrainId]timetable.TrainInfo{
-		1111: {
-			TrainId:      1111,
-			TimetableUrl: "https:/somesite.com/timetable/1111",
-		},
-		222: {
-			TrainId:      222,
-			TimetableUrl: "https:/somesite.com/timetable/222",
+	season := timetable.Season{
+		TrainIdToTrainInfoMap: map[timetable.TrainId]timetable.TrainInfo{
+			1111: {
+				TrainId:      1111,
+				TimetableUrl: "https:/somesite.com/timetable/1111",
+			},
+			222: {
+				TrainId:      222,
+				TimetableUrl: "https:/somesite.com/timetable/222",
+			},
 		},
 	}
-	return NewRender(stationsMap, trainMap).TransferRoutes(tag, paths, _time, 1, 2, 3,
+	return NewRender(stationsMap).TransferRoutes(tag, season, paths, _time, 1, 2, 3,
 		updateCallback, reverseCallback)
 }
 
