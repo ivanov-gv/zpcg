@@ -1,4 +1,4 @@
-package routes
+package timetable_parser
 
 import (
 	"encoding/json"
@@ -6,14 +6,97 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 
+	"github.com/ivanov-gv/zpcg/internal/config/timetable_parser_config"
 	"github.com/ivanov-gv/zpcg/internal/model/timetable"
+	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
 	"github.com/ivanov-gv/zpcg/internal/utils"
 )
+
+func newSeasonParser(config timetable_parser_config.Timetable, parser *stationParser) *seasonParser {
+	return &seasonParser{
+		timetableConfig:                  config,
+		seasonTimetables:                 make([]timetable.Season, 0, len(config.Seasons)),
+		unifiedStationNameToStationIdMap: make(map[string]timetable.StationId),
+		stationParser:                    parser,
+	}
+}
+
+type seasonParser struct {
+	timetableConfig timetable_parser_config.Timetable
+
+	seasonTimetables                 []timetable.Season
+	unifiedStationNameToStationIdMap map[string]timetable.StationId
+
+	*stationParser
+}
+
+func (p *seasonParser) parseSeasons() error {
+	// parse stations
+	err := p.stationParser.parseStations()
+	if err != nil {
+		return fmt.Errorf("stations.ParseStations: %w", err)
+	}
+
+	// then seasons
+	for _, season := range p.timetableConfig.Seasons {
+		seasonTimetable, err := p.parseSeason(season)
+		if err != nil {
+			return fmt.Errorf("t.parseSeason [name='%s']: %w", season.Name, err)
+		}
+		p.seasonTimetables = append(p.seasonTimetables, seasonTimetable)
+	}
+	return nil
+}
+
+const (
+	BaseUrl        = "https://api.zpcg.me/api"
+	StationsApiUrl = BaseUrl + "/stops"
+)
+
+func url(start, end string, date time.Time) string {
+	start = strings.ReplaceAll(start, " ", "+")
+	end = strings.ReplaceAll(end, " ", "+")
+	dateString := date.Format("2006-01-02")
+	return fmt.Sprintf(BaseUrl+"/routes?start=%s&finish=%s&date=%s", start, end, dateString)
+}
+
+func (p *seasonParser) parseSeason(season timetable_parser_config.Season) (timetable.Season, error) {
+	var routesResponseBodies []io.ReadCloser
+	for _, route := range p.timetableConfig.Routes {
+		routesResponse, err := retryablehttp.Get(url(route.Start, route.Finish, season.FetchDate))
+		if err != nil {
+			return timetable.Season{}, fmt.Errorf("retryablehttp.Get [url='%s']: %w", url, err)
+		}
+		routesResponseBodies = append(routesResponseBodies, routesResponse.Body)
+	}
+
+	detailedTimetableMap, err := parseRoutes(p.zpcgStopIdToStationsMap, routesResponseBodies...)
+	if err != nil {
+		return timetable.Season{}, fmt.Errorf("routes.ParseRoutes: %w", err)
+	}
+	parsedSeason := mapTimetableToSeason(season, detailedTimetableMap)
+
+	// fill unifiedStationNameToStationIdMap
+	for _, route := range detailedTimetableMap {
+		for _, station := range route.Stops {
+			stationName := p.stationIdToStationMap[station.Id].Name
+			if stationId, ok := p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(stationName)]; ok && stationId != station.Id {
+				return timetable.Season{}, fmt.Errorf("seems like station.id is not unique across seasons: "+
+					"season='%s', stationName='%s', stationId='%d', savedStationId='%d'",
+					season.Name, stationName, station.Id, stationId)
+			}
+			p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(stationName)] = station.Id
+		}
+	}
+	return parsedSeason, nil
+}
 
 type rawTimetableItem struct {
 	ArrivalTime   string `json:"ArrivalTime"`
@@ -37,7 +120,7 @@ type rawAvailableRoutes struct {
 	Direct []rawTrainInfo `json:"direct"`
 }
 
-func ParseRoutes(zpcgStopIdToStationsMap map[int]timetable.Station, routesBytes ...io.ReadCloser) (map[timetable.TrainId]timetable.DetailedTimetable, error) {
+func parseRoutes(zpcgStopIdToStationsMap map[int]timetable.Station, routesBytes ...io.ReadCloser) (map[timetable.TrainId]timetable.DetailedTimetable, error) {
 	defer func() {
 		for _, bytes := range routesBytes {
 			err := bytes.Close()
@@ -152,7 +235,7 @@ func parseStops(zpcgStopIdToStationsMap map[int]timetable.Station, timetableItem
 			(prevStop.Departure.After(utils.Midnight) || // previous stop departure is after midnight
 				prevStop.Departure.After(station.Arrival) || // previous stop departure is before midnight, but current stop arrival is after midnight. like 23:58 -> 00:02
 				station.Arrival.After(station.Departure)) { // arrival at a current stop is after departure: 23:58 -> 00:02
-			if !station.Arrival.After(station.Departure) { // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
+			if !station.Arrival.After(station.Departure) {  // if both arrival and departure are after midnight - add 24h to both. example: 00:02 -> 00:05
 				station.Arrival = station.Arrival.Add(utils.Day)
 			}
 			station.Departure = station.Departure.Add(utils.Day)
@@ -215,4 +298,59 @@ func parseStop(zpcgStopIdToStationsMap map[int]timetable.Station, timetableItem 
 		Arrival:   arrivalTime,
 		Departure: departureTime,
 	}, nil
+}
+
+func mapTimetableToSeason(season timetable_parser_config.Season, routes map[timetable.TrainId]timetable.DetailedTimetable) timetable.Season {
+	// fill stationIdToTrainIdSetMap
+	var stationIdToTrainIdSetMap = make(map[timetable.StationId]timetable.TrainIdSet)
+	for trainId, route := range routes {
+		for _, station := range route.Stops {
+			// add route to the station
+			if trainIdSet, ok := stationIdToTrainIdSetMap[station.Id]; ok { // found
+				trainIdSet[trainId] = struct{}{}
+			} else { // not created yet
+				trainIdSet = make(timetable.TrainIdSet)
+				trainIdSet[trainId] = struct{}{}
+				stationIdToTrainIdSetMap[station.Id] = trainIdSet
+			}
+		}
+	}
+	// fill trainIdToStationsMap
+	var trainIdToStationsMap = make(map[timetable.TrainId]timetable.StationIdToStationMap, len(routes))
+	for trainId, route := range routes {
+		var routeStationsMap = make(timetable.StationIdToStationMap, len(route.Stops))
+		for _, station := range route.Stops {
+			// add station to the route
+			routeStationsMap[station.Id] = station
+		}
+		trainIdToStationsMap[trainId] = routeStationsMap
+	}
+	// fill trainIdToTrainInfoMap
+	var trainIdToTrainInfoMap = make(map[timetable.TrainId]timetable.TrainInfo, len(routes))
+	for trainId, route := range routes {
+		trainIdToTrainInfoMap[trainId] = timetable.TrainInfo{
+			TrainId:      trainId,
+			TimetableUrl: route.TimetableUrl,
+		}
+	}
+
+	return timetable.Season{
+		Name:  season.Name,
+		Start: season.Start,
+		End:   season.End,
+		Warning: timetable.Warning{
+			Be: season.Warning.Be,
+			De: season.Warning.De,
+			En: season.Warning.En,
+			Hr: season.Warning.Hr,
+			Ru: season.Warning.Ru,
+			Sk: season.Warning.Sk,
+			Sr: season.Warning.Sr,
+			Tr: season.Warning.Tr,
+			Uk: season.Warning.Uk,
+		},
+		StationIdToTrainIdSet: stationIdToTrainIdSetMap,
+		TrainIdToStationMap:   trainIdToStationsMap,
+		TrainIdToTrainInfoMap: trainIdToTrainInfoMap,
+	}
 }

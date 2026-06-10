@@ -13,7 +13,6 @@ type Season struct {
 
 	StationIdToTrainIdSet map[StationId]TrainIdSet
 	TrainIdToStationMap   map[TrainId]StationIdToStationMap
-	StationIdToStationMap map[StationId]Station
 	TrainIdToTrainInfoMap map[TrainId]TrainInfo
 }
 

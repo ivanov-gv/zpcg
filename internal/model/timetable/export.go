@@ -6,8 +6,9 @@ const (
 
 type ExportFormat struct {
 	Seasons                          []Season
-	UnifiedStationNameToStationIdMap map[string]StationId
 	UnifiedStationNameList           [][]rune
+	UnifiedStationNameToStationIdMap map[string]StationId
+	StationIdToStationMap            map[StationId]Station
 	StationTypes                     map[StationTypeId]StationType
 	TransferStationId                StationId
 }

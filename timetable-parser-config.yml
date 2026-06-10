@@ -1,3 +1,11 @@
+# how to:
+# 1. adjust date to export timetable for
+# 2. rebuild the timetable
+# 3. run tests
+# 4. deploy to preprod
+# 5. check everything
+# 6. deploy to prod
+
 version: v0.0
 timetable:
   seasons:

@@ -14,6 +14,20 @@ import (
 	"github.com/ivanov-gv/zpcg/internal/service/station_name_resolver"
 )
 
+func newStationParser() *stationParser {
+	return &stationParser{
+		zpcgStopIdToStationsMap: nil,
+		stationIdToStationMap:   nil,
+		stationTypesMap:         nil,
+	}
+}
+
+type stationParser struct {
+	zpcgStopIdToStationsMap map[int]timetable.Station
+	stationIdToStationMap   map[timetable.StationId]timetable.Station
+	stationTypesMap         map[timetable.StationTypeId]timetable.StationType
+}
+
 type rawStationType struct {
 	StopTypeID int    `json:"StopTypeID"`
 	NameMe     string `json:"Name_me"`
@@ -32,7 +46,8 @@ type rawStation struct {
 	StopType   rawStationType `json:"stop_type"`
 }
 
-func (t *TimetableParser) parseStations() error {
+func (s *stationParser) parseStations() error {
+	// get stations from api
 	stationsResponse, err := retryablehttp.Get(StationsApiUrl)
 	if err != nil {
 		return fmt.Errorf("retryablehttp.Get[url='%s']: %w", StationsApiUrl, err)
@@ -49,23 +64,25 @@ func (t *TimetableParser) parseStations() error {
 		return fmt.Errorf("io.ReadAll: %w", err)
 	}
 
+	// unmarshal
 	var rawStations []rawStation
 	err = json.Unmarshal(rawStationsBytes, &rawStations)
 	if err != nil {
 		return fmt.Errorf("json.Unmarshal: %w", err)
 	}
 
-	// parse station types
+	// fill stationTypesMap
+	s.stationTypesMap = make(map[timetable.StationTypeId]timetable.StationType)
 	for _, station := range rawStations {
-		savedType, ok := t.stationTypesMap[timetable.StationTypeId(station.StopType.StopTypeID)]
+		savedType, ok := s.stationTypesMap[timetable.StationTypeId(station.StopType.StopTypeID)]
 		if ok && !equalStationTypes(station.StopType, savedType) {
 			log.Warn().Any("savedType", savedType).Any("parsedType", station.StopType).
 				Msg("got two station types with the same id but diff names")
 		}
-		t.stationTypesMap[timetable.StationTypeId(station.StopType.StopTypeID)] = mapToStationType(station.StopType)
+		s.stationTypesMap[timetable.StationTypeId(station.StopType.StopTypeID)] = mapToStationType(station.StopType)
 	}
 
-	// parse zpcgStopIdToStationsMap
+	// fill zpcgStopIdToStationsMap
 	lastTakenStationId := lo.Max(lo.Values(gen_timetable.Timetable.UnifiedStationNameToStationIdMap))
 	generateStationId := func(stationName string) timetable.StationId {
 		if id, found := gen_timetable.Timetable.UnifiedStationNameToStationIdMap[station_name_resolver.Unify(stationName)]; found && id > 0 {
@@ -74,7 +91,7 @@ func (t *TimetableParser) parseStations() error {
 		lastTakenStationId += 1
 		return lastTakenStationId
 	}
-	t.zpcgStopIdToStationsMap = lo.SliceToMap(rawStations, func(item rawStation) (int, timetable.Station) {
+	s.zpcgStopIdToStationsMap = lo.SliceToMap(rawStations, func(item rawStation) (int, timetable.Station) {
 		return item.StopID, timetable.Station{
 			Id:         generateStationId(item.NameMe),
 			ZpcgStopId: item.StopID,
@@ -83,6 +100,12 @@ func (t *TimetableParser) parseStations() error {
 			NameEn:     item.NameEn,
 			NameCyr:    item.NameMeCyr,
 		}
+	})
+
+	// fill stationIdToStationMap
+	allStations := lo.Values(s.zpcgStopIdToStationsMap)
+	s.stationIdToStationMap = lo.SliceToMap(allStations, func(item timetable.Station) (timetable.StationId, timetable.Station) {
+		return item.Id, item
 	})
 
 	return nil
