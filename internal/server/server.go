@@ -24,6 +24,8 @@ type App interface {
 	HandleUpdate(update message.Update) (response message.ResponseWithChatId, warning error)
 }
 
+const serverShutdownTimeout = 15 * time.Second
+
 // RunServer starts all processes needed to communicate with environment - initializes http server, logger,
 // middlewares, k8s probes, etc. It knows nothing about business logic, only handles communication
 func RunServer(ctx context.Context, _config server_config.Config, _app App, opts ...ApplyOption) error {
@@ -66,7 +68,7 @@ func RunServer(ctx context.Context, _config server_config.Config, _app App, opts
 		}
 	}()
 	<-ctx.Done()
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), serverShutdownTimeout)
 	defer shutdownCancel()
 	err = server.Shutdown(shutdownCtx)
 	if err != nil {

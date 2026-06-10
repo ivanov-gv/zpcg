@@ -25,6 +25,8 @@ func VerifySeasons(seasons []model_timetable.Season) error {
 	return VerifyTimeranges(timeRanges)
 }
 
+const day = 24 * time.Hour
+
 func VerifyTimeranges(timeRanges []TimeRange) error {
 	if len(timeRanges) < 1 {
 		return fmt.Errorf("at least one season must be added")
@@ -38,9 +40,9 @@ func VerifyTimeranges(timeRanges []TimeRange) error {
 
 	previousEnd := time.Time{}.Add(-24 * time.Hour)
 	for i, season := range timeRanges {
-		if !previousEnd.Add(24 * time.Hour).Equal(season.Start) {
+		if !previousEnd.Add(day).Equal(season.Start) {
 			return fmt.Errorf("seasons must be consecutive. season '%s' must start '%s'",
-				season.Name, previousEnd.Add(24*time.Hour).Format(time.DateOnly))
+				season.Name, previousEnd.Add(day).Format(time.DateOnly))
 		}
 		if i < len(timeRanges)-1 && season.Start.After(season.End) {
 			return fmt.Errorf("'%s' season's end date must be after start date. currently start='%s', end='%s'",

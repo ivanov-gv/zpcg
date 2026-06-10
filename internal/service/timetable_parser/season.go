@@ -39,7 +39,7 @@ type seasonParser struct {
 
 func (p *seasonParser) parseSeasons() error {
 	// parse stations
-	err := p.stationParser.parseStations()
+	err := p.parseStations()
 	if err != nil {
 		return fmt.Errorf("stations.ParseStations: %w", err)
 	}

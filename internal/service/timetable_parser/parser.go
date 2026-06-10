@@ -29,7 +29,7 @@ type TimetableParser struct {
 
 func (t *TimetableParser) ParseTimetable() (timetable.ExportFormat, error) {
 	// parse seasons' timetables
-	err := t.seasonParser.parseSeasons()
+	err := t.parseSeasons() //
 	if err != nil {
 		return timetable.ExportFormat{}, fmt.Errorf("seasons.ParseSeasons: %w", err)
 	}
