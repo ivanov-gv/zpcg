@@ -134,9 +134,12 @@ func (r *Render) ErrorMessage(languageTag language.Tag) message.Response {
 	}
 }
 
-func (r *Render) StationNotFoundMessage(languageTag language.Tag) message.Response {
+func (r *Render) StationNotFoundMessage(languageTag language.Tag, stationInput string) message.Response {
+	if len(stationInput) != 0 {
+		stationInput = strings.TrimSpace(stationInput) + ": "
+	}
 	return message.Response{
-		Text:      GetMessage(model_render.StationDoesNotExistMessageMap, languageTag),
+		Text:      stationInput + GetMessage(model_render.StationDoesNotExistMessageMap, languageTag),
 		ParseMode: message.ModeNone,
 		InlineKeyboard: [][]message.InlineButton{
 			{

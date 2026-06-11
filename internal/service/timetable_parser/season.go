@@ -86,14 +86,17 @@ func (p *seasonParser) parseSeason(season timetable_parser_config.Season) (timet
 
 	// fill unifiedStationNameToStationIdMap
 	for _, route := range detailedTimetableMap {
-		for _, station := range route.Stops {
-			stationName := p.stationIdToStationMap[station.Id].Name
-			if stationId, ok := p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(stationName)]; ok && stationId != station.Id {
+		for _, timetableStation := range route.Stops {
+			parsedStation := p.stationIdToStationMap[timetableStation.Id]
+			parsedStationId, ok := p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(parsedStation.Name)]
+			if ok && parsedStationId != timetableStation.Id {
 				return timetable.Season{}, fmt.Errorf("seems like station.id is not unique across seasons: "+
 					"season='%s', stationName='%s', stationId='%d', savedStationId='%d'",
-					season.Name, stationName, station.Id, stationId)
+					season.Name, parsedStation.Name, timetableStation.Id, parsedStationId)
 			}
-			p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(stationName)] = station.Id
+
+			p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(parsedStation.Name)] = timetableStation.Id
+			p.unifiedStationNameToStationIdMap[station_name_resolver.Unify(parsedStation.NameCyr)] = timetableStation.Id
 		}
 	}
 	return parsedSeason, nil

@@ -8,7 +8,7 @@ const (
 	ErrorMessage = "" +
 		`Versuchen Sie es erneut - zwei Bahnhöfe durch Komma getrennt. Hier ist ein Beispiel:
 
-Podgorica, Niksic`
+Podgorica, Bar`
 
 	StationDoesNotExistMessage   = "Dieser Bahnhof existiert nicht"
 	RailwayMapButtonTextMap      = "Montenegro Bahnkarte"
@@ -39,17 +39,8 @@ _Erstellt in Zusammenarbeit mit @Leti\_deshevle_
 
 Bitte geben Sie *zwei Bahnhöfe durch Komma getrennt* ein, auf Lateinisch: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
-und erhalten Sie den Fahrplan:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-Sind Sie sich unsicher, wie der Bahnhof richtig geschrieben wird? Schreiben Sie, wie Sie es wissen \- wir werden verstehen, was Sie gemeint haben\.
-
-Jetzt sind Sie dran\!
 `
 
 	// /help
@@ -87,8 +78,7 @@ dass dieser Bot nützlich ist – als Dankeschön kannst du mir ein Bier ausgebe
 
 Ich bevorzuge Niksicko Tamno.
 
-Ich: https://github.com/ivanov-gv
-Dieses Projekt: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 Gemeinsam erstellt mit @Leti_deshevle
 `

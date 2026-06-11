@@ -39,17 +39,8 @@ _@Leti\_deshevle ile birlikte yapıldı_
 
 Lütfen *bir virgülle ayrılmış iki istasyon* girin: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
-Ve size tarifeyi göndereceğim:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-İstasyonların doğru yazımı konusunda emin değil misiniz? Sorun değil, sadece yazın, gerisini ben halledeceğim\.
-
-Sıra sende\!
 `
 
 	// /help
@@ -87,8 +78,7 @@ Bu botun faydalı olduğunu düşünüyorsanız bana teşekkür olarak bir bira 
 
 Ben Niksicko tamno'yu tercih ederim.
 
-Ben: https://github.com/ivanov-gv
-Bu proje: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 @Leti_deshevle ile birlikte yapıldı
 `

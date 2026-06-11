@@ -1,0 +1,26 @@
+go 1.21
+
+use (
+	.
+
+	// examples
+	./examples/log
+	./examples/logrus
+	./examples/panic
+	./examples/segfault
+	./examples/slog
+	./examples/sources
+	./examples/zap
+	./examples/zerolog
+
+	// logger formatters
+	./loggers/logrus
+	./loggers/zap
+	./loggers/zerolog
+
+	// recovery middlewares
+	./recovery/gin
+
+	// benchmarks
+	./benchmarks
+)

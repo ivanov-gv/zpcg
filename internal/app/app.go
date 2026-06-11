@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
+	"github.com/samber/oops"
 	"golang.org/x/text/language"
 
 	callback_model "github.com/ivanov-gv/zpcg/internal/model/callback"
@@ -160,7 +161,11 @@ func (a *App) HandleMessage(_message message_model.Message) (responseWithChatIds
 	if err != nil {
 		switch {
 		case errors.Is(err, station_name_resolver.ErrNoMatchesFound):
-			response = a.render.StationNotFoundMessage(languageTag)
+			var stationInput string
+			if err, ok := errors.AsType[oops.OopsError](err); ok {
+				stationInput = err.Public()
+			}
+			response = a.render.StationNotFoundMessage(languageTag, stationInput)
 		case errors.Is(err, pathfinder.ErrNoRoutesFound):
 			response = a.render.NoRoutesInThisSeasonMessage(languageTag, a.timetableService.Season().NoTrainsWarning)
 		default:
@@ -209,13 +214,15 @@ func (a *App) GenerateRouteForStations(languageTag language.Tag, originInput, de
 	// find station ids
 	originStationId, originName, err := a.stationNameResolver.FindStationIdByApproximateName(originInput)
 	if err != nil {
-		return message_model.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
-			"can't find station name [origin='%s']: %w", originInput, err)
+		return message_model.Response{}, oops.Public(originInput).
+			Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+				"can't find station name [origin='%s']: %w", originInput, err)
 	}
 	destinationStationId, destinationName, err := a.stationNameResolver.FindStationIdByApproximateName(destinationInput)
 	if err != nil {
-		return message_model.Response{}, fmt.Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
-			"can't find station name [destination='%s']: %w", destinationInput, err)
+		return message_model.Response{}, oops.Public(destinationInput).
+			Errorf("a.stationNameResolver.FindStationIdByApproximateName: "+
+				"can't find station name [destination='%s']: %w", destinationInput, err)
 	}
 	// check blacklisted stations
 	if isBlacklisted, stations := a.blackList.CheckBlackList(originStationId, destinationStationId); isBlacklisted {
