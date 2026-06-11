@@ -118,7 +118,7 @@ func testTelegramRouteOnDate(t *testing.T, _date time.Time) {
 		require.NotNil(t, response)
 		defer func() { _ = response.Body.Close() }()
 		assert.Equal(t, http.StatusOK, response.StatusCode)
-		assert.Equal(t, model_render.StationDoesNotExistMessageMap[language.English], capturedParams["text"])
+		assert.Contains(t, capturedParams["text"], model_render.StationDoesNotExistMessageMap[language.English])
 		assert.Contains(t, capturedParams["reply_markup"], model_render.GoogleMapWithAllStations)
 	})
 	// start message

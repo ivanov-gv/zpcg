@@ -23,30 +23,54 @@ func TestNewApp(t *testing.T) {
 }
 
 const (
-	NiksicStationName           = "Nikšić"
-	NiksicWrongStationName      = "niksic"
-	DanilovgradStationName      = "Danilovgrad"
-	DanilovgradWrongStationName = "DaNil ovgrad"
-	BarStationName              = "Bar"
-	BarWrongStationName         = "Barrrrrr"
+	NiksicStationName              = "Nikšić"
+	NiksicWrongStationName         = "niksic"
+	NiksicCyrillicStationName      = "никшич"
+	DanilovgradStationName         = "Danilovgrad"
+	DanilovgradWrongStationName    = "DaNil ovgrad"
+	DanilovgradCyrillicStationName = "даниловград"
+	BarStationName                 = "Bar"
+	BarWrongStationName            = "Barrrrrr"
+	BarCyrillicStationName         = "Бар"
 )
 
 func TestGenerateRoute(t *testing.T) {
 	app, err := NewApp()
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
-	message, _ := app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, DanilovgradWrongStationName))
-	t.Log("\n", message)
-	assert.NotEmpty(t, message)
-	assert.Contains(t, message.Text, NiksicStationName)
-	assert.Contains(t, message.Text, DanilovgradStationName)
-	assert.NotEmpty(t, message.InlineKeyboard)
-	message, _ = app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s, %s", NiksicWrongStationName, BarWrongStationName))
-	t.Log("\n", message)
-	assert.NotEmpty(t, message)
-	assert.Contains(t, message.Text, NiksicStationName)
-	assert.Contains(t, message.Text, BarStationName)
-	assert.NotEmpty(t, message.InlineKeyboard)
+
+	testCases := []struct {
+		station1, station2   string
+		expected1, expected2 string
+	}{
+		{
+			station1: NiksicWrongStationName, station2: DanilovgradWrongStationName,
+			expected1: NiksicStationName, expected2: DanilovgradStationName,
+		},
+		{
+			station1: NiksicWrongStationName, station2: BarWrongStationName,
+			expected1: NiksicStationName, expected2: BarStationName,
+		},
+		{
+			station1: DanilovgradCyrillicStationName, station2: BarCyrillicStationName,
+			expected1: DanilovgradStationName, expected2: BarStationName,
+		},
+		{
+			station1: NiksicCyrillicStationName, station2: DanilovgradCyrillicStationName,
+			expected1: NiksicStationName, expected2: DanilovgradStationName,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.station1+" -> "+testCase.station2, func(t *testing.T) {
+			message, _ := app.GenerateRoute(message_render.DefaultLanguageTag, fmt.Sprintf("%s, %s", testCase.station1, testCase.station2))
+			t.Log("\n", message)
+			assert.NotEmpty(t, message)
+			assert.Contains(t, message.Text, testCase.expected1)
+			assert.Contains(t, message.Text, testCase.expected2)
+			assert.NotEmpty(t, message.InlineKeyboard)
+		})
+	}
 }
 
 func TestGenerateRouteWithCustomDelimiter(t *testing.T) {
