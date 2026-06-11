@@ -6,7 +6,7 @@ const (
 	ErrorMessage = "" +
 		`Pokušajte ponovno - dva kolodvora odvojena zarezom. Evo primjera:
 
-Podgorica, Nikšić`
+Podgorica, Bar`
 
 	StationDoesNotExistMessage   = "Taj kolodvor ne postoji"
 	RailwayMapButtonTextMap      = "Karta željeznica Crne Gore"
@@ -37,21 +37,12 @@ _Izrađeno u suradnji s @Leti\_deshevle_
 
 Molimo unesite *dva kolodvora odvojena zarezom* na latinici: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
 ili na ćirilici: 
 
->*Подгорица, Бијело поле*
+>*Подгорица, Бар*
 
-i dobit ćete raspored:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-Niste sigurni kako se pravilno piše naziv kolodvora? Napišite kako znate \- razumjet ćemo što ste mislili\.
-
-Sada je vaš red\!
 `
 
 	// /help
@@ -89,8 +80,7 @@ da je ovaj bot koristan - možete mi kupiti pivo kao zahvalu.
 
 Više volim Nikšićko tamno.
 
-Ja: https://github.com/ivanov-gv
-Ovaj projekt: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 Napravljeno zajedno s @Leti_deshevle
 `

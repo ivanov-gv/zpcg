@@ -146,6 +146,9 @@ func TestNameClashing(t *testing.T) {
 		"Aerodrom": {
 			"airport", "аэропорт",
 		},
+		"Bačka Topola": {
+			"бачка топола",
+		},
 	}
 
 	for station, inputs := range mapExpectedStationToPossibleInput {

@@ -6,7 +6,7 @@ const (
 	ErrorMessage = "" +
 		`Спробуйце яшчэ - два вакзалы, праз коску. Вось так:
 
-Podgorica, Niksic`
+Podgorica, Bar`
 
 	StationDoesNotExistMessage   = "Такога вакзала не існуе"
 	RailwayMapButtonTextMap      = "Карта ЧД Чарнагорыі"
@@ -37,21 +37,12 @@ _Зроблена разам з @Leti\_deshevle_
 
 Калі ласка, увядзіце *два вакзалы праз коску* на лацініцы: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
 ці кірыліцы: 
 
->*Подгорица, Бело Поле*
+>*Подгорица, Бар*
 
-І атрымаеце расклад:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-Ня ўпэўненыя як правільна пішацца назва вакзала? Напішыце як ведаеце \- мы дагадаемся што вы мелі на ўвазе\.
-
-Цяпер ваш чарга\!
 `
 
 	// /help
@@ -89,8 +80,7 @@ _Зроблена разам з @Leti\_deshevle_
 
 Я аддаю перавагу Никшичко тамака.
 
-Я: https://github.com/ivanov-gv
-Гэты праект: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 Зроблена разам з @Leti_deshevle
 `

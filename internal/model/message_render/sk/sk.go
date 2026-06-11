@@ -6,7 +6,7 @@ const (
 	ErrorMessage = "" +
 		`Skúste to znova - dva stanice oddelené čiarkou. Tu je príklad:
 
-Podgorica, Nikšić`
+Podgorica, Bar`
 
 	StationDoesNotExistMessage   = "Taká stanica neexistuje"
 	RailwayMapButtonTextMap      = "Mapa železníc Čiernej Hory"
@@ -37,21 +37,12 @@ _Vytvorené v spolupráci s @Leti\_deshevle_
 
 Prosím, zadajte *dve stanice oddelené čiarkou* v latinčine: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
 alebo v cyrilike: 
 
->*Подгорица, Бијело поле*
+>*Подгорица, Бар*
 
-a dostanete cestovný poriadok:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-Nie ste si istí, ako sa správne píše názov stanice? Napíšte to, ako viete \- pochopíme, čo ste mali na mysli\.
-
-Teraz je na vás\!
 `
 
 	// /help
@@ -89,8 +80,7 @@ Ak sa niekedy stretneme a pomyslíš si,
 
 Ja mám radšej Niksicko tamno.
 
-Ja: https://github.com/ivanov-gv
-Tento projekt: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 Vytvorené spoločne s @Leti_deshevle
 `

@@ -6,7 +6,7 @@ const (
 	ErrorMessage = "" +
 		`Try again - two stations, separated by a comma. Just like that:
 
-Podgorica, Niksic`
+Podgorica, Bar`
 	StationDoesNotExistMessage   = "This station does not exist"
 	RailwayMapButtonTextMap      = "Montenegro Railway Map"
 	OfficialTimetableUrlText     = "More details"
@@ -38,21 +38,12 @@ _Made together with @Leti\_deshevle_
 
 Please enter *two stations* separated by *a comma*: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
 Or using cyrillic:
 
->*Подгорица, Бијело Поље*
+>*Подгорица, Бар*
 
-And I will send you the timetable:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-Not sure about the correct spelling of the stations? No problem, just type them, and I will take care of the rest\.
-
-Now it's your turn\!
 `
 
 	// /help
@@ -90,8 +81,7 @@ this stuff is worth it, you can buy me a beer in return.
 
 I prefer Nikšićko tamno.
 
-Me: https://github.com/ivanov-gv
-This project: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 Made together with @Leti_deshevle
 `

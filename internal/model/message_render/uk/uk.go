@@ -6,7 +6,7 @@ const (
 	ErrorMessage = "" +
 		`Спробуйте ще раз - дві станції через кому. Ось так:
 
-Podgorica, Niksic`
+Podgorica, Bar`
 
 	StationDoesNotExistMessage   = "Такої станції не існує"
 	RailwayMapButtonTextMap      = "Карта Залізниці Чорногорії"
@@ -37,21 +37,12 @@ _Зроблено разом з @Leti\_deshevle_
 
 Будь ласка, введіть *дві станції через кому* латиницею: 
 
->*Podgorica, Bijelo Polje*
+>*Podgorica, Bar*
 
 або кирилицею: 
 
->*Подгорица, Бело Поле*
+>*Подгорица, Бар*
 
-І отримайте розклад:
-
->Podgorica \> Bijelo Polje
->[6100](https://zpcg.me/details?timetable=41)  ` + "`06:20 \\> 08:38`" + `
->\.\.\.
-
-Не впевнені як правильно пишеться назва станції? Напишіть як знаєте \- ми здогадаємося, що ви мали на увазі\.
-
-Тепер ваша черга\!
 `
 
 	// /help
@@ -89,8 +80,7 @@ _Зроблено разом з @Leti\_deshevle_
 
 Я віддаю перевагу Нікшичку там.
 
-Я: https://github.com/ivanov-gv
-Цей проект: https://github.com/ivanov-gv/zpcg
+https://github.com/ivanov-gv/zpcg
 
 Зроблено разом з @Leti_deshevle
 `
