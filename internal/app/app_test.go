@@ -165,3 +165,26 @@ func TestNoTrainsWarning(t *testing.T) {
 		})
 	}
 }
+
+func TestNonexistentStationInputWarning(t *testing.T) {
+	app, err := NewApp()
+	assert.NoError(t, err)
+	assert.NotNil(t, app)
+
+	for _, languageTag := range message_render.SupportedLanguages {
+		t.Run(languageTag.String(), func(t *testing.T) {
+			message, _ := app.HandleMessage(message_model.Message{
+				IsFilled: true,
+				From: message_model.From{
+					IsFilled:     true,
+					LanguageCode: languageTag.String(),
+				},
+				Text:   "Podgorica, Istanbul",
+				ChatId: 0,
+			})
+			t.Log("\n", message)
+			assert.NotEmpty(t, message)
+			assert.Contains(t, lo.FirstOrEmpty(message.Send).Text, "Istanbul: ")
+		})
+	}
+}
