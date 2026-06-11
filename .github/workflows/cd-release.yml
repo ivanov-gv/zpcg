@@ -1,0 +1,142 @@
+name: Release deployment to prod
+
+on:
+  release:
+    types: [ released ]
+  workflow_dispatch:
+    inputs:
+      test_run:
+        description: "Test run: skip registry push and deployment (default: true for safety)"
+        required: false
+        type: boolean
+        default: true
+      fallback_tag:
+        description: "Tag to use when not triggered by a release (workflow_dispatch). Default is safe for test-run."
+        required: false
+        type: string
+        default: test-run-tag
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  switch:
+    name: Test-run switch
+    runs-on: ubuntu-latest
+    outputs:
+      test_run: ${{ steps.test_run.outputs.test_run }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: test_run
+        uses: ./.github/actions/test_run
+        with:
+          test_run: ${{ inputs.test_run }}
+
+  retag:
+    name: Retag image and push to prod registry
+    needs: switch
+    if: ${{ needs.switch.outputs.test_run != 'true' }}
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env: &retag-env
+      AUTH_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
+      AUTH_REGION: ${{ secrets.ENV_REGION }}
+      AUTH_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
+      AUTH_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
+      GHCR_IMAGE_TAG: ${{vars.DEV_REGISTRY}}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      PROD_IMAGE_TAG: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+    steps: &retag-steps
+      - uses: actions/checkout@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{vars.DEV_REGISTRY}}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - uses: ./.github/actions/prod_auth
+        with:
+          project_id: ${{ env.AUTH_PROJECT_ID }}
+          region: ${{ env.AUTH_REGION }}
+          workload_identity_provider: ${{ env.AUTH_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.AUTH_SERVICE_ACCOUNT }}
+
+      - id: retag-env
+        name: Retag image
+        shell: bash
+        run: docker buildx imagetools create -t ${{ env.PROD_IMAGE_TAG }} ${{ env.GHCR_IMAGE_TAG }}
+
+  retag-test-run:
+    name: (test-run) Retag image and push to prod registry
+    needs: switch
+    if: ${{ needs.switch.outputs.test_run == 'true' }}
+    runs-on: ubuntu-latest
+    environment: test-run # <-- safety first
+    permissions:
+      contents: read
+      packages: read # <-- safety first
+      id-token: write
+    env: *retag-env
+    steps: *retag-steps
+
+  deploy:
+    name: Deploy to prod
+    needs: [ switch, retag ]
+    if: ${{ needs.switch.outputs.test_run != 'true' }}
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env: &deploy-env
+      TEST_RUN: ${{ needs.switch.outputs.test_run }}
+      PROD_IMAGE: ${{ secrets.ENV_REGISTRY }}/${{ github.repository }}:${{ github.event.release.tag_name || inputs.fallback_tag }}
+      PROD_ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+      PROD_PROJECT_ID: ${{ secrets.ENV_PROJECT_ID }}
+      PROD_REGION: ${{ secrets.ENV_REGION }}
+      PROD_RUN_SERVICE: ${{ secrets.ENV_RUN_SERVICE }}
+      PROD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.ENV_WORKLOAD_IDENTITY_PROVIDER }}
+      PROD_SERVICE_ACCOUNT: ${{ secrets.ENV_SERVICE_ACCOUNT }}
+      PROD_TELEGRAM_APITOKEN_SECRET: ${{ secrets.ENV_TELEGRAM_APITOKEN }}
+    steps: &deploy-steps
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/prod_auth
+        with:
+          project_id: ${{ env.PROD_PROJECT_ID }}
+          region: ${{ env.PROD_REGION }}
+          workload_identity_provider: ${{ env.PROD_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.PROD_SERVICE_ACCOUNT }}
+      - name: Deploy to prod
+        uses: ./.github/actions/deploy
+        with:
+          test_run: ${{ env.TEST_RUN }}
+          gcloud_image: ${{ env.PROD_IMAGE }}
+          gcloud_project_id: ${{ env.PROD_PROJECT_ID }}
+          gcloud_region: ${{ env.PROD_REGION }}
+          gcloud_run_service: ${{ env.PROD_RUN_SERVICE }}
+          env_vars: |
+            ENVIRONMENT=${{ env.PROD_ENVIRONMENT }}
+          secrets: |
+            TELEGRAM_APITOKEN=${{ env.PROD_TELEGRAM_APITOKEN_SECRET }}
+
+  deploy-test-run:
+    name: (test-run) Deploy to prod
+    needs: [ switch, retag-test-run ]
+    if: ${{ needs.switch.outputs.test_run == 'true' }}
+    runs-on: ubuntu-latest
+    environment: test-run # <-- safety first
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env: *deploy-env
+    steps: *deploy-steps

@@ -29,28 +29,6 @@ parse_timetable: # needs golines. see target 'golines_install' or use `go instal
 build:
 	docker build -t ${DOCKER_IMAGE_TAG} -f deploy/Dockerfile .
 
-.PHONY: push
-push:
-	docker push ${DOCKER_IMAGE_TAG}
-
-.PHONY: deploy
-deploy:
-	gcloud run deploy ${GCLOUD_PROJECT} \
-    --image=${DOCKER_IMAGE_TAG} \
-    --set-env-vars=ENVIRONMENT=${GCLOUD_ENV_VAR_ENVIRONMENT} \
-    --set-secrets=TELEGRAM_APITOKEN=${GCLOUD_SECRET_TELEGRAM_APITOKEN} \
-    --execution-environment=gen1 \
-    --region=${GCLOUD_REGION}\
-    --project=${GCLOUD_PROJECT_ID} \
-     && gcloud run services update-traffic ${GCLOUD_PROJECT} --to-latest \
-     --region ${GCLOUD_REGION}
-
-.PHONY: new_version
-new_version: parse_timetable build push deploy
-
-.PHONY: new_version_without_timetable_update
-new_version_without_timetable_update: build push deploy
-
 # telegram api
 
 .PHONY: add_webhook
@@ -95,8 +73,14 @@ push-test-run-image:
 	docker tag hello-world $(TEST_RUN_IMAGE_PATH):$(TEST_RUN_TAG)
 	docker push $(TEST_RUN_IMAGE_PATH):$(TEST_RUN_TAG)
 
+.PHONY: push-test-run-image-v0.0.0
+push-test-run-image-v0.0.0:
+	docker pull hello-world
+	docker tag hello-world $(TEST_RUN_IMAGE_PATH):v0.0.0
+	docker push $(TEST_RUN_IMAGE_PATH):v0.0.0
+
 .PHONY: test-all-workflows
-test-all-workflows: test-ci-pr-checks test-ci-pr-checks-image-build test-ci test-cd-pre-release
+test-all-workflows: test-ci-pr-checks test-ci-pr-checks-image-build test-ci test-cd-pre-release test-cd-release
 
 # Override the executable:   ACT=act make test-ci-checks
 ACT ?= gh act
@@ -128,10 +112,19 @@ test-ci:
 		--var-file .github/act/var.env
 
 .PHONY: test-cd-pre-release
-test-cd-pre-release: push-test-run-image
+test-cd-pre-release: push-test-run-image-v0.0.0
 	$(ACT) release \
 		-W .github/workflows/cd-pre-release.yml \
 		-e .github/act/event-release-prerelease.json \
+		--secret-file .github/act/secret.env \
+        --var-file .github/act/var.env \
+        --env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)
+
+.PHONY: test-cd-release
+test-cd-release: push-test-run-image-v0.0.0
+	$(ACT) release \
+		-W .github/workflows/cd-release.yml \
+		-e .github/act/event-release-release.json \
 		--secret-file .github/act/secret.env \
         --var-file .github/act/var.env \
         --env CLOUDSDK_AUTH_ACCESS_TOKEN=$(GCLOUD_TOKEN)
