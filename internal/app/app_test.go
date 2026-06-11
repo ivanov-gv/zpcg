@@ -110,20 +110,7 @@ func TestBlackList(t *testing.T) {
 }
 
 func TestNameClashing(t *testing.T) {
-	summerSeason, found := lo.Find(timetable_gen.Timetable.Seasons, func(item timetable.Season) bool {
-		return strings.Contains(item.Name, "summer")
-	})
-
-	var option date.Option
-	if found {
-		option = date.FixedDate(summerSeason.Start)
-	}
-
-	app, err := NewApp(option)
-	assert.NoError(t, err)
-	assert.NotNil(t, app)
-
-	mapExpectedStationToPossibleInput := map[string][]string{
+	mapExpectedStationToPossibleInput_WinterSeason := map[string][]string{
 		"Beograd": {
 			"Белград", "Belgrade", "Beograde", "Belgrad", "Београд", "Beograd",
 		},
@@ -131,37 +118,88 @@ func TestNameClashing(t *testing.T) {
 			"Герцег нови", "Херцег Нови", "Херцег новый", "Герцег новый",
 			"Herceg novi",
 		},
-		"Novi Beograd": {
-			"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
-			"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
-		},
-		"Stara Pazova": {
-			"Стара пазова", "Старая пазова",
-			"Stara Pazova",
-		},
-		"Novi Sad": {
-			"Novi Sad", "New Sad", "Novij Sad",
-			"Новый Сад", "Нови сад",
-		},
 		"Aerodrom": {
 			"airport", "аэропорт",
 		},
-		"Bačka Topola": {
-			"бачка топола",
-		},
 	}
 
-	for station, inputs := range mapExpectedStationToPossibleInput {
-		t.Run(station, func(t *testing.T) {
-			for _, originInput := range inputs {
-				input := originInput + ", Podgorica"
-				message, err := app.GenerateRoute(message_render.DefaultLanguageTag, input)
-				assert.NoError(t, err)
-				assert.Contains(t, message.Text, station,
-					"'%s': '%s'", input, message.Text)
-			}
-		})
-	}
+	mapExpectedStationToPossibleInput_SummerSeason := lo.Assign(mapExpectedStationToPossibleInput_WinterSeason,
+		map[string][]string{
+			"Novi Beograd": {
+				"Нови Белград", "Novi Belgrade", "Novi Beograde", "Novi Belgrad", "Нови Београд",
+				"Новый Белград", "New Belgrade", "Novij Beograde", " Novii Belgrad", "Новый Београд",
+			},
+			"Stara Pazova": {
+				"Стара пазова", "Старая пазова",
+				"Stara Pazova",
+			},
+			"Novi Sad": {
+				"Novi Sad", "New Sad", "Novij Sad",
+				"Новый Сад", "Нови сад",
+			},
+			"Bačka Topola": {
+				"бачка топола",
+			},
+		},
+	)
+
+	winterSeason, found := lo.Find(timetable_gen.Timetable.Seasons, func(item timetable.Season) bool {
+		return !strings.Contains(item.Name, "summer")
+	})
+
+	t.Run(winterSeason.Name, func(t *testing.T) {
+		if !found {
+			t.Skipf("winter season not found, can't test name clashing properly")
+		}
+
+		var option date.Option
+		if found {
+			option = date.FixedDate(winterSeason.Start)
+		}
+
+		app, err := NewApp(option)
+		assert.NoError(t, err)
+		assert.NotNil(t, app)
+
+		for station, inputs := range mapExpectedStationToPossibleInput_WinterSeason {
+			t.Run(station, func(t *testing.T) {
+				for _, originInput := range inputs {
+					input := originInput + ", Podgorica"
+					message, err := app.GenerateRoute(message_render.DefaultLanguageTag, input)
+					assert.NoError(t, err)
+					assert.Contains(t, message.Text, station,
+						"'%s': '%s'", input, message.Text)
+				}
+			})
+		}
+	})
+
+	summerSeason, found := lo.Find(timetable_gen.Timetable.Seasons, func(item timetable.Season) bool {
+		return strings.Contains(item.Name, "summer")
+	})
+
+	t.Run(summerSeason.Name, func(t *testing.T) {
+		var option date.Option
+		if found {
+			option = date.FixedDate(summerSeason.Start)
+		}
+
+		app, err := NewApp(option)
+		assert.NoError(t, err)
+		assert.NotNil(t, app)
+
+		for station, inputs := range mapExpectedStationToPossibleInput_SummerSeason {
+			t.Run(station, func(t *testing.T) {
+				for _, originInput := range inputs {
+					input := originInput + ", Podgorica"
+					message, err := app.GenerateRoute(message_render.DefaultLanguageTag, input)
+					assert.NoError(t, err)
+					assert.Contains(t, message.Text, station,
+						"'%s': '%s'", input, message.Text)
+				}
+			})
+		}
+	})
 }
 
 func TestNoTrainsWarning(t *testing.T) {

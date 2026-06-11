@@ -5,7 +5,7 @@ import "github.com/ivanov-gv/zpcg/internal/model/timetable"
 var AliasesStationsList = []timetable.StationAliases{
 	{
 		StationName: "Beograd Centar",
-		Aliases:     []string{"Beograd", "Београд", "Београд Центар", "Белград Центр", "Белград", "Сербия", "Serbia"},
+		Aliases:     []string{"Beograd", "Београд", "Београд Центар", "Белград Центр", "Белград", "Belgrad", "Сербия", "Serbia"},
 	},
 	{
 		StationName: "Novi Sad",
