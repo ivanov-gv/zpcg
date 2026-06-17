@@ -30,7 +30,7 @@ and can be extended later to a multipage app with complex UI.
 ## Other platforms - Viber and WhatsApp
 
 Telegram bots API is powerful, but Telegram itself is mostly used by foreigners. In Montenegro
-Viber is a number one messanger app and WhatsApp is the best option for any other tourists or foreigners, who don't use
+Viber is a number one messenger app, and WhatsApp is the best option for any other tourists or foreigners, who don't use
 Telegram. It is a good idea to port this solution to other platforms to reach the audience.
 
 ZPCG has a [Viber chat](https://www.zcg-prevoz.me/Informisanje-o-redu-voznje-vozova-putem-aplikacije-Viber.html)
@@ -78,7 +78,7 @@ The state simply lives in user's Telegram chat.
 - A new webhook handler that needs to branch on whether a message is a reply.
 - Implementing processing logic with steps like:
     - Get a user's input
-    - If it doesn't have tqo stations names, reply with a keyboard for the second station selection
+  - If it doesn't have two stations names, reply with a keyboard for the second station selection
     - Receive the second station name
     - If everything is correct, send a message with the timetable
 - Maintaining and testing the keyboard
