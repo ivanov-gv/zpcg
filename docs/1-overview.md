@@ -1,6 +1,7 @@
 # Overview
 
 An overview of the reasons behind this project and expectations being set for the solution.
+See [the 2-system-design.md](2-system-design.md) document for a list of requirements and design decisions.
 
 ## The problem
 
