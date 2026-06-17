@@ -58,7 +58,11 @@ With that in mind, we can assume that no more than 200 users per month will be u
 day or 1 user per hour.
 
 This sets a realistic upper ceiling: the bot is unlikely to exceed the total search demand for the topic it serves.
-Infrastructure must scale to zero at low traffic and scale up to the expected demand at high traffic.
+Infrastructure must scale to zero at low traffic and scale up to the expected demand at high traffic. Let's assume a
+user needs 3 requests: 1 to get the timetable to a destination, 1 for a route back and 1 more to update the timetable on
+another day. The total **maximum expected traffic** is 3 * 200 = **600 requests per month** or 20 requests per day, **1
+request per hour**.
+
 **Post-launch proved this estimate was accurate:** the bot has been running at maximum ~500 requests/month since
 deployment.
 
