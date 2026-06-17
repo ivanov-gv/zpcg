@@ -182,7 +182,7 @@ reduce [costs](2-system-design.md#costs).
 
 #### Assumptions
 
-![img.png](docs/resources/img.png)
+![img.png](/docs/resources/img.png)
 
 The railway system of Montenegro consists of:
 
