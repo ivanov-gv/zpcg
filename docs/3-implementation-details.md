@@ -362,8 +362,9 @@ Overall request handling time is 200ms if a request is processed in a warm state
 a 1-second delay is added, resulting in a 1200ms response time in the worst-case. These numbers fit perfectly into
 the [latency](2-system-design.md#latency) requirements.
 
-The request handling time (~200ms) is the only billable time in this lifecycle. The overall cost of the bot right now
-is about 0.03 euros per month with 100-150 users and ~500 user requests per 30 days. The required 1€ per month
-[budget](2-system-design.md#costs) is more than enough for the project.
+The request handling time (~200ms) is the only billable time in this lifecycle. The overall cost of maintaining the bot
+right now is about 0.04 euros per month with 100-150 users and ~500 user requests per 30 days. The required 1€ per month
+[budget](2-system-design.md#costs) is more than enough for the project. Read more
+in [devops docs](5-operational-profile.md#cost).
 
 The bot is almost free to maintain and as cost-effective as possible.

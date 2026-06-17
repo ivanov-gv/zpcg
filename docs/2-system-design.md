@@ -1,6 +1,6 @@
 # System Design
 
-See [1-overview.md](1-overview.md) for the reasons behind this design.
+See [1-the-problem-overview.md](1-the-problem-overview.md) for the reasons behind this design.
 
 ## Functional requirements
 
@@ -34,7 +34,7 @@ But one guarantee is required - even if the zpcg.me website is down, the bot mus
 
 ### Scalability
 
-As stated in the [1-overview.md](1-overview.md#traffic-estimation) file, we expect low traffic,
+As stated in the [1-the-problem-overview.md](1-the-problem-overview.md#traffic-estimation) file, we expect low traffic,
 around 1 request per hour. The bot must be able to scale down to zero and scale up automatically on demand.
 
 ### Latency
@@ -87,7 +87,8 @@ All necessary data is parsed from the official site once/several times a year an
 
 ### Estimates
 
-According to the [1-overview.md Traffic estimation](1-overview.md#traffic-estimation), we expect around 600 requests per
+According to the [1-the-problem-overview.md Traffic estimation](1-the-problem-overview.md#traffic-estimation), we expect
+around 600 requests per
 month. No user data is stored, only observability metrics for 30 days.
 
 #### Request processing
