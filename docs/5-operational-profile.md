@@ -109,7 +109,7 @@ jobs:
 </details>
 
 
-See [the full CI / CD](.github/README.workflows.md) workflow guide for more details.
+See [the full CI / CD](/.github/README.workflows.md) workflow guide for more details.
 
 ### Environments
 
