@@ -28,10 +28,10 @@ As a result, there is:
 
 ### Telegram bot
 
-For travellers already on a platform like Telegram — the dominant messaging app among tourists and expats in
-Montenegro — this creates unnecessary friction at exactly the moment they need the information. The timetable can be
-requested from a bot in a single message, updated in one click and saved for offline use. The goal of this project is
-to close that gap.
+For travellers already on a platform like Telegram - the dominant messaging app among expats in
+Montenegro - visiting a desktop-optimized website creates unnecessary friction. The timetable can be
+requested from a bot in a single message, updated in one click, and saved for offline use in the chat. 
+The goal of this project is to close that gap.
 
 ### No monetisation expected
 
@@ -39,18 +39,17 @@ The bot saves a user one or two clicks over visiting the official website. The t
 available - there is no reason for charging for access to it. Monetisation is not a realistic option and should not be a
 goal.
 
-This means all infrastructure must be as cost-effective as possible. It must come by design, not by luck.
+This means all infrastructure must be as cost-effective as possible.
 
 ### Traffic estimation
 
 Let's estimate expected traffic. According to Google Trends, the most popular search term related to railway timetables
 is "train".
 
-<img src="resources/google-trend.png" alt="Google Trends Google Trends">
+<img src="resources/google-trend.png" alt="Google Trends">
 
 SE Ranking estimates search volume for "train" - the broadest relevant term - to be around 140 requests per month and
-for "train timetable" to be
-around 10 requests per month.
+for "train timetable" to be around 10 requests per month.
 
 <img src="resources/search-volume.png" alt="SE Ranking Search Volume">
 
@@ -58,8 +57,8 @@ With that in mind, we can assume that no more than 200 users per month will be u
 day or 1 user per hour.
 
 This sets a realistic upper ceiling: the bot is unlikely to exceed the total search demand for the topic it serves.
-Infrastructure must scale to zero at low traffic and scale up to the expected demand at high traffic. Let's assume a
-user needs 3 requests: 1 to get the timetable to a destination, 1 for a route back and 1 more to update the timetable on
+With this low traffic, infrastructure must scale to zero at idle and scale up on demand. Let's assume a
+user makes 3 requests monthly: 1 to get the timetable to a destination, 1 for a route back and 1 more to update the timetable on
 another day. The total **maximum expected traffic** is 3 * 200 = **600 requests per month** or 20 requests per day, **1
 request per hour**.
 
@@ -71,12 +70,10 @@ deployment.
 The aim is to conveniently look up the timetable on mobile devices with these constraints in mind:
 
 - Zero operational cost target. The service must be sustainable on a personal budget indefinitely, meaning
-  infrastructure
-  costs should be negligible at the expected traffic volume (~200 requests/month).
-- Zero maintenance burden. No databases to manage, no caches to invalidate, no background jobs to monitor. Every moving
-  part is a liability at this scale.
+  infrastructure costs should be negligible at the expected traffic volume (~600 requests/month).
+- Zero maintenance burden. No databases to manage, no caches to invalidate, no background jobs to monitor.
 - No control over the data source. The upstream ZPCG website is scraped, not integrated via API. The timetable changes
-  seasonally and without notice.
+  seasonally, only 3 times a year, which makes possible to save it once and serve year-round.
 
 What is explicitly out of scope:
 
