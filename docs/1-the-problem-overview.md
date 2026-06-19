@@ -41,7 +41,7 @@ There are several ways to show the timetable on mobile devices:
     - (-) needs distribution via Google Play Store and App Store, or as a web-app.
 2. A website
     - (-) no offline functionality
-3. A messanger bot
+3. A messenger bot
     - (+) needs only a backend
     - (+) a timetable can be saved for offline use in a chat and send to other users
     - (+) easier distribution - just register a bot without any extra steps
@@ -102,12 +102,8 @@ According to https://ahrefs.com/ the official website has:
     - zcg - 150 searches per month
 
 The approximate ceiling for the traffic is 5K monthly pageviews, mostly people from Montenegro and Serbia speaking in
-Montenegrin and Serbian languages. 1150 searches per month might give 1150 requests in the bot for the first month in
-the best-case scenario if we start a theoretically 100% successful ads campaign through the search engines with these
-keywords.
-
-Then these **5K visitors** might see the ads, relevant to their timetable search terms. Since the traffic is mostly from
-Montenegro and Serbia, the Viber bot is a much more suitable platform for the bot than any other.
+Montenegrin and Serbian languages. Since the traffic is mostly from Montenegro and Serbia, the Viber bot is a much more
+suitable platform for the bot than any other. Viber is the most popular messenger in Montenegro.
 
 #### Search volume - tourists and expats traffic estimates
 
