@@ -103,13 +103,13 @@ According to https://ahrefs.com/ the official website has:
 
 The approximate ceiling for the traffic is 5K monthly pageviews, mostly people from Montenegro and Serbia speaking in
 Montenegrin and Serbian languages. Since the traffic is mostly from Montenegro and Serbia, the Viber bot is a much more
-suitable platform for the bot than any other. Viber is the most popular messenger in Montenegro.
+suitable platform for the bot than any other - Viber is the most popular messenger in Montenegro.
 
 #### Search volume - tourists and expats traffic estimates
 
 In the previous section we made an estimation for the Montenegrin and Serbian traffic. Now we need an estimation for
-traffic from tourists and expats. Let's assume they use the English language for the search. According to Google Trends,
-the most popular search term related to railway timetables in Montenegro is "train".
+traffic from tourists and expats. According to Google Trends, the most popular search term related to railway timetables
+in Montenegro is "train".
 
 <img src="resources/google-trend.png" alt="Google Trends">
 
