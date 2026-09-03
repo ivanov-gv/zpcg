@@ -210,21 +210,14 @@ bot released in January 2024, it has been running without any major issues.
 
 ## Cost
 
-First invoices from the Google Cloud had zero costs, exactly as estimated
+Invoices from the Google Cloud: 0 euros, 0 cents, exactly as estimated
 in [the system design docs estimates](2-system-design.md#estimates).
 
-![gcloud-cost](resources/gcloud-invoice-2023.png)
+![gcloud-cost](resources/gcloud-invoice-2026-august.png)
+![gcloud-cost](resources/gcloud-invoice-2026-july.png)
+![gcloud-cost](resources/gcloud-invoice-2026-june.png)
 
-At some point, the project started to use GCP Artifact Registry more extensively for storing images. It led to
-a slight increase in costs - 0.04€ per month.
+The bot runs free of charge in the Google Cloud with 100-150 users and ~500 user requests per 30 days. The required 1€
+per month [budget](2-system-design.md#costs) is more than enough for the project.
 
-![gcloud-cost](resources/gcloud-invoice-2026.png)
-
-But it is still a very small increase, which is acceptable for the project. It meets
-our [cost expectations](2-system-design.md#costs).
-
-The overall cost of maintaining the bot
-right now is about 0.04 euros per month with 100-150 users and ~500 user requests per 30 days. The required 1€ per month
-[budget](2-system-design.md#costs) is more than enough for the project.
-
-The bot is almost free to maintain and as cost-effective as possible.
+The bot is free to maintain and as cost-effective as possible.
