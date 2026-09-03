@@ -142,7 +142,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			_, err = bot.SendMessage(messages.ChatId, response, opts)
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.SendMessage: %w", err)
-				w.WriteHeader(http.StatusInternalServerError)
+				httpStatus = http.StatusInternalServerError
 				return
 			}
 		}
@@ -153,7 +153,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			_, _, err = bot.EditMessageText(response, opts)
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.EditMessageText: %w", err)
-				w.WriteHeader(http.StatusInternalServerError)
+				httpStatus = http.StatusInternalServerError
 				return
 			}
 		}
@@ -162,7 +162,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			_, err = bot.AnswerCallbackQuery(ResponseToTelegramAnswerCallbackQuery(messages.AnswerCallback))
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.AnswerCallbackQuery: %w", err)
-				w.WriteHeader(http.StatusInternalServerError)
+				httpStatus = http.StatusInternalServerError
 				return
 			}
 		}
@@ -174,7 +174,7 @@ func newUpdatesHandler(ctx context.Context, _app App, bot *gotgbot.Bot, updateCa
 			_, err = bot.SendPhoto(messages.ChatId, response, opts)
 			if err != nil {
 				finalError = fmt.Errorf(logfmt+"bot.SendPhoto: %w", err)
-				w.WriteHeader(http.StatusInternalServerError)
+				httpStatus = http.StatusInternalServerError
 				return
 			}
 		}
