@@ -1,8 +1,8 @@
 # Montenegro Railways Timetable Bot
 
 Stateless Telegram bot for Montenegro Railways timetable lookup. Timetable compiled into the binary at build time — no
-DB, no cache, no runtime deps. Domain-specific O(n) path-finding on a tree-topology railway network. ~€0.03/month on
-Cloud Run.
+DB, no cache, no runtime deps. Domain-specific O (n) path-finding on a tree-topology railway network. Runs free of
+charge on Cloud Run - exactly €0.00 in Google Cloud invoices.
 
 Deployed at **[@Monterails_bot](https://t.me/Monterails_bot)** since January 2024, actively maintained.
 Serving ~150 unique users per month and ~500 requests per month. Breaking changes are not expected - the scope is
